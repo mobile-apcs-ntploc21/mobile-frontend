@@ -1,15 +1,16 @@
 import { StyleSheet, Text, View } from 'react-native';
-import { fonts } from "@/constants/theme";
+import { fonts } from '@/constants/theme';
 
 export default function Servers() {
   return (
     <View>
-      <Text style={
-        {
+      <Text
+        style={{
           fontFamily: fonts.black
-        }
-      }>Tab Servers</Text>
-
+        }}
+      >
+        Tab Servers
+      </Text>
     </View>
   );
 }

@@ -5,13 +5,13 @@ import { colors } from '@/constants/theme';
 import { MaterialIcons } from '@expo/vector-icons';
 
 export default function TabLayout() {
-
   return (
     <Tabs
       screenOptions={{
         tabBarActiveTintColor: colors.primary,
-        tabBarInactiveTintColor: colors.gray03,
-      }}>
+        tabBarInactiveTintColor: colors.gray03
+      }}
+    >
       <Tabs.Screen
         name="servers"
         options={{
@@ -22,7 +22,7 @@ export default function TabLayout() {
           ),
           tabBarStyle: {
             backgroundColor: colors.white,
-            height: 66,
+            height: 66
           }
         }}
       />
@@ -36,7 +36,7 @@ export default function TabLayout() {
           ),
           tabBarStyle: {
             backgroundColor: colors.white,
-            height: 66,
+            height: 66
           }
         }}
       />
@@ -50,7 +50,7 @@ export default function TabLayout() {
           ),
           tabBarStyle: {
             backgroundColor: colors.white,
-            height: 66,
+            height: 66
           }
         }}
       />
@@ -64,12 +64,10 @@ export default function TabLayout() {
           ),
           tabBarStyle: {
             backgroundColor: colors.white,
-            height: 66,
+            height: 66
           }
         }}
       />
-      
-      
     </Tabs>
   );
 }

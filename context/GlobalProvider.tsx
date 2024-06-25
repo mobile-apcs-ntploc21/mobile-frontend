@@ -1,15 +1,13 @@
-import React, { createContext, useContext, useEffect, useState } from "react";
+import React, { createContext, useContext, useEffect, useState } from 'react';
 
-interface GlobalContextValue {
-
-}
+interface GlobalContextValue {}
 
 const GlobalContext = createContext<GlobalContextValue | undefined>(undefined);
 
 export const useGlobalContext = () => {
   const context = useContext(GlobalContext);
   if (context === undefined) {
-    throw new Error("useGlobalContext must be used within a GlobalProvider");
+    throw new Error('useGlobalContext must be used within a GlobalProvider');
   }
   return context;
 };
@@ -26,8 +24,6 @@ export default function GlobalProvider({ children }: GlobalProviderProps) {
   }, []);
 
   return (
-    <GlobalContext.Provider value={state}>
-      {children}
-    </GlobalContext.Provider>
+    <GlobalContext.Provider value={state}>{children}</GlobalContext.Provider>
   );
 }
