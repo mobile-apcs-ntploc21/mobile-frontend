@@ -1,3 +1,8 @@
+import {
+  getUser, 
+  createUser, 
+  login as GQLLogin,
+  logout as GQLLogout } from '../services/auth'
 import React, { createContext, useEffect, useReducer } from 'react';
 
 interface AuthState {
@@ -80,7 +85,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   useEffect(() => {
     const initialize = async () => {
-      const user = null; // getUser()
+      const user = await getUser(true); // getUser()
       if (user) {
         dispatch({
           type: 'INITIALIZE',
@@ -104,7 +109,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   }, []);
 
   const login = async (email: string, password: string) => {
-    const user = await null; // Login(email, password)
+    const user = await GQLLogin(email, password); // Login(email, password)
     dispatch({
       type: 'LOGIN',
       payload: {
@@ -114,12 +119,12 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   };
 
   const logout = async () => {
-    await null; // logout()
+    await logout(); // logout()
     dispatch({ type: 'LOGOUT' });
   };
 
   const register = async (email: string, password: string) => {
-    const user = await null; // Register(email, password)
+    const user = await createUser(email, password); // Register(email, password)
     dispatch({
       type: 'REGISTER',
       payload: {

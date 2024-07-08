@@ -1,6 +1,6 @@
 import { env } from '../env';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { jwt_decode } from 'jwt-decode';
+import { jwtDecode } from 'jwt-decode';
 
 interface User {
   id: string;
@@ -73,12 +73,76 @@ export async function getIDToken(forceRefresh: boolean = false): Promise<string 
   return currentIdToken;
 }
 
+// To get the user's data from the server.
 export async function getUser(forceRefresh: boolean = false): Promise<User | null> {
   const idToken = await getIDToken(forceRefresh);
   if (!idToken) {
     return null;
   }
-  const decoded: { user : User } = jwt_decode(idToken);
+  const decoded: { user : User } = jwtDecode(idToken);
 
   return decoded.user;
+}
+
+export async function updateUser(uid: string, data: any): Promise<boolean> {
+  const idToken = await getIDToken();
+  if (!idToken) {
+    throw new Error('Not authenticated');
+  }
+  await postData(`/auth/update/${uid}`, data, {
+    Authorization: `Bearer ${await getIDToken()}`,
+  });
+  return true;
+}
+
+export async function login(email: string, password: string): Promise<User | null> {
+  const { idToken, refreshToken, expires, uid: id } = await postData('/auth/login', {
+    email,
+    password
+  });
+
+  await AsyncStorage.setItem('idToken', idToken);
+  await AsyncStorage.setItem('refreshToken', refreshToken);
+  await AsyncStorage.setItem('expires', String(now() + expires));
+  await AsyncStorage.setItem('uid', id);
+  user = await getUser();
+
+  return user;
+}
+
+export async function logout(): Promise<boolean> {
+  const refreshToken = await AsyncStorage.getItem('refreshToken');
+  if (!refreshToken) {
+    await AsyncStorage.clear();
+    return true;
+  }
+
+  await postData(
+    '/auth/logout',
+    {
+      refreshToken: await AsyncStorage.getItem('refreshToken')
+    },
+    {
+      Authorization: `Bearer ${await getIDToken()}`
+    }
+  );
+
+  await AsyncStorage.clear();
+  user = null;
+  return true;
+}
+
+export async function createUser(email: string, password: string): Promise<User | null> {
+  const { idToken, refreshToken, expires, uid: id } = await postData('/auth/users', {
+    email,
+    password
+  });
+
+  await AsyncStorage.setItem('idToken', idToken);
+  await AsyncStorage.setItem('refreshToken', refreshToken);
+  await AsyncStorage.setItem('expires', String(now() + expires));
+  await AsyncStorage.setItem('uid', id);
+  user = await getUser();
+
+  return user;
 }
