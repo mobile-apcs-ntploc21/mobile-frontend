@@ -34,8 +34,8 @@ const Register = () => {
     <View style={GlobalStyles.screen}>
       <View style={styles.container}>
         <View style={AuthStyles.titleContainer}>
-          <Text style={AuthStyles.title}>Welcome back to Orantio</Text>
-          <Text style={AuthStyles.subtitle}>Log in to continue</Text>
+          <Text style={AuthStyles.title}>Let's get you started!</Text>
+          <Text style={AuthStyles.subtitle}>Create an account</Text>
         </View>
         <Formik
           initialValues={{
