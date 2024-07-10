@@ -4,6 +4,7 @@ import { fonts } from '@/constants/theme';
 import MyText from '@/components/MyText';
 import { TextStyles } from '@/styles/TextStyles';
 import MyButton from '@/components/MyButton';
+import Accordion from '@/components/Accordion';
 
 const Playground = () => {
   return (
@@ -22,6 +23,11 @@ const Playground = () => {
       >
         <MyText>Custom button</MyText>
       </MyButton>
+      <Accordion>
+        {Array.from({ length: 10 }, (_, index) => (
+          <MyText key={index}>Content {index}</MyText>
+        ))}
+      </Accordion>
     </View>
   );
 };
