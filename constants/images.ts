@@ -1,3 +1,3 @@
-// import example from '../assets/images/example.png';
+import Chevron from '../assets/images/Chevron.png';
 
-// export { example };
+export { Chevron };
