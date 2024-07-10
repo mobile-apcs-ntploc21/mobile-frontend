@@ -6,6 +6,7 @@ import { TextStyles } from '@/styles/TextStyles';
 import MyButton from '@/components/MyButton';
 import Accordion from '@/components/Accordion';
 import { rH, rW } from '@/styles/reponsive';
+import Toggle from '@/components/Toggle';
 
 const Playground = () => {
   return (
@@ -44,6 +45,47 @@ const Playground = () => {
           ))}
         </View>
       </Accordion>
+      <Toggle
+        FirstFC={({ isSelected }) => (
+          <MyText
+            style={{
+              color: isSelected ? colors.white : colors.primary
+            }}
+          >
+            Default
+          </MyText>
+        )}
+        SecondFC={({ isSelected }) => (
+          <MyText
+            style={{
+              color: isSelected ? colors.white : colors.primary
+            }}
+          >
+            Toggle
+          </MyText>
+        )}
+      />
+      <Toggle
+        backgroundColor="plum"
+        FirstFC={({ isSelected }) => (
+          <MyText
+            style={{
+              color: isSelected ? colors.white : 'blue'
+            }}
+          >
+            Custom
+          </MyText>
+        )}
+        SecondFC={({ isSelected }) => (
+          <MyText
+            style={{
+              color: isSelected ? colors.white : 'blue'
+            }}
+          >
+            Toggle
+          </MyText>
+        )}
+      />
     </ScrollView>
   );
 };
