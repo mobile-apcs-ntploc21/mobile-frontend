@@ -18,20 +18,24 @@ interface ToggleProps {
   SecondFC: React.FC<ChildProps>;
   backgroundColor?: string;
   sliderColor?: string;
+  value?: boolean;
+  onChange?: (value: boolean) => void;
 }
 
-/**
- * Toggle component with two fields
- * @param props ToggleProps
- * @returns React.FC
- */
 const Toggle = ({
   FirstFC,
   SecondFC,
   backgroundColor,
-  sliderColor
+  sliderColor,
+  value,
+  onChange
 }: ToggleProps) => {
-  const [state, setState] = useState(false);
+  // Internal state is used only if value is not provided
+  const [internalState, setInternalState] = useState(false);
+
+  // Determine if the component is controlled
+  const isControlled = value !== undefined;
+  const state = isControlled ? value : internalState;
 
   const progress = useSharedValue(0);
 
@@ -44,9 +48,20 @@ const Toggle = ({
     progress.value = withTiming(state ? 1 : 0);
   }, [state]);
 
+  const handlePress = () => {
+    const newState = !state;
+    if (isControlled && onChange) {
+      // If controlled, invoke onChange
+      onChange(newState);
+    } else {
+      // If uncontrolled, update internal state
+      setInternalState(newState);
+    }
+  };
+
   return (
     <Pressable
-      onPress={() => setState(!state)}
+      onPress={handlePress}
       style={[styles.container, backgroundColor ? { backgroundColor } : {}]}
     >
       <View style={styles.content}>
