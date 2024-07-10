@@ -1,14 +1,15 @@
-import { View, Text } from 'react-native';
+import { View, Text, ScrollView } from 'react-native';
 import React from 'react';
-import { fonts } from '@/constants/theme';
+import { colors, fonts } from '@/constants/theme';
 import MyText from '@/components/MyText';
 import { TextStyles } from '@/styles/TextStyles';
 import MyButton from '@/components/MyButton';
 import Accordion from '@/components/Accordion';
+import { rH, rW } from '@/styles/reponsive';
 
 const Playground = () => {
   return (
-    <View>
+    <ScrollView>
       <MyText style={TextStyles.h1}>Heading 1</MyText>
       <MyText style={TextStyles.h2}>Heading 2</MyText>
       <MyText style={TextStyles.h3}>Heading 3</MyText>
@@ -24,11 +25,26 @@ const Playground = () => {
         <MyText>Custom button</MyText>
       </MyButton>
       <Accordion>
-        {Array.from({ length: 10 }, (_, index) => (
-          <MyText key={index}>Content {index}</MyText>
-        ))}
+        <View style={{ rowGap: rH(10) }}>
+          {Array.from({ length: 20 }, (_, index) => (
+            <View
+              key={index}
+              style={{ flexDirection: 'row', alignItems: 'center' }}
+            >
+              <View
+                style={{
+                  width: rW(45),
+                  height: rH(45),
+                  borderRadius: rW(45) / 2,
+                  backgroundColor: colors.gray01
+                }}
+              />
+              <MyText>User {index}</MyText>
+            </View>
+          ))}
+        </View>
       </Accordion>
-    </View>
+    </ScrollView>
   );
 };
 
