@@ -3,6 +3,7 @@ import React from 'react';
 import { fonts } from '@/constants/theme';
 import MyText from '@/components/MyText';
 import { TextStyles } from '@/styles/TextStyles';
+import MyButton from '@/components/MyButton';
 
 const Playground = () => {
   return (
@@ -12,6 +13,15 @@ const Playground = () => {
       <MyText style={TextStyles.h3}>Heading 3</MyText>
       <MyText style={TextStyles.bodyXL}>Body XL</MyText>
       <MyText>Body L</MyText>
+      <MyButton onPress={() => console.log('Default button')}>
+        <MyText>Default button</MyText>
+      </MyButton>
+      <MyButton
+        onPress={() => console.log('Custom button')}
+        style={{ width: 300, height: 100, backgroundColor: 'plum' }}
+      >
+        <MyText>Custom button</MyText>
+      </MyButton>
     </View>
   );
 };
