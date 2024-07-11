@@ -5,6 +5,7 @@ import { colors } from '@/constants/theme';
 import { MaterialIcons } from '@expo/vector-icons';
 
 export default function TabLayout() {
+  const isPlayground = process.env.EXPO_PUBLIC_PLAYGROUND_MODE === 'true';
   return (
     <Tabs
       screenOptions={{
@@ -61,6 +62,21 @@ export default function TabLayout() {
           tabBarShowLabel: false,
           tabBarIcon: ({ color }) => (
             <MaterialIcons name="account-circle" color={color} size={34} />
+          ),
+          tabBarStyle: {
+            backgroundColor: colors.white,
+            height: 66
+          }
+        }}
+      />
+      <Tabs.Screen
+        name="playground"
+        options={{
+          href: isPlayground ? '/playground' : null,
+          headerShown: false,
+          tabBarShowLabel: false,
+          tabBarIcon: ({ color }) => (
+            <MaterialIcons name="wc" color={color} size={34} />
           ),
           tabBarStyle: {
             backgroundColor: colors.white,
