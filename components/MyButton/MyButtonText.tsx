@@ -11,18 +11,14 @@ interface MyButtonTextProps extends MyButtonBaseProps {
 }
 
 const MyButtonText = (props: MyButtonTextProps) => {
-  const {
-    textColor = colors.white,
-    backgroundColor = colors.primary,
-    reverseStyle
-  } = props;
+  const { backgroundColor = colors.primary, textColor = colors.white } = props;
   const combinedStyles = StyleSheet.flatten([
     styles.text,
-    { color: reverseStyle ? backgroundColor : textColor },
+    { color: props.reverseStyle ? backgroundColor : textColor },
     props.textStyle
   ]);
   return (
-    <MyButtonBase {...props}>
+    <MyButtonBase {...props} {...{ backgroundColor, textColor }}>
       <MyText style={combinedStyles}>{props.title}</MyText>
     </MyButtonBase>
   );

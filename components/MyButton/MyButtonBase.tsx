@@ -4,7 +4,8 @@ import {
   TextStyle,
   TouchableOpacity,
   TouchableOpacityProps,
-  View
+  View,
+  ViewStyle
 } from 'react-native';
 import React from 'react';
 import { rH, rW } from '@/styles/responsive';
@@ -15,7 +16,7 @@ export interface MyButtonBaseProps extends TouchableOpacityProps {
   reverseStyle?: boolean;
   textColor?: string;
   backgroundColor?: string;
-  padding?: number;
+  containerStyle?: ViewStyle;
 }
 
 /**
@@ -23,13 +24,13 @@ export interface MyButtonBaseProps extends TouchableOpacityProps {
  * @param props TouchableOpacityProps
  * @returns React.FC
  */
-const MyButtonBase = (props: MyButtonBaseProps) => {
-  const {
-    textColor = colors.white,
-    backgroundColor = colors.primary,
-    reverseStyle,
-    padding = 10
-  } = props;
+const MyButtonBase = ({
+  textColor,
+  backgroundColor,
+  reverseStyle,
+  containerStyle,
+  children
+}: MyButtonBaseProps) => {
   const combinedStyles = StyleSheet.flatten([
     styles.container,
     {
@@ -37,20 +38,16 @@ const MyButtonBase = (props: MyButtonBaseProps) => {
       borderColor: reverseStyle ? backgroundColor : textColor,
       borderWidth: reverseStyle ? 1 : 0
     },
-    props.style
+    containerStyle
   ]);
-  return (
-    <TouchableOpacity {...props} style={combinedStyles}>
-      <View style={{ padding }}>{props.children}</View>
-    </TouchableOpacity>
-  );
+  return <TouchableOpacity style={combinedStyles}>{children}</TouchableOpacity>;
 };
 
 export default MyButtonBase;
 
 const styles = StyleSheet.create({
   container: {
-    minWidth: rW(214),
+    width: rW(214),
     height: rH(50),
     borderRadius: 999,
     justifyContent: 'center',

@@ -8,6 +8,7 @@ import Accordion from '@/components/Accordion';
 import { rH, rW } from '@/styles/responsive';
 import Toggle from '@/components/Toggle';
 import MyButtonIcon from '@/components/MyButton/MyButtonIcon';
+import FriendIcon from '@/assets/icons/FriendIcon';
 import MessageIcon from '@/assets/icons/MessageIcon';
 
 const Playground = () => {
@@ -32,22 +33,22 @@ const Playground = () => {
       <MyButtonText
         title="Custom button"
         onPress={() => console.log('Custom button')}
-        style={{ width: 100, height: 100, backgroundColor: 'plum' }}
+        containerStyle={{ width: '90%', height: 100, borderRadius: 10 }}
+        backgroundColor="plum"
+        textStyle={TextStyles.h1}
       />
-      <MyButtonText
-        title="Custom text in button"
-        textStyle={{ ...TextStyles.h1, color: colors.primary }}
-        onPress={() => console.log('Custom text in button')}
-        style={{
-          height: 100,
-          backgroundColor: 'transparent',
-          borderWidth: 1,
-          borderColor: colors.primary
-        }}
-      />
-      <View style={{ flexDirection: 'row', columnGap: 10 }}>
-        <MyButtonIcon icon={MessageIcon} />
-        <MyButtonIcon icon={MessageIcon} reverseStyle />
+      <View
+        style={{ flexDirection: 'row', columnGap: 10, alignItems: 'center' }}
+      >
+        <MyButtonIcon icon={FriendIcon} />
+        <MyButtonIcon
+          icon={MessageIcon}
+          containerStyle={{
+            width: 26,
+            height: 26,
+            padding: 4
+          }}
+        />
       </View>
       <Accordion>
         <View style={{ rowGap: rH(10) }}>
