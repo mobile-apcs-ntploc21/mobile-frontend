@@ -3,7 +3,7 @@ import React from 'react';
 import { colors, fonts } from '@/constants/theme';
 import MyText from '@/components/MyText';
 import { TextStyles } from '@/styles/TextStyles';
-import MyButton from '@/components/MyButton';
+import MyButtonBase from '@/components/MyButtonBase';
 import Accordion from '@/components/Accordion';
 import { rH, rW } from '@/styles/reponsive';
 import Toggle from '@/components/Toggle';
@@ -16,15 +16,15 @@ const Playground = () => {
       <MyText style={TextStyles.h3}>Heading 3</MyText>
       <MyText style={TextStyles.bodyXL}>Body XL</MyText>
       <MyText>Body L</MyText>
-      <MyButton onPress={() => console.log('Default button')}>
+      <MyButtonBase onPress={() => console.log('Default button')}>
         <MyText>Default button</MyText>
-      </MyButton>
-      <MyButton
+      </MyButtonBase>
+      <MyButtonBase
         onPress={() => console.log('Custom button')}
         style={{ width: 300, height: 100, backgroundColor: 'plum' }}
       >
         <MyText>Custom button</MyText>
-      </MyButton>
+      </MyButtonBase>
       <Accordion>
         <View style={{ rowGap: rH(10) }}>
           {Array.from({ length: 20 }, (_, index) => (
