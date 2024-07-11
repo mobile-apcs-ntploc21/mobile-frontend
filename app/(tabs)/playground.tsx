@@ -17,6 +17,9 @@ import EditStatusIcon from '@/assets/icons/EditStatusIcon';
 import GroupIcon from '@/assets/icons/GroupIcon';
 import SettingIcon from '@/assets/icons/SettingIcon';
 import StarIcon from '@/assets/icons/StarIcon';
+import MyButtonPress from '@/components/MyButton/MyButtonPress';
+import TickIcon from '@/assets/icons/TickIcon';
+import CrossIcon from '@/assets/icons/CrossIcon';
 
 const Playground = () => {
   return (
@@ -68,6 +71,28 @@ const Playground = () => {
         <MyButtonIcon icon={GroupIcon} />
         <MyButtonIcon icon={SettingIcon} />
         <MyButtonIcon icon={StarIcon} />
+        <MyButtonPress
+          comp={(props) => (
+            <MyButtonIcon
+              {...props}
+              activeOpacity={1}
+              icon={TickIcon}
+              backgroundColor={colors.white}
+              textColor={colors.semantic_green}
+            />
+          )}
+        />
+        <MyButtonPress
+          comp={(props) => (
+            <MyButtonIcon
+              {...props}
+              activeOpacity={1}
+              icon={CrossIcon}
+              backgroundColor={colors.white}
+              textColor="red"
+            />
+          )}
+        />
       </View>
       <Accordion>
         <View style={{ rowGap: rH(10) }}>
