@@ -3,9 +3,9 @@ import React from 'react';
 import { colors, fonts } from '@/constants/theme';
 import MyText from '@/components/MyText';
 import { TextStyles } from '@/styles/TextStyles';
-import MyButtonBase from '@/components/MyButtonBase';
+import { MyButtonText } from '@/components/MyButton';
 import Accordion from '@/components/Accordion';
-import { rH, rW } from '@/styles/reponsive';
+import { rH, rW } from '@/styles/responsive';
 import Toggle from '@/components/Toggle';
 
 const Playground = () => {
@@ -16,15 +16,27 @@ const Playground = () => {
       <MyText style={TextStyles.h3}>Heading 3</MyText>
       <MyText style={TextStyles.bodyXL}>Body XL</MyText>
       <MyText>Body L</MyText>
-      <MyButtonBase onPress={() => console.log('Default button')}>
-        <MyText>Default button</MyText>
-      </MyButtonBase>
-      <MyButtonBase
+      <MyButtonText
+        title="Default"
+        onPress={() => console.log('Default')}
+        style={{ alignSelf: 'center' }}
+      />
+      <MyButtonText
+        title="Custom button"
         onPress={() => console.log('Custom button')}
-        style={{ width: 300, height: 100, backgroundColor: 'plum' }}
-      >
-        <MyText>Custom button</MyText>
-      </MyButtonBase>
+        style={{ width: 100, height: 100, backgroundColor: 'plum' }}
+      />
+      <MyButtonText
+        title="Custom text in button"
+        textStyle={{ ...TextStyles.h1, color: colors.primary }}
+        onPress={() => console.log('Custom text in button')}
+        style={{
+          height: 100,
+          backgroundColor: 'transparent',
+          borderWidth: 1,
+          borderColor: colors.primary
+        }}
+      />
       <Accordion>
         <View style={{ rowGap: rH(10) }}>
           {Array.from({ length: 20 }, (_, index) => (

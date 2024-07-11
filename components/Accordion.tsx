@@ -1,7 +1,7 @@
 import { Pressable, StyleSheet, Text, View, ViewProps } from 'react-native';
 import React, { useEffect, useState } from 'react';
 import { colors } from '@/constants/theme';
-import { rH, rMS, rW } from '@/styles/reponsive';
+import { rH, rMS, rW } from '@/styles/responsive';
 import { TextStyles } from '@/styles/TextStyles';
 import Entypo from '@expo/vector-icons/Entypo';
 import Animated, {

@@ -1,6 +1,6 @@
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import React, { useEffect, useState } from 'react';
-import { rH, rW } from '@/styles/reponsive';
+import { rH, rW } from '@/styles/responsive';
 import { colors } from '@/constants/theme';
 import MyText from './MyText';
 import Animated, {

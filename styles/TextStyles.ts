@@ -1,5 +1,5 @@
 import { StyleSheet } from 'react-native';
-import { rMS } from './reponsive';
+import { rMS } from './responsive';
 import { fonts } from '@/constants/theme';
 
 export const TextStyles = StyleSheet.create({
