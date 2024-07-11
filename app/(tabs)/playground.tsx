@@ -10,6 +10,13 @@ import Toggle from '@/components/Toggle';
 import MyButtonIcon from '@/components/MyButton/MyButtonIcon';
 import FriendIcon from '@/assets/icons/FriendIcon';
 import MessageIcon from '@/assets/icons/MessageIcon';
+import AddFriendIcon from '@/assets/icons/AddFriendIcon';
+import DotsIcon from '@/assets/icons/DotsIcon';
+import EditProfileIcon from '@/assets/icons/EditProfileIcon';
+import EditStatusIcon from '@/assets/icons/EditStatusIcon';
+import GroupIcon from '@/assets/icons/GroupIcon';
+import SettingIcon from '@/assets/icons/SettingIcon';
+import StarIcon from '@/assets/icons/StarIcon';
 
 const Playground = () => {
   return (
@@ -38,7 +45,12 @@ const Playground = () => {
         textStyle={TextStyles.h1}
       />
       <View
-        style={{ flexDirection: 'row', columnGap: 10, alignItems: 'center' }}
+        style={{
+          flexDirection: 'row',
+          columnGap: 10,
+          alignItems: 'center',
+          flexWrap: 'wrap'
+        }}
       >
         <MyButtonIcon icon={FriendIcon} />
         <MyButtonIcon
@@ -49,6 +61,13 @@ const Playground = () => {
             padding: 4
           }}
         />
+        <MyButtonIcon icon={AddFriendIcon} />
+        <MyButtonIcon icon={DotsIcon} />
+        <MyButtonIcon icon={EditProfileIcon} />
+        <MyButtonIcon icon={EditStatusIcon} />
+        <MyButtonIcon icon={GroupIcon} />
+        <MyButtonIcon icon={SettingIcon} />
+        <MyButtonIcon icon={StarIcon} />
       </View>
       <Accordion>
         <View style={{ rowGap: rH(10) }}>
