@@ -8,7 +8,6 @@ import {
   ViewStyle
 } from 'react-native';
 import React from 'react';
-import { rH, rW } from '@/styles/responsive';
 import { colors } from '@/constants/theme';
 
 export interface MyButtonBaseProps extends TouchableOpacityProps {
@@ -46,8 +45,8 @@ export default MyButtonBase;
 
 const styles = StyleSheet.create({
   container: {
-    width: rW(214),
-    height: rH(50),
+    width: 214,
+    height: 50,
     borderRadius: 999,
     justifyContent: 'center',
     alignItems: 'center',

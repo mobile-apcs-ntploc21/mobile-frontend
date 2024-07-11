@@ -1,7 +1,6 @@
 import MyButtonBase, { MyButtonBaseProps } from './MyButtonBase';
 import { IconProps } from '@/types';
 import { colors } from '@/constants/theme';
-import { rH, rW } from '@/styles/responsive';
 import { View, StyleSheet } from 'react-native';
 
 interface MyButtonIconProps extends MyButtonBaseProps {
@@ -38,8 +37,8 @@ export default MyButtonIcon;
 const styles = StyleSheet.create({
   container: {
     minWidth: 0,
-    width: rW(55),
-    height: rH(55),
+    width: 55,
+    height: 55,
     padding: 10
   }
 });

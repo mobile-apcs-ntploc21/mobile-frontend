@@ -1,6 +1,5 @@
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import React, { useEffect, useState } from 'react';
-import { rH, rW } from '@/styles/responsive';
 import { colors } from '@/constants/theme';
 import MyText from './MyText';
 import Animated, {
@@ -87,8 +86,8 @@ export default Toggle;
 
 const styles = StyleSheet.create({
   container: {
-    width: rW(301),
-    height: rH(37),
+    width: 301,
+    height: 37,
     backgroundColor: colors.primary,
     borderRadius: 999,
     padding: 2

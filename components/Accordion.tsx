@@ -1,7 +1,6 @@
 import { Pressable, StyleSheet, Text, View, ViewProps } from 'react-native';
 import React, { useEffect, useState } from 'react';
 import { colors } from '@/constants/theme';
-import { rH, rMS, rW } from '@/styles/responsive';
 import { TextStyles } from '@/styles/TextStyles';
 import Entypo from '@expo/vector-icons/Entypo';
 import Animated, {
@@ -51,16 +50,16 @@ export default Accordion;
 const styles = StyleSheet.create({
   container: {
     backgroundColor: colors.white,
-    borderRadius: rMS(21),
-    paddingHorizontal: rH(16),
-    paddingVertical: rW(10)
+    borderRadius: 21,
+    paddingHorizontal: 16,
+    paddingVertical: 10
   },
   heading: {
     flexDirection: 'row',
-    columnGap: rW(10),
+    columnGap: 10,
     alignItems: 'center'
   },
   content: {
-    marginTop: rH(14)
+    marginTop: 14
   }
 });

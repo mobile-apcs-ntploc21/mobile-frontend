@@ -5,7 +5,6 @@ import MyText from '@/components/MyText';
 import { TextStyles } from '@/styles/TextStyles';
 import { MyButtonText } from '@/components/MyButton';
 import Accordion from '@/components/Accordion';
-import { rH, rW } from '@/styles/responsive';
 import Toggle from '@/components/Toggle';
 import MyButtonIcon from '@/components/MyButton/MyButtonIcon';
 import FriendIcon from '@/assets/icons/FriendIcon';
@@ -95,7 +94,7 @@ const Playground = () => {
         />
       </View>
       <Accordion>
-        <View style={{ rowGap: rH(10) }}>
+        <View style={{ rowGap: 10 }}>
           {Array.from({ length: 20 }, (_, index) => (
             <View
               key={index}
@@ -103,9 +102,9 @@ const Playground = () => {
             >
               <View
                 style={{
-                  width: rW(45),
-                  height: rH(45),
-                  borderRadius: rW(45) / 2,
+                  width: 45,
+                  height: 45,
+                  borderRadius: 45 / 2,
                   backgroundColor: colors.gray01
                 }}
               />

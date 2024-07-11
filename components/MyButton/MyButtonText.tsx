@@ -4,7 +4,6 @@ import MyButtonBase, { MyButtonBaseProps } from './MyButtonBase';
 import MyText from '../MyText';
 import { TextStyles } from '@/styles/TextStyles';
 import { colors, fonts } from '@/constants/theme';
-import { rMS } from '@/styles/responsive';
 
 interface MyButtonTextProps extends MyButtonBaseProps {
   title: string;
@@ -28,7 +27,7 @@ export default MyButtonText;
 
 const styles = StyleSheet.create({
   text: {
-    fontSize: rMS(24),
+    fontSize: 24,
     fontFamily: fonts.bold
   }
 });
