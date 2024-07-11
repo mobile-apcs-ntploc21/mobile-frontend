@@ -3,7 +3,8 @@ import {
   TextProps,
   TextStyle,
   TouchableOpacity,
-  TouchableOpacityProps
+  TouchableOpacityProps,
+  View
 } from 'react-native';
 import React from 'react';
 import { rH, rW } from '@/styles/responsive';
@@ -14,6 +15,7 @@ export interface MyButtonBaseProps extends TouchableOpacityProps {
   reverseStyle?: boolean;
   textColor?: string;
   backgroundColor?: string;
+  padding?: number;
 }
 
 /**
@@ -25,7 +27,8 @@ const MyButtonBase = (props: MyButtonBaseProps) => {
   const {
     textColor = colors.white,
     backgroundColor = colors.primary,
-    reverseStyle
+    reverseStyle,
+    padding = 10
   } = props;
   const combinedStyles = StyleSheet.flatten([
     styles.container,
@@ -36,7 +39,11 @@ const MyButtonBase = (props: MyButtonBaseProps) => {
     },
     props.style
   ]);
-  return <TouchableOpacity {...props} style={combinedStyles} />;
+  return (
+    <TouchableOpacity {...props} style={combinedStyles}>
+      <View style={{ padding }}>{props.children}</View>
+    </TouchableOpacity>
+  );
 };
 
 export default MyButtonBase;
@@ -47,8 +54,6 @@ const styles = StyleSheet.create({
     height: rH(50),
     borderRadius: 999,
     justifyContent: 'center',
-    alignItems: 'center',
-    paddingHorizontal: rW(8),
-    paddingVertical: rH(4)
+    alignItems: 'center'
   }
 });

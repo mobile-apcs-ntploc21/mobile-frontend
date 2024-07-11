@@ -7,6 +7,8 @@ import { MyButtonText } from '@/components/MyButton';
 import Accordion from '@/components/Accordion';
 import { rH, rW } from '@/styles/responsive';
 import Toggle from '@/components/Toggle';
+import MyButtonIcon from '@/components/MyButton/MyButtonIcon';
+import MessageIcon from '@/assets/icons/MessageIcon';
 
 const Playground = () => {
   return (
@@ -43,6 +45,10 @@ const Playground = () => {
           borderColor: colors.primary
         }}
       />
+      <View style={{ flexDirection: 'row', columnGap: 10 }}>
+        <MyButtonIcon icon={MessageIcon} />
+        <MyButtonIcon icon={MessageIcon} reverseStyle />
+      </View>
       <Accordion>
         <View style={{ rowGap: rH(10) }}>
           {Array.from({ length: 20 }, (_, index) => (
