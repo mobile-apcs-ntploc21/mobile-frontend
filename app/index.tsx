@@ -1,6 +1,7 @@
 import { Redirect } from 'expo-router';
 
 export default function Index() {
-  // if not logged in, redirect to login
-  return <Redirect href="/login" />;
+  const redirect = process.env.EXPO_PUBLIC_INDEX_REDIRECT;
+  if (redirect) return <Redirect href={redirect} />;
+  return <Redirect href="/servers" />;
 }

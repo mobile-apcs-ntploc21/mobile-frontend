@@ -8,7 +8,8 @@ const colors = {
   gray03: '#D9D9D9',
   gray04: '#EEEEEE',
   semantic_red: '#F13F42',
-  semantic_green: '#009966'
+  semantic_green: '#009966',
+  status_online: '#04C900'
 };
 
 const fonts = {
