@@ -22,6 +22,12 @@ const Playground = () => {
         style={{ alignSelf: 'center' }}
       />
       <MyButtonText
+        title="Reverse Style"
+        onPress={() => console.log('Reverse Style')}
+        style={{ alignSelf: 'center' }}
+        reverseStyle
+      />
+      <MyButtonText
         title="Custom button"
         onPress={() => console.log('Custom button')}
         style={{ width: 100, height: 100, backgroundColor: 'plum' }}

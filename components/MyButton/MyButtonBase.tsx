@@ -11,6 +11,9 @@ import { colors } from '@/constants/theme';
 
 export interface MyButtonBaseProps extends TouchableOpacityProps {
   textStyle?: TextStyle;
+  reverseStyle?: boolean;
+  textColor?: string;
+  backgroundColor?: string;
 }
 
 /**
@@ -19,7 +22,20 @@ export interface MyButtonBaseProps extends TouchableOpacityProps {
  * @returns React.FC
  */
 const MyButtonBase = (props: MyButtonBaseProps) => {
-  const combinedStyles = StyleSheet.flatten([styles.container, props.style]);
+  const {
+    textColor = colors.white,
+    backgroundColor = colors.primary,
+    reverseStyle
+  } = props;
+  const combinedStyles = StyleSheet.flatten([
+    styles.container,
+    {
+      backgroundColor: reverseStyle ? textColor : backgroundColor,
+      borderColor: reverseStyle ? backgroundColor : textColor,
+      borderWidth: reverseStyle ? 1 : 0
+    },
+    props.style
+  ]);
   return <TouchableOpacity {...props} style={combinedStyles} />;
 };
 
@@ -29,7 +45,6 @@ const styles = StyleSheet.create({
   container: {
     minWidth: rW(214),
     height: rH(50),
-    backgroundColor: colors.primary,
     borderRadius: 999,
     justifyContent: 'center',
     alignItems: 'center',

@@ -10,15 +10,20 @@ interface MyButtonTextProps extends MyButtonBaseProps {
   title: string;
 }
 
-const MyButtonText = ({
-  title,
-  textStyle,
-  ...restProps
-}: MyButtonTextProps) => {
-  const combinedStyles = StyleSheet.flatten([styles.text, textStyle]);
+const MyButtonText = (props: MyButtonTextProps) => {
+  const {
+    textColor = colors.white,
+    backgroundColor = colors.primary,
+    reverseStyle
+  } = props;
+  const combinedStyles = StyleSheet.flatten([
+    styles.text,
+    { color: reverseStyle ? backgroundColor : textColor },
+    props.textStyle
+  ]);
   return (
-    <MyButtonBase {...restProps}>
-      <MyText style={combinedStyles}>{title}</MyText>
+    <MyButtonBase {...props}>
+      <MyText style={combinedStyles}>{props.title}</MyText>
     </MyButtonBase>
   );
 };
@@ -28,7 +33,6 @@ export default MyButtonText;
 const styles = StyleSheet.create({
   text: {
     fontSize: rMS(24),
-    fontFamily: fonts.bold,
-    color: colors.white
+    fontFamily: fonts.bold
   }
 });
