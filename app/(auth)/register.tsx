@@ -1,3 +1,9 @@
+import CustomTextInput from '@/components/common/CustomTextInput';
+import GlobalStyles from '@/styles/GlobalStyles';
+import AuthStyles from '@/styles/AuthStyles';
+import { useAuth } from '@/context/AuthProvider';
+import { showAlert } from '@/services/alert';
+
 import {
   GestureResponderEvent,
   StyleSheet,
@@ -6,11 +12,9 @@ import {
   View
 } from 'react-native';
 import React, { useEffect } from 'react';
-import GlobalStyles from '@/styles/GlobalStyles';
-import AuthStyles from '@/styles/AuthStyles';
 import { Formik } from 'formik';
-import CustomTextInput from '@/components/common/CustomTextInput';
 import { router, useNavigation } from 'expo-router';
+import { CommonActions } from '@react-navigation/native';
 import * as Yup from 'yup';
 
 const phoneRegExp =
@@ -28,7 +32,30 @@ const validationSchema = Yup.object().shape({
 });
 
 const Register = () => {
+  const { register } = useAuth();
   const navigation = useNavigation();
+
+  const handleRegister = async (value: any) => {
+    try {
+      console.log(value);
+
+      await register(
+        value.username,
+        value.phoneNumber,
+        value.email,
+        value.password
+      );
+
+      navigation.dispatch({
+        ...CommonActions.reset({
+          index: 0,
+          routes: [{ key: '(tabs)', name: '(tabs)' }]
+        })
+      });
+    } catch (e: any) {
+      showAlert(e.message);
+    }
+  };
 
   return (
     <View style={GlobalStyles.screen}>
@@ -47,8 +74,7 @@ const Register = () => {
           }}
           validationSchema={validationSchema}
           onSubmit={(values) => {
-            console.log(values);
-            // router.push('/servers');
+            handleRegister(values);
           }}
         >
           {({
