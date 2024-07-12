@@ -17,7 +17,7 @@ import {
   TouchableOpacity,
   View
 } from 'react-native';
-import { Formik } from 'formik';
+import { Formik, FormikErrors } from 'formik';
 import * as Yup from 'yup';
 
 const validationSchema = Yup.object().shape({
@@ -29,7 +29,16 @@ export default function Login() {
   const { login } = useAuth();
   const navigation = useNavigation();
 
-  const handleLogin = async (email: string, password: string) => {
+  const handleLogin = async (
+    email: string,
+    password: string,
+    setErrors: (
+      errors: FormikErrors<{
+        email: string;
+        password: string;
+      }>
+    ) => void
+  ) => {
     try {
       await login(email, password);
 
@@ -40,7 +49,12 @@ export default function Login() {
         })
       });
     } catch (e: any) {
-      showAlert(e.message);
+      if (e.message === 'Invalid email or password') {
+        setErrors({
+          email: 'Invalid email or password',
+          password: 'Invalid email or password'
+        });
+      }
     }
   };
 
@@ -63,8 +77,12 @@ export default function Login() {
               password: ''
             }}
             validationSchema={validationSchema}
-            onSubmit={(values) => {
-              handleLogin(values.email, values.password);
+            onSubmit={(values, { setErrors }) => {
+              try {
+                handleLogin(values.email, values.password, setErrors);
+              } catch (e: any) {
+                console.log(e);
+              }
             }}
           >
             {({
