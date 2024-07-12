@@ -24,11 +24,18 @@ import { MyButtonText } from '@/components/MyButton';
 const phoneRegExp =
   /^((\\+[1-9]{1,4}[ \\-]*)|(\\([0-9]{2,3}\\)[ \\-]*)|([0-9]{2,4})[ \\-]*)*?[0-9]{3,4}?[ \\-]*[0-9]{3,4}?$/;
 
+const passwordRegExp = /^(?=.*\d)(?=.*[a-zA-Z]).{8,}$/;
+
 const validationSchema = Yup.object().shape({
   email: Yup.string().email('Email is invalid').required('Email is required'),
   username: Yup.string().required('Username is required'),
   phoneNumber: Yup.string().matches(phoneRegExp, 'Phone number is not valid'),
-  password: Yup.string().required('Password is required'),
+  password: Yup.string()
+    .required('Password is required')
+    .matches(
+      passwordRegExp,
+      'Password must contain at least 8 characters, one letter and one number'
+    ),
   confirmPassword: Yup.string().oneOf(
     [Yup.ref('password'), undefined],
     'Passwords must match'
