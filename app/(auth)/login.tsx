@@ -11,14 +11,17 @@ import { CommonActions } from '@react-navigation/native';
 import { useEffect, useState } from 'react';
 import {
   GestureResponderEvent,
+  Keyboard,
   ScrollView,
   StyleSheet,
   Text,
   TouchableOpacity,
+  TouchableWithoutFeedback,
   View
 } from 'react-native';
 import { Formik, FormikErrors } from 'formik';
 import * as Yup from 'yup';
+import { MyButtonText } from '@/components/MyButton';
 
 const validationSchema = Yup.object().shape({
   email: Yup.string().email('Email is invalid').required('Email is required'),
@@ -60,7 +63,7 @@ export default function Login() {
 
   return (
     <View style={GlobalStyles.screen}>
-      <ScrollView>
+      <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
         <View style={styles.container}>
           <Ionicons
             name="chatbubble-ellipses"
@@ -129,14 +132,13 @@ export default function Login() {
                   </Link>
                 </View>
                 <View style={AuthStyles.buttonContainer}>
-                  <TouchableOpacity
-                    style={AuthStyles.button}
+                  <MyButtonText
+                    title="Login"
                     onPress={
                       handleSubmit as (e?: GestureResponderEvent) => void
                     }
-                  >
-                    <Text style={AuthStyles.buttonText}>Login</Text>
-                  </TouchableOpacity>
+                    containerStyle={AuthStyles.button}
+                  />
                   <View style={styles.registerContainer}>
                     <Text style={styles.registerText}>
                       Don't have an account?
@@ -150,7 +152,7 @@ export default function Login() {
             )}
           </Formik>
         </View>
-      </ScrollView>
+      </TouchableWithoutFeedback>
     </View>
   );
 }
