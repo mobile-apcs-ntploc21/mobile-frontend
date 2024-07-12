@@ -3,7 +3,11 @@ import { colors, fonts } from '@/constants/theme';
 import GlobalStyles from '@/styles/GlobalStyles';
 import AuthStyles from '@/styles/AuthStyles';
 import { Ionicons } from '@expo/vector-icons';
+import { useAuth } from '@/context/AuthProvider';
+import { showAlert } from '@/services/alert';
+
 import { Link, router, useNavigation } from 'expo-router';
+import { CommonActions } from '@react-navigation/native';
 import { useEffect, useState } from 'react';
 import {
   GestureResponderEvent,
@@ -22,7 +26,23 @@ const validationSchema = Yup.object().shape({
 });
 
 export default function Login() {
+  const { login } = useAuth();
   const navigation = useNavigation();
+
+  const handleLogin = async (email: string, password: string) => {
+    try {
+      await login(email, password);
+
+      navigation.dispatch({
+        ...CommonActions.reset({
+          index: 0,
+          routes: [{ key: '(tabs)', name: '(tabs)' }]
+        })
+      });
+    } catch (e: any) {
+      showAlert(e.message);
+    }
+  };
 
   return (
     <View style={GlobalStyles.screen}>
@@ -44,8 +64,7 @@ export default function Login() {
             }}
             validationSchema={validationSchema}
             onSubmit={(values) => {
-              console.log(values);
-              router.push('/servers');
+              handleLogin(values.email, values.password);
             }}
           >
             {({
