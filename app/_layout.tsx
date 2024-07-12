@@ -1,10 +1,11 @@
 import { useFonts } from 'expo-font';
-import { Stack } from 'expo-router';
+import { Stack, Slot } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { useEffect, useState } from 'react';
 import 'react-native-reanimated';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import GlobalProvider from '@/context/GlobalProvider';
+import { AuthProvider } from '@/context/AuthProvider';
 
 export {
   // Catch any errors thrown by the Layout component.
@@ -13,7 +14,7 @@ export {
 
 export const unstable_settings = {
   // Ensure that reloading on `/modal` keeps a back button present.
-  initialRouteName: '(tabs)'
+  initialRouteName: 'index'
 };
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
@@ -47,13 +48,29 @@ export default function RootLayout() {
 
 function RootLayoutNav() {
   return (
-    <GlobalProvider>
-      <SafeAreaView style={{ flex: 1 }}>
-        <Stack>
-          <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-          <Stack.Screen name="modal" options={{ presentation: 'modal' }} />
-        </Stack>
-      </SafeAreaView>
-    </GlobalProvider>
+    <AuthProvider>
+      <GlobalProvider>
+        <SafeAreaView style={{ flex: 1 }}>
+          <Stack>
+            <Stack.Screen name="(auth)" options={{ headerShown: false }} />
+            <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+            <Stack.Screen name="modal" options={{ presentation: 'modal' }} />
+          </Stack>
+        </SafeAreaView>
+      </GlobalProvider>
+    </AuthProvider>
   );
 }
+
+// function RootLayoutNav() {
+//   return (
+//     <GlobalProvider>
+//       <SafeAreaView style={{ flex: 1 }}>
+//         <Stack>
+//           <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+//           <Stack.Screen name="modal" options={{ presentation: 'modal' }} />
+//         </Stack>
+//       </SafeAreaView>
+//     </GlobalProvider>
+//   );
+// }
