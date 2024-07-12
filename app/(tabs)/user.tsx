@@ -11,13 +11,24 @@ import GlobalStyles from '@/styles/GlobalStyles';
 import { DefaultCoverImage, DefaultProfileImage } from '@/constants/images';
 import { colors, fonts } from '@/constants/theme';
 import StatusBubble from '@/components/StatusBubble';
+import MyButtonTextIcon from '@/components/MyButton/MyButtonTextIcon';
+import EditStatusIcon from '@/assets/icons/EditStatusIcon';
+import EditProfileIcon from '@/assets/icons/EditProfileIcon';
+import { TextStyles } from '@/styles/TextStyles';
+import MyButtonIcon from '@/components/MyButton/MyButtonIcon';
+import SettingIcon from '@/assets/icons/SettingIcon';
 
 const User = () => {
   return (
     <View style={GlobalStyles.screen}>
       <Image source={DefaultCoverImage} style={styles.coverImage} />
       {/* TODO: replace with settings button */}
-      <View style={styles.settingsButton} />
+      <MyButtonIcon
+        icon={SettingIcon}
+        onPress={() => {}}
+        containerStyle={styles.settingsButton}
+        textColor={colors.white}
+      />
       <View style={styles.profileContainer}>
         <View style={styles.profileImageContainer}>
           <TouchableOpacity onPress={() => {}}>
@@ -34,9 +45,20 @@ const User = () => {
           text="Lorem ipsum dolor sit amet consectetur"
         />
         <View style={styles.buttonContainer}>
-          {/* TODO: replace with actual button */}
-          <View style={styles.button} />
-          <View style={styles.button} />
+          <MyButtonTextIcon
+            title="Edit Status"
+            onPress={() => {}}
+            iconAfter={EditStatusIcon}
+            containerStyle={styles.button}
+            textStyle={TextStyles.h4}
+          />
+          <MyButtonTextIcon
+            title="Edit Profile"
+            onPress={() => {}}
+            iconAfter={EditProfileIcon}
+            containerStyle={styles.button}
+            textStyle={TextStyles.h4}
+          />
         </View>
         <View style={styles.aboutMeContainer}>
           <Text style={styles.aboutMeTitle}>ABOUT ME</Text>
@@ -67,8 +89,8 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: colors.gray01,
-    opacity: 0.5
+    backgroundColor: colors.gray01_50,
+    borderWidth: 0
   },
   profileContainer: {
     position: 'absolute',
