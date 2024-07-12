@@ -19,6 +19,7 @@ import StarIcon from '@/assets/icons/StarIcon';
 import MyButtonPress from '@/components/MyButton/MyButtonPress';
 import TickIcon from '@/assets/icons/TickIcon';
 import CrossIcon from '@/assets/icons/CrossIcon';
+import MyButtonTextIcon from '@/components/MyButton/MyButtonTextIcon';
 
 const Playground = () => {
   return (
@@ -45,6 +46,11 @@ const Playground = () => {
         containerStyle={{ width: '90%', height: 100, borderRadius: 10 }}
         backgroundColor="plum"
         textStyle={TextStyles.h1}
+      />
+      <MyButtonTextIcon
+        title="Button"
+        onPress={() => console.log('Button with icon')}
+        iconBefore={FriendIcon}
       />
       <View
         style={{
