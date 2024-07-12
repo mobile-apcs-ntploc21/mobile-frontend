@@ -46,7 +46,10 @@ const Register = () => {
   const { register } = useAuth();
   const navigation = useNavigation();
 
-  const handleRegister = async (value: any) => {
+  const handleRegister = async (
+    value: any,
+    setFieldError: (field: string, message: string | undefined) => void
+  ) => {
     try {
       console.log(value);
 
@@ -64,7 +67,17 @@ const Register = () => {
         })
       });
     } catch (e: any) {
-      showAlert(e.message);
+      switch (e.message) {
+        case 'Email already exists':
+          setFieldError('email', 'Email already exists');
+          break;
+        case 'Username already exists':
+          setFieldError('username', 'Username already exists');
+          break;
+        default:
+          showAlert(e.message);
+          break;
+      }
     }
   };
 
@@ -85,8 +98,8 @@ const Register = () => {
               confirmPassword: ''
             }}
             validationSchema={validationSchema}
-            onSubmit={(values) => {
-              handleRegister(values);
+            onSubmit={(values, { setFieldError }) => {
+              handleRegister(values, setFieldError);
             }}
           >
             {({

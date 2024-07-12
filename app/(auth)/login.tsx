@@ -35,12 +35,7 @@ export default function Login() {
   const handleLogin = async (
     email: string,
     password: string,
-    setErrors: (
-      errors: FormikErrors<{
-        email: string;
-        password: string;
-      }>
-    ) => void
+    setErrors: (field: string, message: string | undefined) => void
   ) => {
     try {
       await login(email, password);
@@ -52,11 +47,14 @@ export default function Login() {
         })
       });
     } catch (e: any) {
-      if (e.message === 'Invalid email or password') {
-        setErrors({
-          email: 'Invalid email or password',
-          password: 'Invalid email or password'
-        });
+      switch (e.message) {
+        case 'Invalid email or password':
+          setErrors('email', 'Invalid email or password');
+          setErrors('password', 'Invalid email or password');
+          break;
+        default:
+          showAlert(e.message);
+          break;
       }
     }
   };
@@ -80,9 +78,9 @@ export default function Login() {
               password: ''
             }}
             validationSchema={validationSchema}
-            onSubmit={(values, { setErrors }) => {
+            onSubmit={(values, { setFieldError }) => {
               try {
-                handleLogin(values.email, values.password, setErrors);
+                handleLogin(values.email, values.password, setFieldError);
               } catch (e: any) {
                 console.log(e);
               }
