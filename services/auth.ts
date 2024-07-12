@@ -24,13 +24,6 @@ const postData = async (
     ...addHeaders
   };
 
-  console.log(
-    'postData',
-    `${API_URL}${url}`,
-    headers,
-    JSON.stringify(data || {})
-  );
-
   try {
     const response = await fetch(`${API_URL}${url}`, {
       method: 'POST',
@@ -209,7 +202,6 @@ export async function register(
 
     return response;
   } catch (e: any) {
-    console.log(e);
     throw new Error(e.message);
   }
 }
