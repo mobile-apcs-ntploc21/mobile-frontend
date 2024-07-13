@@ -6,7 +6,7 @@ import {
   TouchableOpacity,
   View
 } from 'react-native';
-import React from 'react';
+import React, { useRef } from 'react';
 import GlobalStyles from '@/styles/GlobalStyles';
 import { DefaultCoverImage, DefaultProfileImage } from '@/constants/images';
 import { colors, fonts } from '@/constants/theme';
@@ -17,12 +17,16 @@ import EditProfileIcon from '@/assets/icons/EditProfileIcon';
 import { TextStyles } from '@/styles/TextStyles';
 import MyButtonIcon from '@/components/MyButton/MyButtonIcon';
 import SettingIcon from '@/assets/icons/SettingIcon';
+import { BottomSheetModal } from '@gorhom/bottom-sheet';
+import OnlineStatusBottomSheetModal from '@/components/modal/OnlineStatusBottomSheetModal';
 
 const User = () => {
+  const bottomSheetRef = useRef<BottomSheetModal>(null);
+
   return (
     <View style={GlobalStyles.screen}>
+      <OnlineStatusBottomSheetModal ref={bottomSheetRef} title="abc" />
       <Image source={DefaultCoverImage} style={styles.coverImage} />
-      {/* TODO: replace with settings button */}
       <MyButtonIcon
         icon={SettingIcon}
         onPress={() => {}}
@@ -31,7 +35,8 @@ const User = () => {
       />
       <View style={styles.profileContainer}>
         <View style={styles.profileImageContainer}>
-          <TouchableOpacity onPress={() => {}}>
+          {/* TODO: Open onine status selection list */}
+          <TouchableOpacity onPress={() => bottomSheetRef.current?.present()}>
             <Image source={DefaultProfileImage} style={styles.profileImage} />
             <View style={styles.statusButton} />
           </TouchableOpacity>
