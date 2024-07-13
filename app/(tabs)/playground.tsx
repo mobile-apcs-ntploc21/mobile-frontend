@@ -99,7 +99,7 @@ const Playground = () => {
           )}
         />
       </View>
-      <Accordion>
+      <Accordion heading="Heading" defaultOpen>
         <View style={{ rowGap: 10 }}>
           {Array.from({ length: 20 }, (_, index) => (
             <View
