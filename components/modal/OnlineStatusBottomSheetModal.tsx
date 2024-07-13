@@ -8,9 +8,7 @@ import {
 import { TextStyles } from '@/styles/TextStyles';
 import { colors } from '@/constants/theme';
 
-interface OnlineStatusBottomSheetModalProps {
-  title: string;
-}
+interface OnlineStatusBottomSheetModalProps {}
 type Ref = BottomSheetModal;
 
 const OnlineStatusBottomSheetModal = forwardRef<

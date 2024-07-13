@@ -25,7 +25,7 @@ const User = () => {
 
   return (
     <View style={GlobalStyles.screen}>
-      <OnlineStatusBottomSheetModal ref={bottomSheetRef} title="abc" />
+      <OnlineStatusBottomSheetModal ref={bottomSheetRef} />
       <Image source={DefaultCoverImage} style={styles.coverImage} />
       <MyButtonIcon
         icon={SettingIcon}
