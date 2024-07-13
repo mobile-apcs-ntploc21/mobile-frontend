@@ -25,7 +25,10 @@ const User = () => {
 
   return (
     <View style={GlobalStyles.screen}>
-      <OnlineStatusBottomSheetModal ref={bottomSheetRef} />
+      <OnlineStatusBottomSheetModal
+        ref={bottomSheetRef}
+        onClose={() => bottomSheetRef.current?.dismiss()}
+      />
       <Image source={DefaultCoverImage} style={styles.coverImage} />
       <MyButtonIcon
         icon={SettingIcon}
