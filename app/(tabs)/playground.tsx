@@ -1,9 +1,9 @@
-import { View, Text, ScrollView } from 'react-native';
+import { View, Text, ScrollView, TouchableOpacity } from 'react-native';
 import React from 'react';
 import { colors, fonts } from '@/constants/theme';
 import MyText from '@/components/MyText';
 import { TextStyles } from '@/styles/TextStyles';
-import { MyButtonText } from '@/components/MyButton';
+import { MyButtonBase, MyButtonText } from '@/components/MyButton';
 import Accordion from '@/components/Accordion';
 import Toggle from '@/components/Toggle';
 import MyButtonIcon from '@/components/MyButton/MyButtonIcon';
@@ -19,10 +19,44 @@ import StarIcon from '@/assets/icons/StarIcon';
 import MyButtonPress from '@/components/MyButton/MyButtonPress';
 import TickIcon from '@/assets/icons/TickIcon';
 import CrossIcon from '@/assets/icons/CrossIcon';
+import MyButtonTextIcon from '@/components/MyButton/MyButtonTextIcon';
+import UserItemBase from '@/components/UserItem/UserItemBase';
+import UserItemGeneral from '@/components/UserItem/UserItemGeneral';
+import UserItemReqSent from '@/components/UserItem/UserItemReqSent';
+import UserItemReqReceived from '@/components/UserItem/UserItemReqReceived';
 
 const Playground = () => {
   return (
     <ScrollView>
+      <UserItemGeneral
+        id="123"
+        username="johndoe"
+        displayName="John Doe"
+        onlineStatus="online"
+      />
+      <UserItemReqSent
+        id="123"
+        username="johndoe"
+        displayName="John Doe"
+        onlineStatus="online"
+      />
+      <UserItemReqReceived
+        id="123"
+        username="johndoe"
+        displayName="John Doe"
+        onlineStatus="online"
+      />
+      <Accordion heading="(8) Requests Received">
+        {Array.from({ length: 8 }, (_, index) => (
+          <UserItemReqReceived
+            key={index}
+            id={index.toString()}
+            username="johndoe"
+            displayName="John Doe"
+            onlineStatus="online"
+          />
+        ))}
+      </Accordion>
       <MyText style={TextStyles.h1}>Heading 1</MyText>
       <MyText style={TextStyles.h2}>Heading 2</MyText>
       <MyText style={TextStyles.h3}>Heading 3</MyText>
@@ -45,6 +79,11 @@ const Playground = () => {
         containerStyle={{ width: '90%', height: 100, borderRadius: 10 }}
         backgroundColor="plum"
         textStyle={TextStyles.h1}
+      />
+      <MyButtonTextIcon
+        title="Button"
+        onPress={() => console.log('Button with icon')}
+        iconBefore={FriendIcon}
       />
       <View
         style={{
@@ -93,7 +132,7 @@ const Playground = () => {
           )}
         />
       </View>
-      <Accordion>
+      <Accordion heading="Heading" defaultOpen>
         <View style={{ rowGap: 10 }}>
           {Array.from({ length: 20 }, (_, index) => (
             <View

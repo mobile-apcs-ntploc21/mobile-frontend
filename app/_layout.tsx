@@ -6,6 +6,8 @@ import 'react-native-reanimated';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import GlobalProvider from '@/context/GlobalProvider';
 import { AuthProvider } from '@/context/AuthProvider';
+import { BottomSheetModalProvider } from '@gorhom/bottom-sheet';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
 export {
   // Catch any errors thrown by the Layout component.
@@ -48,17 +50,24 @@ export default function RootLayout() {
 
 function RootLayoutNav() {
   return (
-    <AuthProvider>
-      <GlobalProvider>
-        <SafeAreaView style={{ flex: 1 }}>
-          <Stack>
-            <Stack.Screen name="(auth)" options={{ headerShown: false }} />
-            <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-            <Stack.Screen name="modal" options={{ presentation: 'modal' }} />
-          </Stack>
-        </SafeAreaView>
-      </GlobalProvider>
-    </AuthProvider>
+    <GestureHandlerRootView>
+      <BottomSheetModalProvider>
+        <AuthProvider>
+          <GlobalProvider>
+            <SafeAreaView style={{ flex: 1 }}>
+              <Stack>
+                <Stack.Screen name="(auth)" options={{ headerShown: false }} />
+                <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+                <Stack.Screen
+                  name="modal"
+                  options={{ presentation: 'modal' }}
+                />
+              </Stack>
+            </SafeAreaView>
+          </GlobalProvider>
+        </AuthProvider>
+      </BottomSheetModalProvider>
+    </GestureHandlerRootView>
   );
 }
 
