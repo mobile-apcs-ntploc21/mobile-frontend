@@ -22,15 +22,6 @@ const UserById = () => {
   const bottomSheetRef = useRef<BottomSheetModal>(null);
   const navigation = useNavigation();
 
-  const renderOnlineStatus = (relationship: string) => {
-    switch (relationship) {
-      case 'friend':
-        return <View style={styles.onlineStatus} />;
-      default:
-        return null;
-    }
-  };
-
   const renderFriendButton = (relationship: string) => {
     switch (relationship) {
       case 'friend':
@@ -91,7 +82,7 @@ const UserById = () => {
         <View style={styles.profileImageContainer}>
           <View>
             <Image source={DefaultProfileImage} style={styles.profileImage} />
-            {renderOnlineStatus('friend')}
+            <View style={styles.onlineStatus} />
           </View>
         </View>
         <View style={styles.nameContainer}>
