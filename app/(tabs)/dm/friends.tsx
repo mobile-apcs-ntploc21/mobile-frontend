@@ -18,6 +18,7 @@ import UserItemReqReceived from '@/components/UserItem/UserItemReqReceived';
 import UserItemReqSent from '@/components/UserItem/UserItemReqSent';
 import { ScrollView } from 'react-native-gesture-handler';
 import { MyButtonText } from '@/components/MyButton';
+import UserItemGeneral from '@/components/UserItem/UserItemGeneral';
 
 const Friends = () => {
   const isFocused = useIsFocused(); // Used to change status bar color
@@ -83,7 +84,7 @@ const Friends = () => {
           </Accordion>
           <Accordion heading="(8) All" defaultOpen>
             {Array.from({ length: 8 }, (_, index) => (
-              <UserItemReqReceived
+              <UserItemGeneral
                 key={index}
                 id={index.toString()}
                 username="johndoe"
