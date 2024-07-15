@@ -1,9 +1,17 @@
-import React, { createContext, useReducer, useContext, useEffect } from 'react';
+import React, {
+  createContext,
+  useReducer,
+  useContext,
+  useEffect,
+  useState
+} from 'react';
+import { useSegments, useRouter, useRootNavigation } from 'expo-router';
 
 import {
   getUser,
   register as CreateUser,
-  login as GQLLogin
+  login as GQLLogin,
+  logout as GQLLogout
 } from '@/services/auth';
 
 interface AuthState {
@@ -119,8 +127,50 @@ const reducer = (state: AuthState, action: AuthAction) =>
 export const AuthProvider = ({ children }: AuthProviderProps) => {
   const [state, dispatch] = useReducer(reducer, initialState);
 
+  // This hook will protect the route access based on user authentication.
+  const useProtectedRoute = (user: any | null) => {
+    const segments = useSegments();
+    const router = useRouter();
+
+    // Checking if navigation is good
+    const [isNavigationReady, setNavigationReady] = useState(false);
+    const rootNavigation = useRootNavigation();
+
+    // useEffect to set up the listener for the rootNavigation state
+    useEffect(() => {
+      const unsubscribe = rootNavigation?.addListener('state', () => {
+        setNavigationReady(true);
+      });
+      return function cleanup() {
+        if (unsubscribe) {
+          unsubscribe();
+        }
+      };
+    }, [rootNavigation]);
+
+    // useEffect to route user to proper app location based on what segment the route is in and what the user state variable is set to.
+    React.useEffect(() => {
+      if (!isNavigationReady) {
+        return;
+      }
+
+      console.log('segments:', segments);
+      const inAuthGroup = segments[0] === '(auth)';
+      if (!state.isInitialized) {
+        return;
+      }
+
+      if (!user && !inAuthGroup) {
+        router.replace('/login');
+      } else if (user && inAuthGroup) {
+        router.replace('/servers');
+      }
+    }, [user, segments, state.isInitialized, isNavigationReady]);
+  };
+
   useEffect(() => {
     const initialize = async () => {
+      console.log('Initializing...');
       const user = await getUser();
 
       if (user != null) {
@@ -156,7 +206,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   };
 
   const logout = async () => {
-    // await AsyncStorage.clear();
+    await GQLLogout();
     dispatch({ type: 'LOGOUT' });
   };
 
@@ -175,6 +225,8 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     });
   };
 
+  useProtectedRoute(state.user);
+
   return (
     <AuthContext.Provider
       value={{
@@ -190,4 +242,12 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 };
 
 // Hook
-export const useAuth = () => useContext(AuthContext);
+export const useAuth = () => {
+  const context = useContext(AuthContext);
+
+  if (context === undefined) {
+    throw new Error('useAuth must be used within an AuthProvider');
+  }
+
+  return context;
+};

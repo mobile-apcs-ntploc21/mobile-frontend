@@ -19,8 +19,11 @@ import StarIcon from '@/assets/icons/StarIcon';
 import MyButtonPress from '@/components/MyButton/MyButtonPress';
 import TickIcon from '@/assets/icons/TickIcon';
 import CrossIcon from '@/assets/icons/CrossIcon';
+import { useAuth } from '@/context/AuthProvider';
 
 const Playground = () => {
+  const { logout } = useAuth();
+
   return (
     <ScrollView>
       <MyText style={TextStyles.h1}>Heading 1</MyText>
@@ -28,6 +31,9 @@ const Playground = () => {
       <MyText style={TextStyles.h3}>Heading 3</MyText>
       <MyText style={TextStyles.bodyXL}>Body XL</MyText>
       <MyText>Body L</MyText>
+
+      <MyButtonText title="Logout" onPress={() => logout()} />
+
       <MyButtonText
         title="Default"
         onPress={() => console.log('Default')}
