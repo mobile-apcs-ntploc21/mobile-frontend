@@ -1,5 +1,5 @@
 import { View, Text, ScrollView, TouchableOpacity } from 'react-native';
-import React from 'react';
+import React, { useState } from 'react';
 import { colors, fonts } from '@/constants/theme';
 import MyText from '@/components/MyText';
 import { TextStyles } from '@/styles/TextStyles';
@@ -24,10 +24,37 @@ import UserItemBase from '@/components/UserItem/UserItemBase';
 import UserItemGeneral from '@/components/UserItem/UserItemGeneral';
 import UserItemReqSent from '@/components/UserItem/UserItemReqSent';
 import UserItemReqReceived from '@/components/UserItem/UserItemReqReceived';
+import ButtonListBase from '@/components/ButtonList/ButtonListBase';
+import ButtonListText from '@/components/ButtonList/ButtonListText';
+import ButtonListRadio from '@/components/ButtonList/ButtonListRadio';
 
 const Playground = () => {
+  const [selected, setSelected] = useState<string>();
+  const handleValueChange = React.useCallback((value: string) => {
+    setSelected(value);
+  }, []);
+
   return (
     <ScrollView>
+      <View style={{ padding: 16 }}>
+        <ButtonListText
+          heading="Lorem ipsum"
+          items={Array.from({ length: 5 }, (_, index) => ({
+            text: `Item ${index}`,
+            onPress: () => console.log(`Item ${index} pressed`)
+          }))}
+        />
+        <ButtonListRadio
+          heading="Lorem ipsum"
+          items={Array.from({ length: 5 }, (_, index) => ({
+            value: `item-${index}`,
+            label: `Item ${index}`
+          }))}
+          value={selected}
+          onChange={handleValueChange}
+        />
+        <MyText>Selected value: {selected}</MyText>
+      </View>
       <UserItemGeneral
         id="123"
         username="johndoe"
