@@ -14,11 +14,51 @@ import { TextStyles } from '@/styles/TextStyles';
 import FriendIcon from '@/assets/icons/FriendIcon';
 import DotsIcon from '@/assets/icons/DotsIcon';
 import ArrowBackIcon from '@/assets/icons/ArrowBackIcon';
+import PendingFriendIcon from '@/assets/icons/PendingFriendIcon';
+import AddFriendIcon from '@/assets/icons/AddFriendIcon';
 
 const UserById = () => {
   const { userId } = useLocalSearchParams();
   const bottomSheetRef = useRef<BottomSheetModal>(null);
   const navigation = useNavigation();
+
+  const renderFriendButton = () => {
+    // TODO: Get the relationship status from the server
+    const relationship: string = 'friend';
+
+    switch (relationship) {
+      case 'friend':
+        return (
+          <MyButtonTextIcon
+            title="Friends"
+            onPress={() => {}}
+            iconAfter={FriendIcon}
+            containerStyle={styles.button}
+            textStyle={TextStyles.h4}
+          />
+        );
+      case 'pending':
+        return (
+          <MyButtonTextIcon
+            title="Pending"
+            onPress={() => {}}
+            iconAfter={PendingFriendIcon}
+            containerStyle={styles.button}
+            textStyle={TextStyles.h4}
+          />
+        );
+      default:
+        return (
+          <MyButtonTextIcon
+            title="Add Friend"
+            onPress={() => {}}
+            iconAfter={AddFriendIcon}
+            containerStyle={styles.button}
+            textStyle={TextStyles.h4}
+          />
+        );
+    }
+  };
 
   return (
     <View style={GlobalStyles.screen}>
@@ -64,13 +104,7 @@ const UserById = () => {
             containerStyle={styles.button}
             textStyle={TextStyles.h4}
           />
-          <MyButtonTextIcon
-            title="Friends"
-            onPress={() => {}}
-            iconAfter={FriendIcon}
-            containerStyle={styles.button}
-            textStyle={TextStyles.h4}
-          />
+          {renderFriendButton()}
         </View>
         <View style={styles.aboutMeContainer}>
           <Text style={styles.aboutMeTitle}>ABOUT ME</Text>
