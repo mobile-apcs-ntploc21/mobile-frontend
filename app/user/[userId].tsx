@@ -22,10 +22,16 @@ const UserById = () => {
   const bottomSheetRef = useRef<BottomSheetModal>(null);
   const navigation = useNavigation();
 
-  const renderFriendButton = () => {
-    // TODO: Get the relationship status from the server
-    const relationship: string = 'friend';
+  const renderOnlineStatus = (relationship: string) => {
+    switch (relationship) {
+      case 'friend':
+        return <View style={styles.onlineStatus} />;
+      default:
+        return null;
+    }
+  };
 
+  const renderFriendButton = (relationship: string) => {
     switch (relationship) {
       case 'friend':
         return (
@@ -85,7 +91,7 @@ const UserById = () => {
         <View style={styles.profileImageContainer}>
           <View>
             <Image source={DefaultProfileImage} style={styles.profileImage} />
-            <View style={styles.statusButton} />
+            {renderOnlineStatus('friend')}
           </View>
         </View>
         <View style={styles.nameContainer}>
@@ -104,7 +110,7 @@ const UserById = () => {
             containerStyle={styles.button}
             textStyle={TextStyles.h4}
           />
-          {renderFriendButton()}
+          {renderFriendButton('friend')}
         </View>
         <View style={styles.aboutMeContainer}>
           <Text style={styles.aboutMeTitle}>ABOUT ME</Text>
@@ -175,7 +181,7 @@ const styles = StyleSheet.create({
     height: 120,
     borderRadius: 60
   },
-  statusButton: {
+  onlineStatus: {
     position: 'absolute',
     bottom: 0,
     right: 0,
