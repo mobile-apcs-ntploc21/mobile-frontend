@@ -89,6 +89,7 @@ const Friends = () => {
                 username="johndoe"
                 displayName="John Doe"
                 onlineStatus="online"
+                statusText="Hey there! I am using Discord."
               />
             ))}
           </Accordion>

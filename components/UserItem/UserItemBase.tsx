@@ -13,14 +13,15 @@ import { getOnlineStatusColor } from '@/utils/user';
 import { router } from 'expo-router';
 import { TextStyles } from '@/styles/TextStyles';
 import { MyButtonText } from '../MyButton';
+import MyText from '../MyText';
 
 export interface UserItemBaseProps {
   id: string;
   username: string;
   displayName?: string;
   profilePic?: string;
-  showStatus?: boolean;
   onlineStatus?: string;
+  statusText?: string;
   actionView?: React.ReactNode;
 }
 
@@ -38,20 +39,32 @@ const UserItemBase = (props: UserItemBaseProps) => {
             }
             style={styles.profilePic}
           />
-          {props.showStatus && (
-            <View
+          <View
+            style={[
+              styles.onlineStatus,
+              {
+                backgroundColor: getOnlineStatusColor(
+                  props.onlineStatus || 'offline'
+                )
+              }
+            ]}
+          />
+        </View>
+        <View style={styles.textContainer}>
+          <MyText style={TextStyles.h5}>{props.displayName}</MyText>
+          {props.statusText && (
+            <MyText
               style={[
-                styles.onlineStatus,
+                TextStyles.bodyM,
                 {
-                  backgroundColor: getOnlineStatusColor(
-                    props.onlineStatus || 'offline'
-                  )
+                  color: colors.gray02
                 }
               ]}
-            />
+            >
+              {props.statusText}
+            </MyText>
           )}
         </View>
-        <Text style={TextStyles.h5}>{props.displayName}</Text>
       </View>
       {/* By some reasons the touch gesture to TouchableOpacity in actionView keeps propagating. This method is used to stop the touch propagation of it. */}
       <TouchableWithoutFeedback>
@@ -91,5 +104,8 @@ const styles = StyleSheet.create({
     position: 'absolute',
     bottom: 0,
     right: 0
+  },
+  textContainer: {
+    gap: 4
   }
 });
