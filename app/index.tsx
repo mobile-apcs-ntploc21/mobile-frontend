@@ -1,9 +1,10 @@
 import { useAuth } from '@/context/AuthProvider';
 
-import { Redirect } from 'expo-router';
+import { Redirect, useRouter } from 'expo-router';
 import { ActivityIndicator } from 'react-native';
 
 export default function Index() {
+  const router = useRouter();
   const { isAuthenticated, isInitialized, user } = useAuth();
 
   // if not initialized, show loading spinner

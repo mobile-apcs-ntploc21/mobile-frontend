@@ -59,13 +59,6 @@ const Register = () => {
         value.email,
         value.password
       );
-
-      navigation.dispatch({
-        ...CommonActions.reset({
-          index: 0,
-          routes: [{ key: '(tabs)', name: '(tabs)' }]
-        })
-      });
     } catch (e: any) {
       switch (e.message) {
         case 'Email already exists':

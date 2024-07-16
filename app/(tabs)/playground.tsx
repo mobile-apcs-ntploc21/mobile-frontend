@@ -19,6 +19,7 @@ import StarIcon from '@/assets/icons/StarIcon';
 import MyButtonPress from '@/components/MyButton/MyButtonPress';
 import TickIcon from '@/assets/icons/TickIcon';
 import CrossIcon from '@/assets/icons/CrossIcon';
+import { useAuth } from '@/context/AuthProvider';
 import MyButtonTextIcon from '@/components/MyButton/MyButtonTextIcon';
 import UserItemBase from '@/components/UserItem/UserItemBase';
 import UserItemGeneral from '@/components/UserItem/UserItemGeneral';
@@ -33,6 +34,7 @@ const Playground = () => {
   const handleValueChange = React.useCallback((value: string) => {
     setSelected(value);
   }, []);
+  const { logout } = useAuth();
 
   return (
     <ScrollView>
@@ -89,6 +91,9 @@ const Playground = () => {
       <MyText style={TextStyles.h3}>Heading 3</MyText>
       <MyText style={TextStyles.bodyXL}>Body XL</MyText>
       <MyText>Body L</MyText>
+
+      <MyButtonText title="Logout" onPress={() => logout()} />
+
       <MyButtonText
         title="Default"
         onPress={() => console.log('Default')}
