@@ -1,7 +1,7 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { jwtDecode } from 'jwt-decode';
 
-const API_URL = process.env.EXPO_PUBLIC_API_URL;
+const API_URL = process.env.EXPO_PUBLIC_API_URL || 'http://fbi.com:4001';
 // const API_URL = 'http://fbi.com:4001';
 const now = () => Math.floor(Date.now() / 1000);
 
@@ -23,6 +23,8 @@ const postData = async (
     'Content-Type': 'application/json',
     ...addHeaders
   };
+
+  console.log('postData', `${API_URL}${url}`, headers, data);
 
   try {
     const response = await fetch(`${API_URL}${url}`, {
@@ -204,4 +206,9 @@ export async function register(
   } catch (e: any) {
     throw new Error(e.message);
   }
+}
+
+export async function logout(): Promise<void> {
+  // TODO: Call the server to logout the user.
+  await AsyncStorage.clear();
 }
