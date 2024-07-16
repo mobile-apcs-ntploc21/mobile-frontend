@@ -1,5 +1,5 @@
 import { Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { router, useLocalSearchParams, useNavigation } from 'expo-router';
 import { colors, fonts } from '@/constants/theme';
 import MyButtonTextIcon from '@/components/MyButton/MyButtonTextIcon';
@@ -16,53 +16,122 @@ import DotsIcon from '@/assets/icons/DotsIcon';
 import ArrowBackIcon from '@/assets/icons/ArrowBackIcon';
 import PendingFriendIcon from '@/assets/icons/PendingFriendIcon';
 import AddFriendIcon from '@/assets/icons/AddFriendIcon';
+import MyBottomSheetModal from '@/components/modal/MyBottomSheetModal';
+import ButtonListText from '@/components/ButtonList/ButtonListText';
 
 const UserById = () => {
   const { userId } = useLocalSearchParams();
   const bottomSheetRef = useRef<BottomSheetModal>(null);
   const navigation = useNavigation();
+  const [relationship, setRelationship] = useState<string>('');
+
+  useEffect(() => {
+    // Fetch user data
+    // Fetch relationship
+    setRelationship('FRIEND');
+  }, []);
+
+  const handleOpenBottomSheet = () => {
+    bottomSheetRef.current?.present();
+  };
+
+  const handleCloseBottomSheet = () => {
+    bottomSheetRef.current?.dismiss();
+  };
 
   const renderFriendButton = (relationship: string) => {
+    let props = {
+      title: '',
+      onPress: handleOpenBottomSheet,
+      iconAfter: FriendIcon,
+      containerStyle: styles.button,
+      textStyle: TextStyles.h4
+    };
+
     switch (relationship) {
-      case 'friend':
-        return (
-          <MyButtonTextIcon
-            title="Friends"
-            onPress={() => {}}
-            iconAfter={FriendIcon}
-            containerStyle={styles.button}
-            textStyle={TextStyles.h4}
-          />
-        );
-      case 'pending':
-        return (
-          <MyButtonTextIcon
-            title="Pending"
-            onPress={() => {}}
-            iconAfter={PendingFriendIcon}
-            containerStyle={styles.button}
-            textStyle={TextStyles.h4}
-          />
-        );
+      case 'FRIEND':
+        props = {
+          ...props,
+          title: 'Friends',
+          iconAfter: FriendIcon
+        };
+        break;
+      case 'REQUEST-SENT':
+        props = {
+          ...props,
+          title: 'Pending',
+          iconAfter: PendingFriendIcon
+        };
+        break;
+      case 'REQUEST-RECEIVED':
+        props = {
+          ...props,
+          title: 'Accept',
+          iconAfter: AddFriendIcon
+        };
+        break;
       default:
-        return (
-          <MyButtonTextIcon
-            title="Add Friend"
-            onPress={() => {}}
-            iconAfter={AddFriendIcon}
-            containerStyle={styles.button}
-            textStyle={TextStyles.h4}
-          />
-        );
+        props = {
+          ...props,
+          title: 'Add Friend',
+          iconAfter: AddFriendIcon
+        };
+        break;
     }
+
+    return <MyButtonTextIcon {...props} />;
+  };
+
+  const renderBottomSheetContent = () => {
+    // the content should vary based on the relationship
+    const items = [
+      {
+        text: 'Block',
+        onPress: () => {}
+      }
+    ];
+    switch (relationship) {
+      case 'FRIEND':
+        items.push({
+          text: 'Unfriend',
+          onPress: () => {}
+        });
+        break;
+      case 'REQUEST-SENT':
+        items.push({
+          text: 'Cancel Request',
+          onPress: () => {}
+        });
+        break;
+      case 'REQUEST-RECEIVED':
+        items.push({
+          text: 'Accept',
+          onPress: () => {}
+        });
+        items.push({
+          text: 'Decline',
+          onPress: () => {}
+        });
+        break;
+      default:
+        items.push({
+          text: 'Add Friend',
+          onPress: () => {}
+        });
+        break;
+    }
+    return <ButtonListText items={items} />;
   };
 
   return (
     <View style={GlobalStyles.screen}>
-      {/* <OnlineStatusBottomSheetModal
+      <MyBottomSheetModal
+        heading={userId?.toString()}
         ref={bottomSheetRef}
-        onClose={() => bottomSheetRef.current?.dismiss()}
-      /> */}
+        onClose={handleCloseBottomSheet}
+      >
+        {renderBottomSheetContent()}
+      </MyBottomSheetModal>
       <Image source={DefaultCoverImage} style={styles.coverImage} />
       {router.canGoBack() && (
         <MyButtonIcon
@@ -74,7 +143,7 @@ const UserById = () => {
       )}
       <MyButtonIcon
         icon={DotsIcon}
-        onPress={() => bottomSheetRef.current?.present()}
+        onPress={handleOpenBottomSheet}
         containerStyle={styles.settingsButton}
         textColor={colors.white}
       />
@@ -101,7 +170,7 @@ const UserById = () => {
             containerStyle={styles.button}
             textStyle={TextStyles.h4}
           />
-          {renderFriendButton('friend')}
+          {renderFriendButton(relationship)}
         </View>
         <View style={styles.aboutMeContainer}>
           <Text style={styles.aboutMeTitle}>ABOUT ME</Text>

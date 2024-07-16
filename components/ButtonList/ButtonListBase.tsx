@@ -19,12 +19,8 @@ const ButtonListBase = (props: ButtonListBaseProps) => {
       {props.heading && <MyText style={styles.heading}>{props.heading}</MyText>}
       <View style={styles.itemContainer}>
         {props.items?.map((item, index) => (
-          <>
-            <TouchableOpacity
-              key={index}
-              style={styles.item}
-              onPress={item.onPress}
-            >
+          <View key={index}>
+            <TouchableOpacity style={styles.item} onPress={item.onPress}>
               {item.itemComponent}
             </TouchableOpacity>
             {index < props.items!.length - 1 && (
@@ -32,7 +28,7 @@ const ButtonListBase = (props: ButtonListBaseProps) => {
                 <View style={styles.separator} />
               </View>
             )}
-          </>
+          </View>
         ))}
       </View>
     </View>
