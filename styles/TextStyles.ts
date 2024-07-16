@@ -4,17 +4,17 @@ import { fonts } from '@/constants/theme';
 export const TextStyles = StyleSheet.create({
   superHeader: {
     fontSize: 30,
-    fontFamily: fonts.black,
+    fontFamily: fonts.bold,
     lineHeight: 38
   },
   h1: {
     fontSize: 26,
-    fontFamily: fonts.black,
+    fontFamily: fonts.bold,
     lineHeight: 34
   },
   h2: {
     fontSize: 24,
-    fontFamily: fonts.black,
+    fontFamily: fonts.bold,
     lineHeight: 32
   },
   h3: {

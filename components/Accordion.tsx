@@ -9,13 +9,18 @@ import Animated, {
   withTiming
 } from 'react-native-reanimated';
 
+interface AccordionProps extends ViewProps {
+  defaultOpen?: boolean;
+  heading?: string;
+}
+
 /**
  * Accordion component with collapsible content
  * @param props ViewProps
  * @returns React.FC
  */
-const Accordion = (props: ViewProps) => {
-  const [flag, setFlag] = useState(false);
+const Accordion = (props: AccordionProps) => {
+  const [flag, setFlag] = useState(props.defaultOpen || false);
 
   const { children, ...restProps } = props;
   const combinedStyles = StyleSheet.flatten([styles.container, props.style]);
@@ -38,7 +43,7 @@ const Accordion = (props: ViewProps) => {
         <Animated.View style={rS}>
           <Entypo name="chevron-up" size={24} color={colors.black} />
         </Animated.View>
-        <Text style={TextStyles.h5}>Heading</Text>
+        <Text style={TextStyles.h5}>{props.heading}</Text>
       </Pressable>
       {flag && <View style={styles.content}>{children}</View>}
     </View>
@@ -51,10 +56,10 @@ const styles = StyleSheet.create({
   container: {
     backgroundColor: colors.white,
     borderRadius: 21,
-    paddingHorizontal: 16,
     paddingVertical: 10
   },
   heading: {
+    marginLeft: 16,
     flexDirection: 'row',
     columnGap: 10,
     alignItems: 'center'

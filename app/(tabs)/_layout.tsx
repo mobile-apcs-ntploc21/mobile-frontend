@@ -4,6 +4,13 @@ import { Tabs } from 'expo-router';
 import { colors } from '@/constants/theme';
 import { MaterialIcons } from '@expo/vector-icons';
 
+const TabArr = [
+  { name: 'servers', iconType: MaterialIcons, iconName: 'dashboard' },
+  { name: 'dm', iconType: MaterialIcons, iconName: 'question-answer' },
+  { name: 'notifications', iconType: MaterialIcons, iconName: 'notifications' },
+  { name: 'user', iconType: MaterialIcons, iconName: 'account-circle' }
+];
+
 export default function TabLayout() {
   const isPlayground = process.env.EXPO_PUBLIC_PLAYGROUND_MODE === 'true';
   return (
@@ -13,62 +20,24 @@ export default function TabLayout() {
         tabBarInactiveTintColor: colors.gray03
       }}
     >
-      <Tabs.Screen
-        name="servers"
-        options={{
-          headerShown: false,
-          tabBarShowLabel: false,
-          tabBarIcon: ({ color }) => (
-            <MaterialIcons name="dashboard" color={color} size={34} />
-          ),
-          tabBarStyle: {
-            backgroundColor: colors.white,
-            height: 66
-          }
-        }}
-      />
-      <Tabs.Screen
-        name="dm"
-        options={{
-          headerShown: false,
-          tabBarShowLabel: false,
-          tabBarIcon: ({ color }) => (
-            <MaterialIcons name="question-answer" color={color} size={34} />
-          ),
-          tabBarStyle: {
-            backgroundColor: colors.white,
-            height: 66
-          }
-        }}
-      />
-      <Tabs.Screen
-        name="notifications"
-        options={{
-          headerShown: false,
-          tabBarShowLabel: false,
-          tabBarIcon: ({ color }) => (
-            <MaterialIcons name="notifications" color={color} size={34} />
-          ),
-          tabBarStyle: {
-            backgroundColor: colors.white,
-            height: 66
-          }
-        }}
-      />
-      <Tabs.Screen
-        name="user"
-        options={{
-          headerShown: false,
-          tabBarShowLabel: false,
-          tabBarIcon: ({ color }) => (
-            <MaterialIcons name="account-circle" color={color} size={34} />
-          ),
-          tabBarStyle: {
-            backgroundColor: colors.white,
-            height: 66
-          }
-        }}
-      />
+      {TabArr.map((tab, index) => (
+        <Tabs.Screen
+          key={index}
+          name={tab.name}
+          options={{
+            headerShown: false,
+            tabBarShowLabel: false,
+            tabBarIcon: ({ color }) => (
+              // @ts-ignore
+              <tab.iconType name={tab.iconName} color={color} size={34} />
+            ),
+            tabBarStyle: {
+              backgroundColor: colors.white,
+              height: 66
+            }
+          }}
+        />
+      ))}
       <Tabs.Screen
         name="playground"
         options={{
