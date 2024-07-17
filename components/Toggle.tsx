@@ -65,10 +65,10 @@ const Toggle = ({
     >
       <View style={styles.content}>
         <View style={styles.field}>
-          <FirstFC isSelected={state} />
+          <FirstFC isSelected={!state} />
         </View>
         <View style={styles.field}>
-          <SecondFC isSelected={!state} />
+          <SecondFC isSelected={state} />
         </View>
         <Animated.View
           style={[

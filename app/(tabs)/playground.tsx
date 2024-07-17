@@ -28,6 +28,7 @@ import UserItemReqReceived from '@/components/UserItem/UserItemReqReceived';
 import ButtonListBase from '@/components/ButtonList/ButtonListBase';
 import ButtonListText from '@/components/ButtonList/ButtonListText';
 import ButtonListRadio from '@/components/ButtonList/ButtonListRadio';
+import { router } from 'expo-router';
 
 const Playground = () => {
   const [selected, setSelected] = useState<string>();
@@ -38,6 +39,9 @@ const Playground = () => {
 
   return (
     <ScrollView>
+      <TouchableOpacity onPress={() => router.navigate('/subPlayground')}>
+        <MyText>Go to subplayground</MyText>
+      </TouchableOpacity>
       <View style={{ padding: 16 }}>
         <ButtonListText
           heading="Lorem ipsum"
@@ -188,7 +192,7 @@ const Playground = () => {
         FirstFC={({ isSelected }) => (
           <MyText
             style={{
-              color: isSelected ? colors.white : colors.primary
+              color: isSelected ? colors.primary : colors.white
             }}
           >
             Default
@@ -197,7 +201,7 @@ const Playground = () => {
         SecondFC={({ isSelected }) => (
           <MyText
             style={{
-              color: isSelected ? colors.white : colors.primary
+              color: isSelected ? colors.primary : colors.white
             }}
           >
             Toggle
@@ -209,7 +213,7 @@ const Playground = () => {
         FirstFC={({ isSelected }) => (
           <MyText
             style={{
-              color: isSelected ? colors.white : 'blue'
+              color: isSelected ? 'blue' : colors.white
             }}
           >
             Custom
@@ -218,7 +222,7 @@ const Playground = () => {
         SecondFC={({ isSelected }) => (
           <MyText
             style={{
-              color: isSelected ? colors.white : 'blue'
+              color: isSelected ? 'blue' : colors.white
             }}
           >
             Toggle
