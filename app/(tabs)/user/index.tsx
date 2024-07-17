@@ -19,6 +19,7 @@ import MyButtonIcon from '@/components/MyButton/MyButtonIcon';
 import SettingIcon from '@/assets/icons/SettingIcon';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
 import MyBottomSheetModal from '@/components/modal/MyBottomSheetModal';
+import { router } from 'expo-router';
 
 const User = () => {
   const bottomSheetRef = useRef<BottomSheetModal>(null);
@@ -70,7 +71,7 @@ const User = () => {
           />
           <MyButtonTextIcon
             title="Edit Profile"
-            onPress={() => {}}
+            onPress={() => router.push('user/edit-profile')}
             iconAfter={EditProfileIcon}
             containerStyle={styles.button}
             textStyle={TextStyles.h4}
