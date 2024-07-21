@@ -19,7 +19,6 @@ export interface UserItemBaseProps {
   username: string;
   displayName?: string;
   profilePic?: string;
-  showStatus?: boolean;
   onlineStatus?: string;
   actionView?: React.ReactNode;
 }
@@ -38,18 +37,16 @@ const UserItemBase = (props: UserItemBaseProps) => {
             }
             style={styles.profilePic}
           />
-          {props.showStatus && (
-            <View
-              style={[
-                styles.onlineStatus,
-                {
-                  backgroundColor: getOnlineStatusColor(
-                    props.onlineStatus || 'offline'
-                  )
-                }
-              ]}
-            />
-          )}
+          <View
+            style={[
+              styles.onlineStatus,
+              {
+                backgroundColor: getOnlineStatusColor(
+                  props.onlineStatus || 'offline'
+                )
+              }
+            ]}
+          />
         </View>
         <Text style={TextStyles.h5}>{props.displayName}</Text>
       </View>

@@ -6,18 +6,20 @@ import { MyButtonText } from '../MyButton';
 import { TextStyles } from '@/styles/TextStyles';
 import { colors } from '@/constants/theme';
 
-interface UserItemReqSentProps extends UserItemBaseProps {}
+interface UserItemReqSentProps extends UserItemBaseProps {
+  onCancel?: () => void;
+}
 
 const UserItemReqSent = (props: UserItemReqSentProps) => {
   return (
     <UserItemBase
       actionView={
         <MyButtonPress
-          comp={(props) => (
+          comp={(subProps) => (
             <MyButtonText
-              {...props}
+              {...subProps}
               title="Cancel Request"
-              onPress={() => {}}
+              onPress={props.onCancel}
               activeOpacity={1}
               containerStyle={styles.button}
               textStyle={TextStyles.bodyM}
