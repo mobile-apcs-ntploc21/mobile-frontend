@@ -5,7 +5,7 @@ import UserItemBase, { UserItemBaseProps } from './UserItemBase';
 interface UserItemGeneralProps extends UserItemBaseProps {}
 
 const UserItemGeneral = (props: UserItemGeneralProps) => {
-  return <UserItemBase showStatus {...props} />;
+  return <UserItemBase {...props} />;
 };
 
 export default UserItemGeneral;

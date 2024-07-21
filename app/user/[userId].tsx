@@ -1,5 +1,12 @@
-import { Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import React, { useEffect, useRef, useState } from 'react';
+import {
+  ActivityIndicator,
+  Image,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View
+} from 'react-native';
+import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { router, useLocalSearchParams, useNavigation } from 'expo-router';
 import { colors, fonts } from '@/constants/theme';
 import MyButtonTextIcon from '@/components/MyButton/MyButtonTextIcon';
@@ -18,18 +25,124 @@ import PendingFriendIcon from '@/assets/icons/PendingFriendIcon';
 import AddFriendIcon from '@/assets/icons/AddFriendIcon';
 import MyBottomSheetModal from '@/components/modal/MyBottomSheetModal';
 import ButtonListText from '@/components/ButtonList/ButtonListText';
+import {
+  acceptFriendRequest,
+  addFriend,
+  blockUser,
+  cancelFriendRequest,
+  declineFriendRequest,
+  deleteFriend,
+  getUserRelationship,
+  unblockUser
+} from '@/services/friend';
+import { IconProps } from '@/types';
 
 const UserById = () => {
-  const { userId } = useLocalSearchParams();
+  const { userId } = useLocalSearchParams<{ userId: string }>();
   const bottomSheetRef = useRef<BottomSheetModal>(null);
   const navigation = useNavigation();
   const [relationship, setRelationship] = useState<string>('');
+  const [loading, setLoading] = useState<boolean>(false);
 
-  useEffect(() => {
-    // Fetch user data
-    // Fetch relationship
-    setRelationship('FRIEND');
+  const fetchRelationship = async () => {
+    try {
+      const response = await getUserRelationship(userId!);
+      setRelationship(response);
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
+  const fetchData = async () => {
+    setLoading(true);
+    await fetchRelationship();
+    setLoading(false);
+  };
+
+  useLayoutEffect(() => {
+    fetchData();
   }, []);
+
+  // FRIENDS MANAGEMENT -------------------------------------
+
+  const handleAddFriend = async () => {
+    try {
+      await addFriend(userId!);
+    } catch (e) {
+      console.error(e);
+    } finally {
+      await fetchData();
+      handleCloseBottomSheet();
+    }
+  };
+
+  const handleCancelRequest = async () => {
+    try {
+      await cancelFriendRequest(userId!);
+    } catch (e) {
+      console.error(e);
+    } finally {
+      await fetchData();
+      handleCloseBottomSheet();
+    }
+  };
+
+  const handleAcceptRequest = async () => {
+    try {
+      await acceptFriendRequest(userId!);
+    } catch (e) {
+      console.error(e);
+    } finally {
+      await fetchData();
+      handleCloseBottomSheet();
+    }
+  };
+
+  const handleDeclineRequest = async () => {
+    try {
+      await declineFriendRequest(userId!);
+    } catch (e) {
+      console.error(e);
+    } finally {
+      await fetchData();
+      handleCloseBottomSheet();
+    }
+  };
+
+  const handleUnfriend = async () => {
+    try {
+      await deleteFriend(userId!);
+    } catch (e) {
+      console.error(e);
+    } finally {
+      await fetchData();
+      handleCloseBottomSheet();
+    }
+  };
+
+  const handleBlock = async () => {
+    try {
+      await blockUser(userId!);
+    } catch (e) {
+      console.error(e);
+    } finally {
+      await fetchData();
+      handleCloseBottomSheet();
+    }
+  };
+
+  const handleUnblock = async () => {
+    try {
+      await unblockUser(userId!);
+    } catch (e) {
+      console.error(e);
+    } finally {
+      await fetchData();
+      handleCloseBottomSheet();
+    }
+  };
+
+  // ---------------------------------------------------------
 
   const handleOpenBottomSheet = () => {
     bottomSheetRef.current?.present();
@@ -40,10 +153,15 @@ const UserById = () => {
   };
 
   const renderFriendButton = (relationship: string) => {
-    let props = {
+    let props: {
+      title: string;
+      onPress: () => void;
+      iconAfter?: React.ComponentType<IconProps>;
+      containerStyle: any;
+      textStyle: any;
+    } = {
       title: '',
       onPress: handleOpenBottomSheet,
-      iconAfter: FriendIcon,
       containerStyle: styles.button,
       textStyle: TextStyles.h4
     };
@@ -70,6 +188,12 @@ const UserById = () => {
           iconAfter: AddFriendIcon
         };
         break;
+      case 'BLOCK':
+        props = {
+          ...props,
+          title: 'Unblock'
+        };
+        break;
       default:
         props = {
           ...props,
@@ -85,43 +209,54 @@ const UserById = () => {
   const renderBottomSheetContent = () => {
     // the content should vary based on the relationship
     const items = [
-      {
-        text: 'Block',
-        onPress: () => {}
-      }
+      relationship === 'BLOCK'
+        ? {
+            text: 'Unblock',
+            onPress: handleUnblock
+          }
+        : {
+            text: 'Block',
+            onPress: handleBlock
+          }
     ];
     switch (relationship) {
       case 'FRIEND':
         items.push({
           text: 'Unfriend',
-          onPress: () => {}
+          onPress: handleUnfriend
         });
         break;
       case 'REQUEST-SENT':
         items.push({
           text: 'Cancel Request',
-          onPress: () => {}
+          onPress: handleCancelRequest
         });
         break;
       case 'REQUEST-RECEIVED':
         items.push({
           text: 'Accept',
-          onPress: () => {}
+          onPress: handleAcceptRequest
         });
         items.push({
           text: 'Decline',
-          onPress: () => {}
+          onPress: handleDeclineRequest
         });
+        break;
+      case 'BLOCK':
         break;
       default:
         items.push({
           text: 'Add Friend',
-          onPress: () => {}
+          onPress: handleAddFriend
         });
         break;
     }
     return <ButtonListText items={items} />;
   };
+
+  if (loading) {
+    return <ActivityIndicator />;
+  }
 
   return (
     <View style={GlobalStyles.screen}>
@@ -155,8 +290,8 @@ const UserById = () => {
           </View>
         </View>
         <View style={styles.nameContainer}>
-          <Text style={styles.displayName}>John Doe {userId}</Text>
-          <Text style={styles.username}>@johndoe{userId}</Text>
+          <Text style={styles.displayName}>John Doe</Text>
+          <Text style={styles.username}>@{userId?.slice(0, 10)}</Text>
         </View>
         <StatusBubble
           emoji="👋"

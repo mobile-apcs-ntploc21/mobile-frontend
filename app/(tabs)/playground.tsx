@@ -39,6 +39,10 @@ const Playground = () => {
 
   return (
     <ScrollView>
+      <MyButtonText
+        title="Blocked List"
+        onPress={() => router.navigate('/blocked')}
+      />
       <TouchableOpacity onPress={() => router.navigate('/subPlayground')}>
         <MyText>Go to subplayground</MyText>
       </TouchableOpacity>

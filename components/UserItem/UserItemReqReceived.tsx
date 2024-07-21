@@ -7,7 +7,10 @@ import TickIcon from '@/assets/icons/TickIcon';
 import { colors } from '@/constants/theme';
 import CrossIcon from '@/assets/icons/CrossIcon';
 
-interface UserItemReqSentProps extends UserItemBaseProps {}
+interface UserItemReqSentProps extends UserItemBaseProps {
+  onAccept?: () => void;
+  onDecline?: () => void;
+}
 
 const UserItemReqReceived = (props: UserItemReqSentProps) => {
   return (
@@ -15,11 +18,11 @@ const UserItemReqReceived = (props: UserItemReqSentProps) => {
       actionView={
         <View style={styles.container}>
           <MyButtonPress
-            comp={(props) => (
+            comp={(subProps) => (
               <MyButtonIcon
-                {...props}
+                {...subProps}
                 icon={TickIcon}
-                onPress={() => {}}
+                onPress={props.onAccept}
                 activeOpacity={1}
                 backgroundColor={colors.white}
                 textColor={colors.semantic_green}
@@ -28,11 +31,11 @@ const UserItemReqReceived = (props: UserItemReqSentProps) => {
             )}
           />
           <MyButtonPress
-            comp={(props) => (
+            comp={(subProps) => (
               <MyButtonIcon
-                {...props}
+                {...subProps}
                 icon={CrossIcon}
-                onPress={() => {}}
+                onPress={props.onDecline}
                 activeOpacity={1}
                 backgroundColor={colors.white}
                 textColor={colors.semantic_red}
