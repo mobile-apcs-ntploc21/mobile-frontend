@@ -3,26 +3,139 @@ import {
   Text,
   View,
   TouchableOpacity,
-  TextInput
+  TextInput,
+  RefreshControl,
+  Keyboard,
+  ActivityIndicator
 } from 'react-native';
-import React, { useState } from 'react';
+import React, { useEffect, useLayoutEffect, useState } from 'react';
 import GlobalStyles from '@/styles/GlobalStyles';
 import { colors } from '@/constants/theme';
 import { StatusBar } from 'expo-status-bar';
 import { useIsFocused } from '@react-navigation/native';
 import { Entypo, MaterialIcons } from '@expo/vector-icons';
 import { TextStyles } from '@/styles/TextStyles';
-import { router } from 'expo-router';
+import { router, useNavigation } from 'expo-router';
 import Accordion from '@/components/Accordion';
 import UserItemReqReceived from '@/components/UserItem/UserItemReqReceived';
 import UserItemReqSent from '@/components/UserItem/UserItemReqSent';
 import { ScrollView } from 'react-native-gesture-handler';
 import { MyButtonText } from '@/components/MyButton';
 import UserItemGeneral from '@/components/UserItem/UserItemGeneral';
+import {
+  acceptFriendRequest,
+  addFriend,
+  cancelFriendRequest,
+  declineFriendRequest,
+  getFriendRequestsReceived,
+  getFriendRequestsSent,
+  getFriends
+} from '@/services/friend';
+import { showAlert } from '@/services/alert';
 
 const Friends = () => {
   const isFocused = useIsFocused(); // Used to change status bar color
   const [searchText, setSearchText] = useState('');
+
+  const [refreshing, setRefreshing] = React.useState(false);
+
+  const navigation = useNavigation();
+
+  // FRIENDS LISTING  -------------------------------------
+
+  const [requestsSent, setRequestsSent] = useState<any[]>([]);
+  const [requestsReceived, setRequestsReceived] = useState<any[]>([]);
+  const [allFriends, setAllFriends] = useState<any[]>([]);
+
+  const fetchRequestsSent = async () => {
+    try {
+      const response = await getFriendRequestsSent();
+      setRequestsSent(response);
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
+  const fetchRequestsReceived = async () => {
+    try {
+      const response = await getFriendRequestsReceived();
+      setRequestsReceived(response);
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
+  const fetchAllFriends = async () => {
+    try {
+      const response = await getFriends();
+      setAllFriends(response);
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
+  // -------------------------------------
+
+  const [loading, setLoading] = useState(true);
+
+  const fetchData = async () => {
+    setLoading(true);
+    await fetchRequestsSent();
+    await fetchRequestsReceived();
+    await fetchAllFriends();
+    setLoading(false);
+  };
+
+  useEffect(() => {
+    const unsubscribe = navigation.addListener('focus', () => {
+      fetchData();
+    });
+
+    return unsubscribe;
+  }, [navigation]);
+
+  // FRIENDS MANAGEMENT -------------------------------------
+
+  const handleAddFriend = async (id: string) => {
+    try {
+      await addFriend(id);
+      await fetchRequestsSent();
+      setSearchText('');
+      showAlert('Friend request sent');
+      Keyboard.dismiss();
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
+  const handleCancelRequest = async (id: string) => {
+    try {
+      await cancelFriendRequest(id);
+      await fetchRequestsSent();
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
+  const handleAcceptRequest = async (id: string) => {
+    try {
+      await acceptFriendRequest(id);
+      await fetchRequestsReceived();
+      await fetchAllFriends();
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
+  const handleDeclineRequest = async (id: string) => {
+    try {
+      await declineFriendRequest(id);
+      await fetchRequestsReceived();
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
   return (
     <View
       style={[
@@ -52,48 +165,74 @@ const Friends = () => {
           </View>
           <MyButtonText
             title="Add"
-            onPress={() => {}}
+            onPress={() => handleAddFriend(searchText)}
             containerStyle={styles.button}
             textStyle={TextStyles.h4}
           />
         </View>
       </View>
-      <ScrollView style={{ flex: 1 }}>
-        <View style={styles.contentContainer}>
-          <Accordion heading="(2) Requests Sent">
-            {Array.from({ length: 2 }, (_, index) => (
-              <UserItemReqSent
-                key={index}
-                id={index.toString()}
-                username="johndoe"
-                displayName="John Doe"
-                onlineStatus="online"
-              />
-            ))}
-          </Accordion>
-          <Accordion heading="(2) Requests Received">
-            {Array.from({ length: 2 }, (_, index) => (
-              <UserItemReqReceived
-                key={index}
-                id={index.toString()}
-                username="johndoe"
-                displayName="John Doe"
-                onlineStatus="online"
-              />
-            ))}
-          </Accordion>
-          <Accordion heading="(8) All" defaultOpen>
-            {Array.from({ length: 8 }, (_, index) => (
-              <UserItemGeneral
-                key={index}
-                id={index.toString()}
-                username="johndoe"
-                displayName="John Doe"
-                onlineStatus="online"
-              />
-            ))}
-          </Accordion>
-        </View>
+      <ScrollView
+        style={{ flex: 1 }}
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={async () => {
+              setRefreshing(true);
+              await fetchRequestsSent();
+              await fetchRequestsReceived();
+              await fetchAllFriends();
+              setRefreshing(false);
+            }}
+          />
+        }
+      >
+        {loading ? (
+          <ActivityIndicator />
+        ) : (
+          <View style={styles.contentContainer}>
+            <Accordion heading={`(${requestsSent.length}) Requests Sent`}>
+              {requestsSent.map((request) => (
+                <UserItemReqSent
+                  key={request.id}
+                  id={request.id}
+                  username={request.username}
+                  displayName={request.username}
+                  onlineStatus="online"
+                  onCancel={() => handleCancelRequest(request.id)}
+                />
+              ))}
+            </Accordion>
+            <Accordion
+              heading={`(${requestsReceived.length}) Requests Received`}
+            >
+              {requestsReceived.map((request) => (
+                <UserItemReqReceived
+                  key={request.id}
+                  id={request.id}
+                  username={request.username}
+                  displayName={request.username}
+                  onlineStatus="online"
+                  onAccept={() => handleAcceptRequest(request.id)}
+                  onDecline={() => handleDeclineRequest(request.id)}
+                />
+              ))}
+            </Accordion>
+            <Accordion
+              heading={`(${allFriends.length}) All Friends`}
+              defaultOpen
+            >
+              {allFriends.map((request) => (
+                <UserItemGeneral
+                  key={request.id}
+                  id={request.id}
+                  username={request.username}
+                  displayName={request.username}
+                  onlineStatus="online"
+                />
+              ))}
+            </Accordion>
+          </View>
+        )}
       </ScrollView>
     </View>
   );
