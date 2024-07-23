@@ -1,5 +1,5 @@
 import { View, Text, ScrollView, TouchableOpacity } from 'react-native';
-import React from 'react';
+import { useCallback } from 'react';
 import { colors, fonts } from '@/constants/theme';
 import MyText from '@/components/MyText';
 import { TextStyles } from '@/styles/TextStyles';
@@ -25,9 +25,31 @@ import UserItemBase from '@/components/UserItem/UserItemBase';
 import UserItemGeneral from '@/components/UserItem/UserItemGeneral';
 import UserItemReqSent from '@/components/UserItem/UserItemReqSent';
 import UserItemReqReceived from '@/components/UserItem/UserItemReqReceived';
+import { useApolloClient } from '@apollo/client';
+import { useFocusEffect } from 'expo-router';
+import { USER_STATUS_SUBSCRIPTION } from '@/services/graphql/subscriptions';
 
 const Playground = () => {
   const { logout } = useAuth();
+  const wsClient = useApolloClient();
+
+  useFocusEffect(
+    useCallback(() => {
+      const observable = wsClient.subscribe({
+        query: USER_STATUS_SUBSCRIPTION,
+        variables: { user_id: '669340c737c91b8d1fbc98ce' }
+      });
+      const cleanup = observable.subscribe({
+        next(data) {
+          console.log(data);
+        },
+        complete() {
+          console.log('completed');
+        }
+      });
+      return () => cleanup.unsubscribe();
+    }, [wsClient])
+  );
 
   return (
     <ScrollView>
