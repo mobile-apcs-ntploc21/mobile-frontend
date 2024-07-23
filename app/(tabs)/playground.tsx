@@ -21,7 +21,6 @@ import TickIcon from '@/assets/icons/TickIcon';
 import CrossIcon from '@/assets/icons/CrossIcon';
 import { useAuth } from '@/context/AuthProvider';
 import MyButtonTextIcon from '@/components/MyButton/MyButtonTextIcon';
-import UserItemBase from '@/components/UserItem/UserItemBase';
 import UserItemGeneral from '@/components/UserItem/UserItemGeneral';
 import UserItemReqSent from '@/components/UserItem/UserItemReqSent';
 import UserItemReqReceived from '@/components/UserItem/UserItemReqReceived';
