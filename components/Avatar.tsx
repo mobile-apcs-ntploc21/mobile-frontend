@@ -3,13 +3,42 @@ import { colors } from '@/constants/theme';
 import { DefaultProfileImage } from '@/constants/images';
 import { getOnlineStatusColor } from '@/utils/user';
 import { StatusType } from '@/types/user_status';
+import { useApolloClient } from '@apollo/client';
+import { useFocusEffect } from 'expo-router';
+import { useCallback, useState } from 'react';
+import { USER_STATUS_SUBSCRIPTION } from '@/services/graphql/subscriptions';
 
 interface AvatarProps {
+  targetUserId: string;
   avatarURI?: string;
   showStatus?: boolean;
 }
 
-const Avatar = ({ avatarURI, showStatus = true }: AvatarProps) => {
+const Avatar = ({
+  targetUserId,
+  avatarURI,
+  showStatus = true
+}: AvatarProps) => {
+  const wsClient = useApolloClient();
+  const [isOnline, setIsOnline] = useState(false);
+  const [statusType, setStatusType] = useState(StatusType.OFFLINE);
+
+  useFocusEffect(
+    useCallback(() => {
+      const observable = wsClient.subscribe({
+        query: USER_STATUS_SUBSCRIPTION,
+        variables: { user_id: targetUserId }
+      });
+      const cleanup = observable.subscribe({
+        next({ data: { userStatusChanged } }) {
+          setIsOnline(userStatusChanged?.is_online);
+          setStatusType(userStatusChanged?.type);
+        }
+      });
+      return () => cleanup.unsubscribe();
+    }, [])
+  );
+
   return (
     <View style={styles.profilePicContainer}>
       <Image
@@ -21,7 +50,9 @@ const Avatar = ({ avatarURI, showStatus = true }: AvatarProps) => {
           style={[
             styles.onlineStatus,
             {
-              backgroundColor: getOnlineStatusColor(StatusType.DO_NOT_DISTURB)
+              backgroundColor: getOnlineStatusColor(
+                isOnline ? statusType : StatusType.OFFLINE
+              )
             }
           ]}
         />
