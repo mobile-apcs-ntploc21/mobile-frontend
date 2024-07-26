@@ -7,17 +7,22 @@ import { useApolloClient } from '@apollo/client';
 import { useFocusEffect } from 'expo-router';
 import { useCallback, useState } from 'react';
 import { USER_STATUS_SUBSCRIPTION } from '@/services/graphql/subscriptions';
+import { subscribe } from 'graphql';
 
-interface AvatarProps {
-  targetUserId: string;
-  avatarURI?: string;
+export interface AvatarProps {
+  id: string;
+  profilePic?: string;
   showStatus?: boolean;
+  onlineStatus?: StatusType;
+  subscribeToStatus?: boolean;
 }
 
 const Avatar = ({
-  targetUserId,
-  avatarURI,
-  showStatus = true
+  id,
+  profilePic,
+  showStatus,
+  onlineStatus,
+  subscribeToStatus
 }: AvatarProps) => {
   const wsClient = useApolloClient();
   const [isOnline, setIsOnline] = useState(false);
@@ -25,9 +30,10 @@ const Avatar = ({
 
   useFocusEffect(
     useCallback(() => {
+      if (!subscribeToStatus) return;
       const observable = wsClient.subscribe({
         query: USER_STATUS_SUBSCRIPTION,
-        variables: { user_id: targetUserId }
+        variables: { user_id: id }
       });
       const cleanup = observable.subscribe({
         next({ data: { userStatusChanged } }) {
@@ -36,13 +42,13 @@ const Avatar = ({
         }
       });
       return () => cleanup.unsubscribe();
-    }, [])
+    }, [subscribeToStatus])
   );
 
   return (
     <View style={styles.profilePicContainer}>
       <Image
-        source={avatarURI ? { uri: avatarURI } : DefaultProfileImage}
+        source={profilePic ? { uri: profilePic } : DefaultProfileImage}
         style={styles.profilePic}
       />
       {showStatus && (
@@ -51,7 +57,7 @@ const Avatar = ({
             styles.onlineStatus,
             {
               backgroundColor: getOnlineStatusColor(
-                isOnline ? statusType : StatusType.OFFLINE
+                onlineStatus ?? (isOnline ? statusType : StatusType.OFFLINE)
               )
             }
           ]}

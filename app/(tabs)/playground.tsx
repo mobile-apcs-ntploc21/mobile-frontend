@@ -24,6 +24,7 @@ import MyButtonTextIcon from '@/components/MyButton/MyButtonTextIcon';
 import UserItemGeneral from '@/components/UserItem/UserItemGeneral';
 import UserItemReqSent from '@/components/UserItem/UserItemReqSent';
 import UserItemReqReceived from '@/components/UserItem/UserItemReqReceived';
+import { StatusType } from '@/types/user_status';
 
 const Playground = () => {
   const { logout } = useAuth();
@@ -31,31 +32,49 @@ const Playground = () => {
   return (
     <ScrollView>
       <UserItemGeneral
+        id="669340c737c91b8d1fbc98ce"
+        username="johndoe"
+        displayName="Subcription user status"
+        showStatus
+        subscribeToStatus
+      />
+      <UserItemGeneral
         id="123"
         username="johndoe"
-        displayName="John Doe"
-        onlineStatus="online"
+        displayName="John Doe 1"
+        showStatus
+        onlineStatus={StatusType.ONLINE}
       />
-      <UserItemReqSent
+      <UserItemGeneral
         id="123"
         username="johndoe"
-        displayName="John Doe"
-        onlineStatus="online"
+        displayName="John Doe 1"
+        showStatus
+        onlineStatus={StatusType.IDLE}
       />
-      <UserItemReqReceived
+      <UserItemGeneral
         id="123"
         username="johndoe"
-        displayName="John Doe"
-        onlineStatus="online"
+        displayName="John Doe 1"
+        showStatus
+        onlineStatus={StatusType.DO_NOT_DISTURB}
       />
-      <Accordion heading="(8) Requests Received">
-        {Array.from({ length: 8 }, (_, index) => (
+      <UserItemGeneral
+        id="123"
+        username="johndoe"
+        displayName="John Doe 1"
+        showStatus
+        onlineStatus={StatusType.INVISIBLE}
+      />
+      <UserItemReqSent id="123" username="johndoe" displayName="John Doe" />
+      <UserItemReqReceived id="123" username="johndoe" displayName="John Doe" />
+      <Accordion heading="(3) Requests Received">
+        {Array.from({ length: 3 }, (_, index) => (
           <UserItemReqReceived
             key={index}
             id={index.toString()}
             username="johndoe"
             displayName="John Doe"
-            onlineStatus="online"
           />
         ))}
       </Accordion>
