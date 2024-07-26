@@ -11,7 +11,7 @@ interface WsProviderProps {
 const WsProvider = ({ children }: WsProviderProps) => {
   const { user } = useAuth();
   return (
-    <ApolloProvider client={createWsClient(user?.token)}>
+    <ApolloProvider client={createWsClient(user?.jwtToken)}>
       {children}
     </ApolloProvider>
   );

@@ -13,7 +13,7 @@
     "preset": "jest-expo"
   },
   "dependencies": {
-    "@apollo/client": "^3.11.0",
+    "@apollo/client": "^3.11.1",
     "@expo/metro-runtime": "^3.2.1",
     "@expo/vector-icons": "^14.0.0",
     "@gorhom/bottom-sheet": "^4.6.3",

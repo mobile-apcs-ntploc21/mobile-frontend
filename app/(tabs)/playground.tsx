@@ -39,7 +39,7 @@ const Playground = () => {
         variables: { user_id: '669340c737c91b8d1fbc98ce' }
       });
       const cleanup = observable.subscribe({
-        next(data) {
+        next(data: any) {
           console.log(data);
         },
         complete() {
@@ -47,7 +47,7 @@ const Playground = () => {
         }
       });
       return () => cleanup.unsubscribe();
-    }, [wsClient])
+    }, [])
   );
 
   return (
