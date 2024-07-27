@@ -9,7 +9,7 @@ export default function Servers() {
           fontFamily: fonts.black
         }}
       >
-        Tab Servers
+        Tab Servers Hello
       </Text>
     </View>
   );
