@@ -3,7 +3,7 @@ import { GraphQLWsLink } from '@apollo/client/link/subscriptions';
 import { createClient } from 'graphql-ws';
 import config from '@/utils/config';
 
-export default function createWsClient(token: string) {
+export default function createWsClient(token: string | null) {
   const wsLink = new GraphQLWsLink(
     createClient({
       url: config.SUBSCRIPTION_URL,
