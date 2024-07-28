@@ -4,6 +4,9 @@ import SearchBar from '@/components/SearchBar';
 import GlobalStyles from '@/styles/GlobalStyles';
 import { MaterialIcons } from '@expo/vector-icons';
 import { colors } from '@/constants/theme';
+import ButtonListBase from '@/components/ButtonList/ButtonListBase';
+import MyText from '@/components/MyText';
+import MemberItem from '@/components/MemberItem';
 
 const Members = () => {
   return (
@@ -17,6 +20,13 @@ const Members = () => {
           <MaterialIcons name="filter-alt" size={24} color={colors.gray02} />
         </TouchableWithoutFeedback>
       </View>
+      <ButtonListBase
+        heading="4 Members"
+        items={Array.from({ length: 4 }, (_, index) => ({
+          itemComponent: <MemberItem />,
+          onPress: () => console.log(`Item ${index} pressed`)
+        }))}
+      />
     </View>
   );
 };
@@ -27,6 +37,7 @@ const styles = StyleSheet.create({
   searchContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 13
+    gap: 13,
+    marginBottom: 16
   }
 });
