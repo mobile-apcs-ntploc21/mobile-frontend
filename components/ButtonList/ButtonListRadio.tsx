@@ -7,7 +7,7 @@ import IconWithSize from '../IconWithSize';
 import TickIcon from '@/assets/icons/TickIcon';
 import { colors } from '@/constants/theme';
 
-interface ButtonListTextProps extends Omit<ButtonListBaseProps, 'items'> {
+interface ButtonListCheckboxProps extends Omit<ButtonListBaseProps, 'items'> {
   items?: {
     value: string;
     label?: string;
@@ -16,7 +16,7 @@ interface ButtonListTextProps extends Omit<ButtonListBaseProps, 'items'> {
   onChange?: (value: string) => void;
 }
 
-const ButtonListRadio = (props: ButtonListTextProps) => {
+const ButtonListRadio = (props: ButtonListCheckboxProps) => {
   return (
     <ButtonListBase
       {...props}
