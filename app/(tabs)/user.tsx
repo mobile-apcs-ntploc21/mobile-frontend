@@ -71,7 +71,7 @@ const User = () => {
           />
           <MyButtonTextIcon
             title="Edit Profile"
-            onPress={() => router.push('user/edit-profile')}
+            onPress={() => router.push('edit-profile')}
             iconAfter={EditProfileIcon}
             containerStyle={styles.button}
             textStyle={TextStyles.h4}
