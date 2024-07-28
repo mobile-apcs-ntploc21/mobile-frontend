@@ -23,7 +23,7 @@ const StatusBubble = ({
         {isEditable ? (
           <TextInput
             style={styles.text}
-            placeholder="What's up"
+            placeholder="What's up?"
             placeholderTextColor={colors.gray02}
             value={value}
             onChangeText={onChangeText}
