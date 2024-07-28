@@ -1,15 +1,15 @@
 import { StyleSheet, Text, View } from 'react-native';
 import React from 'react';
 import MyText from './MyText';
-import { fonts } from '@/constants/theme';
+import { colors, fonts } from '@/constants/theme';
 
 const MemberItem = () => {
   return (
     <View style={styles.container}>
       <View style={styles.avatar}></View>
-      <View>
-        <MyText style={styles.nickname}>Nickname</MyText>
-        <MyText style={styles.username}>User name</MyText>
+      <View style={styles.info}>
+        <MyText style={styles.nickname}>User</MyText>
+        <MyText style={styles.username}>@username</MyText>
       </View>
     </View>
   );
@@ -20,13 +20,14 @@ export default MemberItem;
 const styles = StyleSheet.create({
   container: {
     flexDirection: 'row',
-    columnGap: 12
+    columnGap: 12,
+    alignItems: 'center'
   },
   avatar: {
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: 'gray'
+    backgroundColor: colors.gray03
   },
   nickname: {
     fontSize: 12,
@@ -34,5 +35,8 @@ const styles = StyleSheet.create({
   },
   username: {
     fontSize: 10
+  },
+  info: {
+    rowGap: 4
   }
 });
