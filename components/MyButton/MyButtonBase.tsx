@@ -11,6 +11,7 @@ import React from 'react';
 import { colors } from '@/constants/theme';
 
 export interface MyButtonBaseProps extends TouchableOpacityProps {
+  showOutline?: boolean;
   textStyle?: TextStyle;
   reverseStyle?: boolean;
   textColor?: string;
@@ -24,14 +25,25 @@ export interface MyButtonBaseProps extends TouchableOpacityProps {
  * @returns React.FC
  */
 const MyButtonBase = (props: MyButtonBaseProps) => {
-  const { textColor, backgroundColor, reverseStyle, containerStyle, children } =
-    props;
+  const {
+    textColor,
+    backgroundColor,
+    reverseStyle,
+    containerStyle,
+    children,
+    showOutline = true
+  } = props;
   const combinedStyles = StyleSheet.flatten([
     styles.container,
     {
-      backgroundColor: reverseStyle ? textColor : backgroundColor,
-      borderColor: reverseStyle ? backgroundColor : textColor
+      backgroundColor: reverseStyle ? textColor : backgroundColor
     },
+    showOutline
+      ? {
+          borderColor: reverseStyle ? backgroundColor : textColor,
+          borderWidth: 1
+        }
+      : {},
     containerStyle
   ]);
   return (
@@ -49,7 +61,6 @@ const styles = StyleSheet.create({
     height: 50,
     borderRadius: 999,
     justifyContent: 'center',
-    alignItems: 'center',
-    borderWidth: 1
+    alignItems: 'center'
   }
 });
