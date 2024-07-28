@@ -1,6 +1,7 @@
 import {
   Modal,
   Pressable,
+  ScrollView,
   StyleSheet,
   Text,
   TouchableWithoutFeedback,
@@ -40,20 +41,30 @@ const FilterModal = (props: FilterModalProps) => {
                 You can select multiple roles
               </MyText>
             </View>
-            <ButtonListCheckbox
-              heading="Select Roles"
-              items={Array.from({ length: 4 }, (_, index) => ({
-                value: `role-${index}`,
-                label: `Moderator`
-              }))}
-              values={selectedRoles}
-              onAdd={(value: string) =>
-                setSelectedRoles([...selectedRoles, value])
-              }
-              onRemove={(value: string) =>
-                setSelectedRoles(selectedRoles.filter((role) => role !== value))
-              }
-            />
+            <ScrollView
+              style={{
+                flex: 1,
+                marginTop: 8,
+                marginBottom: 16
+              }}
+            >
+              <ButtonListCheckbox
+                heading="Select Roles"
+                items={Array.from({ length: 10 }, (_, index) => ({
+                  value: `role-${index}`,
+                  label: `Moderator`
+                }))}
+                values={selectedRoles}
+                onAdd={(value: string) =>
+                  setSelectedRoles([...selectedRoles, value])
+                }
+                onRemove={(value: string) =>
+                  setSelectedRoles(
+                    selectedRoles.filter((role) => role !== value)
+                  )
+                }
+              />
+            </ScrollView>
             <MyButtonText
               title="Cancel"
               reverseStyle
@@ -91,7 +102,7 @@ const styles = StyleSheet.create({
   modalView: {
     padding: 16,
     height: 480,
-    backgroundColor: colors.gray03,
+    backgroundColor: colors.gray04,
     borderRadius: 16
   },
   title: {
