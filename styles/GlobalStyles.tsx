@@ -14,5 +14,8 @@ export default StyleSheet.create({
   darkOverlay: {
     ...StyleSheet.absoluteFillObject,
     backgroundColor: colors.gray01_50
+  },
+  container: {
+    paddingHorizontal: 16
   }
 });
