@@ -12,7 +12,7 @@ export default function Servers() {
       >
         Tab Servers Hello
       </Text>
-      <Link href="/servers/members">Members</Link>
+      <Link href="/servers/members">Members (Touch me)</Link>
     </View>
   );
 }
