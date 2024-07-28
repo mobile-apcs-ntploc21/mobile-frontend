@@ -6,22 +6,17 @@ import {
   TouchableWithoutFeedback,
   View
 } from 'react-native';
-import React, { useCallback } from 'react';
-import { DefaultProfileImage } from '@/constants/images';
+import { ReactNode } from 'react';
 import { colors } from '@/constants/theme';
-import { getOnlineStatusColor } from '@/utils/user';
 import { router } from 'expo-router';
 import { TextStyles } from '@/styles/TextStyles';
-import { MyButtonText } from '../MyButton';
+import Avatar, { AvatarProps } from '../Avatar';
 
-export interface UserItemBaseProps {
+export interface UserItemBaseProps extends AvatarProps {
   id: string;
   username: string;
   displayName?: string;
-  profilePic?: string;
-  showStatus?: boolean;
-  onlineStatus?: string;
-  actionView?: React.ReactNode;
+  actionView?: ReactNode;
 }
 
 const UserItemBase = (props: UserItemBaseProps) => {
@@ -31,26 +26,7 @@ const UserItemBase = (props: UserItemBaseProps) => {
       onPress={() => router.navigate(`/user/${props.id}`)}
     >
       <View style={styles.contentContainer}>
-        <View style={styles.profilePicContainer}>
-          <Image
-            source={
-              props.profilePic ? { uri: props.profilePic } : DefaultProfileImage
-            }
-            style={styles.profilePic}
-          />
-          {props.showStatus && (
-            <View
-              style={[
-                styles.onlineStatus,
-                {
-                  backgroundColor: getOnlineStatusColor(
-                    props.onlineStatus || 'offline'
-                  )
-                }
-              ]}
-            />
-          )}
-        </View>
+        <Avatar {...props} />
         <Text style={TextStyles.h5}>{props.displayName}</Text>
       </View>
       {/* By some reasons the touch gesture to TouchableOpacity in actionView keeps propagating. This method is used to stop the touch propagation of it. */}
@@ -83,7 +59,7 @@ const styles = StyleSheet.create({
     height: 44,
     borderRadius: 22
   },
-  onlineStatus: {
+  statusType: {
     width: 12,
     height: 12,
     borderRadius: 6,
