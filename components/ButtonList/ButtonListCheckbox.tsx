@@ -1,11 +1,12 @@
 import { StyleSheet, Text, View } from 'react-native';
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import ButtonListBase, { ButtonListBaseProps } from './ButtonListBase';
 import MyText from '../MyText';
 import { TextStyles } from '@/styles/TextStyles';
 import IconWithSize from '../IconWithSize';
 import TickIcon from '@/assets/icons/TickIcon';
 import { colors } from '@/constants/theme';
+import Checkbox from '../Checkbox';
 
 interface ButtonListTextProps extends Omit<ButtonListBaseProps, 'items'> {
   items?: {
@@ -18,6 +19,13 @@ interface ButtonListTextProps extends Omit<ButtonListBaseProps, 'items'> {
 }
 
 const ButtonListCheckbox = (props: ButtonListTextProps) => {
+  const handlePress = useCallback(
+    (value: string) => {
+      if (props.values?.includes(value)) props.onRemove?.(value);
+      else props.onAdd?.(value);
+    },
+    [props.values, props.onAdd, props.onRemove]
+  );
   return (
     <ButtonListBase
       {...props}
@@ -25,21 +33,13 @@ const ButtonListCheckbox = (props: ButtonListTextProps) => {
         itemComponent: (
           <View style={styles.radioContainer} key={index}>
             <MyText style={styles.label}>{item.label}</MyText>
-            <IconWithSize
-              icon={TickIcon}
-              size={16}
-              color={
-                props.values?.includes(item.value)
-                  ? colors.black
-                  : 'transparent'
-              }
+            <Checkbox
+              value={props.values?.includes(item.value)}
+              onChange={() => handlePress(item.value)}
             />
           </View>
         ),
-        onPress: () => {
-          if (props.values?.includes(item.value)) props.onRemove?.(item.value);
-          else props.onAdd?.(item.value);
-        }
+        onPress: () => handlePress(item.value)
       }))}
     />
   );

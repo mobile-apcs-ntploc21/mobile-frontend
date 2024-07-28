@@ -70,6 +70,7 @@ const FilterModal = (props: FilterModalProps) => {
                 marginTop: 10,
                 width: '100%'
               }}
+              onPress={props.onClose}
             />
           </View>
         </View>
