@@ -70,6 +70,10 @@ function RootLayoutNav() {
                     name="modal"
                     options={{ presentation: 'modal' }}
                   />
+                  <Stack.Screen
+                    name="user/[userId]"
+                    options={{ headerShown: false }}
+                  />
                 </Stack>
               </SafeAreaView>
             </GlobalProvider>
