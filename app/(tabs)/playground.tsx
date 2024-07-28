@@ -29,6 +29,7 @@ import ButtonListBase from '@/components/ButtonList/ButtonListBase';
 import ButtonListText from '@/components/ButtonList/ButtonListText';
 import ButtonListRadio from '@/components/ButtonList/ButtonListRadio';
 import { router } from 'expo-router';
+import AddEmojiIcon from '@/assets/icons/AddEmojiIcon';
 
 const Playground = () => {
   const [selected, setSelected] = useState<string>();
@@ -167,6 +168,7 @@ const Playground = () => {
         <MyButtonIcon icon={GroupIcon} />
         <MyButtonIcon icon={SettingIcon} />
         <MyButtonIcon icon={StarIcon} />
+        <MyButtonIcon icon={AddEmojiIcon} />
         <MyButtonPress
           comp={(props) => (
             <MyButtonIcon

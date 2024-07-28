@@ -1,17 +1,36 @@
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text, TextInput, View } from 'react-native';
 import React from 'react';
 import { colors, fonts } from '@/constants/theme';
 
 interface StatusBubbleProps {
   emoji?: string;
   text?: string;
+  isEditable?: boolean;
+  value?: string;
+  onChangeText?: (text: string) => void;
 }
 
-const StatusBubble = ({ emoji, text }: StatusBubbleProps) => {
+const StatusBubble = ({
+  emoji,
+  text,
+  isEditable,
+  value,
+  onChangeText
+}: StatusBubbleProps) => {
   return (
     <View style={styles.container}>
       <View style={styles.textContainer}>
-        <Text style={styles.text}>{`${emoji} ${text}`}</Text>
+        {isEditable ? (
+          <TextInput
+            style={styles.text}
+            placeholder="What's up"
+            placeholderTextColor={colors.gray02}
+            value={value}
+            onChangeText={onChangeText}
+          />
+        ) : (
+          <Text style={styles.text}>{`${emoji} ${text}`}</Text>
+        )}
       </View>
       <View style={styles.bubble1} />
       <View style={styles.bubble2} />
