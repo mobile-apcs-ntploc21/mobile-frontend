@@ -7,26 +7,29 @@ import { colors } from '@/constants/theme';
 import ButtonListBase from '@/components/ButtonList/ButtonListBase';
 import MyText from '@/components/MyText';
 import MemberItem from '@/components/MemberItem';
+import Header from '@/components/Header';
 
 const Members = () => {
   return (
-    <View style={GlobalStyles.container}>
-      <Text>Members 123</Text>
-      <View style={styles.searchContainer}>
-        <View style={{ flex: 1 }}>
-          <SearchBar />
+    <View>
+      <Header title="Members" />
+      <View style={GlobalStyles.container}>
+        <View style={styles.searchContainer}>
+          <View style={{ flex: 1 }}>
+            <SearchBar />
+          </View>
+          <TouchableWithoutFeedback>
+            <MaterialIcons name="filter-alt" size={24} color={colors.gray02} />
+          </TouchableWithoutFeedback>
         </View>
-        <TouchableWithoutFeedback>
-          <MaterialIcons name="filter-alt" size={24} color={colors.gray02} />
-        </TouchableWithoutFeedback>
+        <ButtonListBase
+          heading="4 Members"
+          items={Array.from({ length: 4 }, (_, index) => ({
+            itemComponent: <MemberItem />,
+            onPress: () => console.log(`Item ${index} pressed`)
+          }))}
+        />
       </View>
-      <ButtonListBase
-        heading="4 Members"
-        items={Array.from({ length: 4 }, (_, index) => ({
-          itemComponent: <MemberItem />,
-          onPress: () => console.log(`Item ${index} pressed`)
-        }))}
-      />
     </View>
   );
 };
@@ -38,6 +41,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 13,
-    marginBottom: 16
+    marginVertical: 16
   }
 });
