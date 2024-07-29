@@ -1,14 +1,13 @@
 import { colors } from '@/constants/theme';
+import { StatusType } from '@/types/user_status';
 
-export const getOnlineStatusColor = (status: string) => {
+export const getOnlineStatusColor = (status: StatusType) => {
   switch (status) {
-    case 'online':
+    case StatusType.ONLINE:
       return colors.status_online;
-    case 'invisible':
-      return colors.status_offline;
-    case 'idle':
+    case StatusType.IDLE:
       return colors.status_idle;
-    case 'do_not_disturb':
+    case StatusType.DO_NOT_DISTURB:
       return colors.status_dnd;
     default:
       return colors.status_offline;
