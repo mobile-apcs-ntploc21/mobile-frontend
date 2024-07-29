@@ -27,7 +27,8 @@ const Members = () => {
   }, []);
 
   return (
-    <View>
+    // Make sure parents of a scrollview have bounded height
+    <View style={{ flex: 1 }}>
       <FilterModal
         visible={modalVisible}
         onClose={() => setModalVisible(false)}
