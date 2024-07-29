@@ -1,5 +1,8 @@
 import { StyleSheet, Text, TouchableWithoutFeedback, View } from 'react-native';
-import React, { useState } from 'react';
+import React, { useLayoutEffect, useState } from 'react';
+import { useNavigation } from 'expo-router';
+import { NativeStackHeaderProps } from '@react-navigation/native-stack';
+
 import SearchBar from '@/components/SearchBar';
 import GlobalStyles from '@/styles/GlobalStyles';
 import { MaterialIcons } from '@expo/vector-icons';
@@ -9,16 +12,26 @@ import MyText from '@/components/MyText';
 import MemberItem from '@/components/MemberItem';
 import Header from '@/components/Header';
 import FilterModal from '@/components/modal/FilterModal';
+import MyHeader from '@/components/MyHeader';
 
 const Members = () => {
+  const navigation = useNavigation();
   const [modalVisible, setModalVisible] = useState(false);
+
+  useLayoutEffect(() => {
+    navigation.setOptions({
+      header: (props: NativeStackHeaderProps) => (
+        <MyHeader {...props} title="Members" />
+      )
+    });
+  }, []);
+
   return (
     <View>
       <FilterModal
         visible={modalVisible}
         onClose={() => setModalVisible(false)}
       />
-      <Header title="Members" />
       <View style={GlobalStyles.container}>
         <View style={styles.searchContainer}>
           <View style={{ flex: 1 }}>
