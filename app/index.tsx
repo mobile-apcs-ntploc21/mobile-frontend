@@ -1,9 +1,10 @@
 import { useAuth } from '@/context/AuthProvider';
 
-import { Redirect } from 'expo-router';
+import { Redirect, useRouter } from 'expo-router';
 import { ActivityIndicator } from 'react-native';
 
 export default function Index() {
+  const router = useRouter();
   const { isAuthenticated, isInitialized, user } = useAuth();
 
   // if not initialized, show loading spinner
@@ -13,8 +14,8 @@ export default function Index() {
 
   console.log('isAuthenticated', isAuthenticated, 'user', user);
 
-  // if logged in, redirect to home
   if (isAuthenticated && user) {
+    // if logged in, redirect to home
     return <Redirect href="/servers" />;
   }
 
