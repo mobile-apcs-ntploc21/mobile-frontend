@@ -104,9 +104,10 @@ const Friends = () => {
       showAlert('Friend request sent');
       await fetchRequestsSent();
       setSearchText('');
-      Keyboard.dismiss();
     } catch (e) {
       showAlert('Could not send friend request');
+    } finally {
+      Keyboard.dismiss();
     }
   };
 
