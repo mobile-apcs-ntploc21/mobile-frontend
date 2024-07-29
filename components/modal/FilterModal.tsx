@@ -50,10 +50,11 @@ const FilterModal = (props: FilterModalProps) => {
             >
               <ButtonListCheckbox
                 heading="Select Roles"
-                items={Array.from({ length: 4 }, (_, index) => ({
+                items={Array.from({ length: 7 }, (_, index) => ({
                   value: `role-${index}`,
                   label: `Moderator`
                 }))}
+                scrollable
                 values={selectedRoles}
                 onAdd={(value: string) =>
                   setSelectedRoles([...selectedRoles, value])

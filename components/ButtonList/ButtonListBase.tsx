@@ -1,36 +1,52 @@
-import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import {
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+  ViewStyle
+} from 'react-native';
 import React from 'react';
 import { TextStyles } from '@/styles/TextStyles';
 import MyText from '../MyText';
 import { colors } from '@/constants/theme';
+import { ScrollView } from 'react-native-gesture-handler';
 
 export interface ButtonListBaseProps {
   heading?: string;
-  // itemComponents?: React.ReactNode[];
   items?: {
     itemComponent: React.ReactNode;
     onPress?: () => void;
   }[];
+  scrollable?: boolean;
 }
 
 const ButtonListBase = (props: ButtonListBaseProps) => {
+  const itemList = (
+    <>
+      {props.items?.map((item, index) => (
+        <View key={index}>
+          <TouchableOpacity style={styles.item} onPress={item.onPress}>
+            {item.itemComponent}
+          </TouchableOpacity>
+          {index < props.items!.length - 1 && (
+            <View style={styles.separatorContainer}>
+              <View style={styles.separator} />
+            </View>
+          )}
+        </View>
+      ))}
+    </>
+  );
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, props.scrollable ? { flex: 1 } : {}]}>
       {props.heading && <MyText style={styles.heading}>{props.heading}</MyText>}
-      <View style={styles.itemContainer}>
-        {props.items?.map((item, index) => (
-          <View key={index}>
-            <TouchableOpacity style={styles.item} onPress={item.onPress}>
-              {item.itemComponent}
-            </TouchableOpacity>
-            {index < props.items!.length - 1 && (
-              <View style={styles.separatorContainer}>
-                <View style={styles.separator} />
-              </View>
-            )}
-          </View>
-        ))}
-      </View>
+      {props.scrollable ? (
+        <ScrollView contentContainerStyle={styles.itemContainer}>
+          {itemList}
+        </ScrollView>
+      ) : (
+        <View style={styles.itemContainer}>{itemList}</View>
+      )}
     </View>
   );
 };
