@@ -41,7 +41,7 @@ const FilterModal = (props: FilterModalProps) => {
                 You can select multiple roles
               </MyText>
             </View>
-            <ScrollView
+            <View
               style={{
                 flex: 1,
                 marginTop: 8,
@@ -50,7 +50,7 @@ const FilterModal = (props: FilterModalProps) => {
             >
               <ButtonListCheckbox
                 heading="Select Roles"
-                items={Array.from({ length: 10 }, (_, index) => ({
+                items={Array.from({ length: 4 }, (_, index) => ({
                   value: `role-${index}`,
                   label: `Moderator`
                 }))}
@@ -64,7 +64,7 @@ const FilterModal = (props: FilterModalProps) => {
                   )
                 }
               />
-            </ScrollView>
+            </View>
             <MyButtonText
               title="Cancel"
               reverseStyle
