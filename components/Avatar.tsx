@@ -1,11 +1,4 @@
-import {
-  StyleSheet,
-  Text,
-  View,
-  Image,
-  ViewStyle,
-  ImageStyle
-} from 'react-native';
+import { StyleSheet, View, Image, ImageStyle } from 'react-native';
 import { colors } from '@/constants/theme';
 import { DefaultProfileImage } from '@/constants/images';
 import { getOnlineStatusColor } from '@/utils/user';
@@ -14,7 +7,6 @@ import { useApolloClient } from '@apollo/client';
 import { useFocusEffect } from 'expo-router';
 import { useCallback, useState } from 'react';
 import { USER_STATUS_SUBSCRIPTION } from '@/services/graphql/subscriptions';
-import { subscribe } from 'graphql';
 import { getData } from '@/utils/api';
 
 export interface AvatarProps {
@@ -23,7 +15,7 @@ export interface AvatarProps {
   showStatus?: boolean;
   onlineStatus?: StatusType;
   subscribeToStatus?: boolean;
-  imgStyle?: ImageStyle;
+  avatarStyle?: ImageStyle;
 }
 
 const Avatar = ({
@@ -32,11 +24,13 @@ const Avatar = ({
   showStatus,
   onlineStatus,
   subscribeToStatus,
-  imgStyle
+  avatarStyle
 }: AvatarProps) => {
   const wsClient = useApolloClient();
   const [isOnline, setIsOnline] = useState(false);
   const [statusType, setStatusType] = useState(StatusType.OFFLINE);
+
+  const combinedStyles = StyleSheet.flatten([styles.profilePic, avatarStyle]);
 
   useFocusEffect(
     useCallback(() => {
@@ -67,10 +61,10 @@ const Avatar = ({
   );
 
   return (
-    <View style={styles.profilePicContainer}>
+    <View>
       <Image
         source={profilePic ? { uri: profilePic } : DefaultProfileImage}
-        style={StyleSheet.flatten([styles.profilePic, imgStyle])}
+        style={combinedStyles}
       />
       {showStatus && (
         <View
@@ -91,7 +85,6 @@ const Avatar = ({
 export default Avatar;
 
 const styles = StyleSheet.create({
-  profilePicContainer: {},
   profilePic: {
     width: 44,
     height: 44,
