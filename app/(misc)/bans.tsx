@@ -1,4 +1,4 @@
-import { StyleSheet, View } from 'react-native';
+import { ScrollView, StyleSheet, View } from 'react-native';
 import { useCallback, useLayoutEffect, useRef } from 'react';
 import { useNavigation } from 'expo-router';
 import { NativeStackHeaderProps } from '@react-navigation/native-stack';
@@ -45,20 +45,21 @@ const Bans = () => {
           items={[{ text: 'Unban', onPress: handleCloseBottomSheet }]}
         />
       </MyBottomSheetModal>
-      <View style={GlobalStyles.container}>
-        <View style={styles.searchContainer}>
-          <View style={{ flex: 1 }}>
-            <SearchBar />
-          </View>
+      <View style={[GlobalStyles.container, styles.searchContainer]}>
+        <View style={{ flex: 1 }}>
+          <SearchBar />
         </View>
-        <ButtonListBase
-          scrollable
-          items={Array.from({ length: 20 }, (_, index) => ({
-            itemComponent: <UserBanItem />,
-            onPress: handleOpenBottomSheet
-          }))}
-        />
       </View>
+      <ScrollView style={{ flex: 1 }}>
+        <View style={[GlobalStyles.container, { paddingBottom: 16 }]}>
+          <ButtonListBase
+            items={Array.from({ length: 20 }, (_, index) => ({
+              itemComponent: <UserBanItem />,
+              onPress: handleOpenBottomSheet
+            }))}
+          />
+        </View>
+      </ScrollView>
     </View>
   );
 };
@@ -70,6 +71,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 13,
-    marginBottom: 16
+    marginVertical: 16
   }
 });

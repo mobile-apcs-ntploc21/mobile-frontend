@@ -16,7 +16,6 @@ export default StyleSheet.create({
     backgroundColor: colors.gray01_50
   },
   container: {
-    padding: 16,
-    flex: 1
+    paddingHorizontal: 16
   }
 });
