@@ -1,6 +1,6 @@
 import { StyleSheet, Text, View } from 'react-native';
 import React from 'react';
-import MyText from './MyText';
+import MyText from '../MyText';
 import { colors, fonts } from '@/constants/theme';
 
 const MemberItem = () => {
