@@ -44,7 +44,8 @@ const Members = () => {
         </View>
         <ButtonListBase
           heading="4 Members"
-          items={Array.from({ length: 4 }, (_, index) => ({
+          scrollable
+          items={Array.from({ length: 10 }, (_, index) => ({
             itemComponent: <MemberItem />,
             onPress: () => console.log(`Item ${index} pressed`)
           }))}
