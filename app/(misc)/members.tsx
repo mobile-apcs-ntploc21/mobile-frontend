@@ -6,7 +6,7 @@ import {
   View
 } from 'react-native';
 import React, { useLayoutEffect, useState } from 'react';
-import { useNavigation } from 'expo-router';
+import { router, useNavigation } from 'expo-router';
 import { NativeStackHeaderProps } from '@react-navigation/native-stack';
 
 import SearchBar from '@/components/SearchBar';
@@ -52,7 +52,7 @@ const Members = () => {
             heading="4 Members"
             items={Array.from({ length: 10 }, (_, index) => ({
               itemComponent: <MemberItem />,
-              onPress: () => console.log(`Item ${index} pressed`)
+              onPress: () => router.navigate('/edit-member')
             }))}
           />
         </View>
@@ -68,6 +68,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 13,
-    marginVertical: 16
+    marginBottom: 16
   }
 });
