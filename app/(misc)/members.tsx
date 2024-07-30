@@ -9,7 +9,7 @@ import { MaterialIcons } from '@expo/vector-icons';
 import { colors } from '@/constants/theme';
 import ButtonListBase from '@/components/ButtonList/ButtonListBase';
 import MyText from '@/components/MyText';
-import MemberItem from '@/components/MemberItem';
+import MemberItem from '@/components/userManagment/MemberItem';
 import Header from '@/components/Header';
 import FilterModal from '@/components/modal/FilterModal';
 import MyHeader from '@/components/MyHeader';
