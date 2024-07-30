@@ -1,51 +1,37 @@
-import { StyleSheet, Text, TouchableWithoutFeedback, View } from 'react-native';
-import React, { useLayoutEffect, useState } from 'react';
+import { StyleSheet, View } from 'react-native';
+import { useLayoutEffect } from 'react';
 import { useNavigation } from 'expo-router';
 import { NativeStackHeaderProps } from '@react-navigation/native-stack';
 
 import SearchBar from '@/components/SearchBar';
 import GlobalStyles from '@/styles/GlobalStyles';
-import { MaterialIcons } from '@expo/vector-icons';
-import { colors } from '@/constants/theme';
 import ButtonListBase from '@/components/ButtonList/ButtonListBase';
-import MyText from '@/components/MyText';
-import MemberItem from '@/components/userManagment/MemberItem';
-import Header from '@/components/Header';
-import FilterModal from '@/components/modal/FilterModal';
 import MyHeader from '@/components/MyHeader';
+import UserBanItem from '@/components/userManagment/UserBanItem';
 
-const Members = () => {
+const Bans = () => {
   const navigation = useNavigation();
-  const [modalVisible, setModalVisible] = useState(false);
 
   useLayoutEffect(() => {
     navigation.setOptions({
       header: (props: NativeStackHeaderProps) => (
-        <MyHeader {...props} title="Members" />
+        <MyHeader {...props} title="Bans" />
       )
     });
   }, []);
 
   return (
     <View style={{ flex: 1 }}>
-      <FilterModal
-        visible={modalVisible}
-        onClose={() => setModalVisible(false)}
-      />
       <View style={GlobalStyles.container}>
         <View style={styles.searchContainer}>
           <View style={{ flex: 1 }}>
             <SearchBar />
           </View>
-          <TouchableWithoutFeedback onPress={() => setModalVisible(true)}>
-            <MaterialIcons name="filter-alt" size={24} color={colors.gray02} />
-          </TouchableWithoutFeedback>
         </View>
         <ButtonListBase
-          heading="4 Members"
           scrollable
-          items={Array.from({ length: 10 }, (_, index) => ({
-            itemComponent: <MemberItem />,
+          items={Array.from({ length: 20 }, (_, index) => ({
+            itemComponent: <UserBanItem />,
             onPress: () => console.log(`Item ${index} pressed`)
           }))}
         />
@@ -54,7 +40,7 @@ const Members = () => {
   );
 };
 
-export default Members;
+export default Bans;
 
 const styles = StyleSheet.create({
   searchContainer: {
