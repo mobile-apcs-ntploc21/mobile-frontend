@@ -8,6 +8,7 @@ import { useFocusEffect } from 'expo-router';
 import { useCallback, useState } from 'react';
 import { USER_STATUS_SUBSCRIPTION } from '@/services/graphql/subscriptions';
 import { subscribe } from 'graphql';
+import { getData } from '@/utils/api';
 
 export interface AvatarProps {
   id: string;
@@ -31,6 +32,17 @@ const Avatar = ({
   useFocusEffect(
     useCallback(() => {
       if (!subscribeToStatus) return;
+
+      getData(`/api/v1/status/${id}`)
+        .then((res) => {
+          setIsOnline(res?.is_online);
+          setStatusType(res?.type);
+        })
+        .catch(() => {
+          setIsOnline(false);
+          setStatusType(StatusType.OFFLINE);
+        });
+
       const observable = wsClient.subscribe({
         query: USER_STATUS_SUBSCRIPTION,
         variables: { user_id: id }
