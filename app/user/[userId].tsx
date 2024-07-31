@@ -38,6 +38,7 @@ import {
 import { IconProps } from '@/types';
 import { getOnlineStatusColor } from '@/utils/user';
 import { useUserById } from '@/hooks/useUserById';
+import { StatusType } from '@/types/user_status';
 
 const UserById = () => {
   const { userId } = useLocalSearchParams<{ userId: string }>();
@@ -308,7 +309,9 @@ const UserById = () => {
                 styles.onlineStatus,
                 {
                   backgroundColor: getOnlineStatusColor(
-                    userData?.onlineStatus?.type
+                    userData?.onlineStatus?.is_online
+                      ? userData?.onlineStatus?.type
+                      : StatusType.OFFLINE
                   )
                 }
               ]}
