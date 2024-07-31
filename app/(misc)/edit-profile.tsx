@@ -21,9 +21,23 @@ import { DefaultCoverImage, DefaultProfileImage } from '@/constants/images';
 import GlobalStyles from '@/styles/GlobalStyles';
 import { MaterialIcons } from '@expo/vector-icons';
 import * as ImagePicker from 'expo-image-picker';
+import { useUserContext } from '@/context/UserProvider';
+import { patchData } from '@/utils/api';
+import * as FileSystem from 'expo-file-system';
+
+const uriToBase64WithPrefix = async (uri: string) => {
+  const base64 = await FileSystem.readAsStringAsync(uri, {
+    encoding: 'base64'
+  });
+  const ext = uri.split('.').pop();
+  return `data:image/${ext};base64,${base64}`;
+};
 
 const EditProfile = () => {
+  const { data: userData } = useUserContext();
   const navigation = useNavigation();
+
+  const [isSubmitting, setIsSubmitting] = React.useState(false);
   const formik = useFormik({
     initialValues: {
       displayName: '',
@@ -31,16 +45,33 @@ const EditProfile = () => {
       profileImageUri: '',
       coverImageUri: ''
     },
-    onSubmit: (values) => {
-      console.log(values);
+    onSubmit: async (values) => {
+      if (isSubmitting) return;
+      setIsSubmitting(true);
+      const avatar = values.profileImageUri?.startsWith('file://')
+        ? await uriToBase64WithPrefix(values.profileImageUri)
+        : null;
+      const banner = values.coverImageUri?.startsWith('file://')
+        ? await uriToBase64WithPrefix(values.coverImageUri)
+        : null;
+
+      await patchData('/api/v1/profile', {
+        display_name: values.displayName,
+        about_me: values.aboutMe,
+        ...(avatar && { avatar }),
+        ...(banner && { banner })
+      });
+      setIsSubmitting(false);
       router.back();
     }
   });
 
   useLayoutEffect(() => {
     // Fetch user data
-    formik.setFieldValue('displayName', 'John Doe');
-    formik.setFieldValue('aboutMe', 'Lorem ipsum');
+    formik.setFieldValue('displayName', userData.display_name);
+    formik.setFieldValue('aboutMe', userData.about_me);
+    formik.setFieldValue('profileImageUri', userData.avatar_url);
+    formik.setFieldValue('coverImageUri', userData.banner_url);
   }, []);
 
   useLayoutEffect(() => {
@@ -152,7 +183,7 @@ const EditProfile = () => {
           <View style={styles.textInputContainer}>
             <CustomTextInput
               title="Display Name"
-              placeholder="fetchUserId"
+              placeholder={userData.username}
               value={formik.values.displayName}
               onChangeText={formik.handleChange('displayName')}
             />
