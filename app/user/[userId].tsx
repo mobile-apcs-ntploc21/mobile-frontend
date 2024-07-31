@@ -36,8 +36,8 @@ import {
   unblockUser
 } from '@/services/friend';
 import { IconProps } from '@/types';
-import { useProfileById } from '@/hooks/useProfileById';
 import { getOnlineStatusColor } from '@/utils/user';
+import { useUserById } from '@/hooks/useUserById';
 
 const UserById = () => {
   const { userId } = useLocalSearchParams<{ userId: string }>();
@@ -45,7 +45,7 @@ const UserById = () => {
   const navigation = useNavigation();
   const [relationship, setRelationship] = useState<string>('');
   const [loading, setLoading] = useState<boolean>(false);
-  const { data: userData } = useProfileById(userId!);
+  const { data: userData } = useUserById(userId!);
 
   const fetchRelationship = async () => {
     try {

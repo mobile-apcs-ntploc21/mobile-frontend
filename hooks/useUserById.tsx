@@ -4,7 +4,7 @@ import { useSubscription } from '@apollo/client';
 import { useEffect, useState } from 'react';
 import { useStatusById } from './useStatusById';
 
-export const useProfileById = (id: string) => {
+export const useUserById = (id: string) => {
   const [data, setData] = useState<any>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const { data: onlineStatusData } = useStatusById(id);
