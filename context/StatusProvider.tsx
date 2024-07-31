@@ -1,36 +1,34 @@
-import { USER_PROFILE_SUBSCRIPTION } from '@/services/graphql/subscriptions';
 import { getData } from '@/utils/api';
 import { useSubscription } from '@apollo/client';
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { useAuth } from './AuthProvider';
-import { useStatusContext } from './StatusProvider';
+import { USER_STATUS_SUBSCRIPTION } from '@/services/graphql/subscriptions';
 
-interface UserContextValue {
+interface StatusContextValue {
   data: any;
   loading: boolean;
 }
 
-const UserContext = createContext<UserContextValue | undefined>(undefined);
+const StatusContext = createContext<StatusContextValue | undefined>(undefined);
 
-export const useUserContext = () => {
-  const context = useContext(UserContext);
+export const useStatusContext = () => {
+  const context = useContext(StatusContext);
   if (context === undefined) {
-    throw new Error('useUserContext must be used within a UserProvider');
+    throw new Error('useStatusContext must be used within a StatusProvider');
   }
   return context;
 };
 
-interface UserProviderProps {
+interface StatusProviderProps {
   children: React.ReactNode;
 }
 
-export default function UserProvider({ children }: UserProviderProps) {
+export default function StatusProvider({ children }: StatusProviderProps) {
   const { user } = useAuth();
   const [data, setData] = useState<any>(null);
   const [loading, setLoading] = useState<boolean>(true);
-  const { data: onlineStatusData } = useStatusContext();
 
-  const { data: dataPush } = useSubscription(USER_PROFILE_SUBSCRIPTION, {
+  const { data: dataPush } = useSubscription(USER_STATUS_SUBSCRIPTION, {
     variables: { user_id: user?.id },
     skip: !user?.id
   });
@@ -38,7 +36,7 @@ export default function UserProvider({ children }: UserProviderProps) {
   useEffect(() => {
     (async () => {
       try {
-        const response = await getData('/api/v1/profile/me');
+        const response = await getData('/api/v1/status');
         setData(response);
         setLoading(false);
       } catch (e: any) {
@@ -49,21 +47,18 @@ export default function UserProvider({ children }: UserProviderProps) {
 
   useEffect(() => {
     if (dataPush) {
-      setData(dataPush.userProfileUpdated);
+      setData(dataPush.userStatusChanged);
     }
   }, [dataPush]);
 
   return (
-    <UserContext.Provider
+    <StatusContext.Provider
       value={{
-        data: {
-          ...data,
-          onlineStatus: onlineStatusData
-        },
+        data,
         loading
       }}
     >
       {children}
-    </UserContext.Provider>
+    </StatusContext.Provider>
   );
 }

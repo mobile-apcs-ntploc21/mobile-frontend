@@ -21,6 +21,7 @@ import { BottomSheetModal } from '@gorhom/bottom-sheet';
 import MyBottomSheetModal from '@/components/modal/MyBottomSheetModal';
 import { router } from 'expo-router';
 import { useUserContext } from '@/context/UserProvider';
+import { getOnlineStatusColor } from '@/utils/user';
 
 const User = () => {
   const bottomSheetRef = useRef<BottomSheetModal>(null);
@@ -70,17 +71,29 @@ const User = () => {
               }
               style={styles.profileImage}
             />
-            <View style={styles.statusButton} />
+            <View
+              style={[
+                styles.statusButton,
+                {
+                  backgroundColor: getOnlineStatusColor(
+                    userData?.onlineStatus?.type
+                  )
+                }
+              ]}
+            />
           </TouchableOpacity>
         </View>
         <View style={styles.nameContainer}>
           <Text style={styles.displayName}>{userData?.display_name}</Text>
           <Text style={styles.username}>{`@${userData?.username}`}</Text>
         </View>
-        <StatusBubble
-          emoji="👋"
-          text="Lorem ipsum dolor sit amet consectetur"
-        />
+        {userData?.onlineStatus?.status_text && (
+          <StatusBubble
+            // emoji="👋"
+            text={userData?.onlineStatus?.status_text}
+          />
+        )}
+
         <View style={styles.buttonContainer}>
           <MyButtonTextIcon
             title="Edit Status"
@@ -162,8 +175,7 @@ const styles = StyleSheet.create({
     right: 0,
     width: 32,
     height: 32,
-    borderRadius: 16,
-    backgroundColor: colors.status_online
+    borderRadius: 16
   },
   nameContainer: {
     marginTop: 64,

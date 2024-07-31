@@ -1,22 +1,20 @@
-import { USER_PROFILE_SUBSCRIPTION } from '@/services/graphql/subscriptions';
+import { USER_STATUS_SUBSCRIPTION } from '@/services/graphql/subscriptions';
 import { getData } from '@/utils/api';
 import { useSubscription } from '@apollo/client';
 import { useEffect, useState } from 'react';
-import { useStatusById } from './useStatusById';
 
-export const useProfileById = (id: string) => {
+export const useStatusById = (id: string) => {
   const [data, setData] = useState<any>(null);
   const [loading, setLoading] = useState<boolean>(true);
-  const { data: onlineStatusData } = useStatusById(id);
 
-  const { data: dataPush } = useSubscription(USER_PROFILE_SUBSCRIPTION, {
+  const { data: dataPush } = useSubscription(USER_STATUS_SUBSCRIPTION, {
     variables: { user_id: id }
   });
 
   useEffect(() => {
     (async () => {
       try {
-        const response = await getData(`/api/v1/profile/${id}`);
+        const response = await getData(`/api/v1/status/${id}`);
         setData(response);
         setLoading(false);
       } catch (e: any) {
@@ -27,15 +25,9 @@ export const useProfileById = (id: string) => {
 
   useEffect(() => {
     if (dataPush) {
-      setData(dataPush.userProfileUpdated);
+      setData(dataPush.userStatusChanged);
     }
   }, [dataPush]);
 
-  return {
-    data: {
-      ...data,
-      onlineStatus: onlineStatusData
-    },
-    loading
-  };
+  return { data, loading };
 };

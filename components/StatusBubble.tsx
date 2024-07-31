@@ -29,7 +29,7 @@ const StatusBubble = ({
             onChangeText={onChangeText}
           />
         ) : (
-          <Text style={styles.text}>{`${emoji} ${text}`}</Text>
+          <Text style={styles.text}>{`${emoji || ''} ${text}`}</Text>
         )}
       </View>
       <View style={styles.bubble1} />
