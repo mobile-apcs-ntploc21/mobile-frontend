@@ -25,6 +25,8 @@ import ButtonListRadio from '@/components/ButtonList/ButtonListRadio';
 import StatusBubble from '@/components/StatusBubble';
 import IconWithSize from '@/components/IconWithSize';
 import AddEmojiIcon from '@/assets/icons/AddEmojiIcon';
+import { useStatusContext } from '@/context/StatusProvider';
+import { postData } from '@/utils/api';
 
 const ClearAfterArr = [
   { value: '1hour', label: '1 hour' },
@@ -34,6 +36,9 @@ const ClearAfterArr = [
 ];
 
 const EditStatus = () => {
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const { data: statusData, loading } = useStatusContext();
+
   const navigation = useNavigation();
   const formik = useFormik({
     initialValues: {
@@ -41,14 +46,20 @@ const EditStatus = () => {
       status: '',
       clearAfter: 'never'
     },
-    onSubmit: (values) => {
-      console.log(values);
+    onSubmit: async (values) => {
+      if (isSubmitting) return;
+      setIsSubmitting(true);
+      await postData('/api/v1/status/custom', {
+        // emoji: values.emoji,
+        status_text: values.status
+        // clear_after: values.clearAfter
+      });
       router.back();
     }
   });
 
   useLayoutEffect(() => {
-    // Fetch user data
+    formik.setFieldValue('status', statusData?.status_text);
   }, []);
 
   useLayoutEffect(() => {
