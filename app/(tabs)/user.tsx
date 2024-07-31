@@ -84,14 +84,14 @@ const User = () => {
         <View style={styles.buttonContainer}>
           <MyButtonTextIcon
             title="Edit Status"
-            onPress={() => router.push('edit-status')}
+            onPress={() => router.navigate('edit-status')}
             iconAfter={EditStatusIcon}
             containerStyle={styles.button}
             textStyle={TextStyles.h4}
           />
           <MyButtonTextIcon
             title="Edit Profile"
-            onPress={() => router.push('edit-profile')}
+            onPress={() => router.navigate('edit-profile')}
             iconAfter={EditProfileIcon}
             containerStyle={styles.button}
             textStyle={TextStyles.h4}
