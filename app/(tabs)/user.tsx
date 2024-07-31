@@ -22,6 +22,52 @@ import MyBottomSheetModal from '@/components/modal/MyBottomSheetModal';
 import { router } from 'expo-router';
 import { useUserContext } from '@/context/UserProvider';
 import { getOnlineStatusColor } from '@/utils/user';
+import ButtonListBase from '@/components/ButtonList/ButtonListBase';
+import { StatusType } from '@/types/user_status';
+import MyText from '@/components/MyText';
+import { postData } from '@/utils/api';
+
+const OnlineStatusItem = (type: StatusType, onClose: () => void) => {
+  let onlineStatusText: string;
+  switch (type) {
+    case StatusType.ONLINE:
+      onlineStatusText = 'Online';
+      break;
+    case StatusType.IDLE:
+      onlineStatusText = 'Idle';
+      break;
+    case StatusType.DO_NOT_DISTURB:
+      onlineStatusText = 'Do Not Disturb';
+      break;
+    case StatusType.INVISIBLE:
+      onlineStatusText = 'Invisible';
+      break;
+    default:
+      // Should not happen
+      onlineStatusText = 'Offline';
+      break;
+  }
+
+  return {
+    itemComponent: (
+      <View style={styles.onlineStatusItem}>
+        <View
+          style={[
+            styles.onlineStatusCircle,
+            { backgroundColor: getOnlineStatusColor(type) }
+          ]}
+        />
+        <MyText style={TextStyles.bodyXL}>{onlineStatusText}</MyText>
+      </View>
+    ),
+    onPress: async () => {
+      await postData('/api/v1/status/type', {
+        type
+      });
+      onClose();
+    }
+  };
+};
 
 const User = () => {
   const bottomSheetRef = useRef<BottomSheetModal>(null);
@@ -44,7 +90,18 @@ const User = () => {
       <MyBottomSheetModal
         ref={bottomSheetRef}
         onClose={handleCloseBottomSheet}
-      />
+        heading="Change Online Status"
+      >
+        <ButtonListBase
+          heading="Online Status"
+          items={[
+            OnlineStatusItem(StatusType.ONLINE, handleCloseBottomSheet),
+            OnlineStatusItem(StatusType.IDLE, handleCloseBottomSheet),
+            OnlineStatusItem(StatusType.DO_NOT_DISTURB, handleCloseBottomSheet),
+            OnlineStatusItem(StatusType.INVISIBLE, handleCloseBottomSheet)
+          ]}
+        />
+      </MyBottomSheetModal>
       <Image
         source={
           userData?.banner_url
@@ -218,5 +275,15 @@ const styles = StyleSheet.create({
     fontFamily: fonts.regular,
     fontSize: 14,
     color: colors.black
+  },
+  onlineStatusItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8
+  },
+  onlineStatusCircle: {
+    width: 16,
+    height: 16,
+    borderRadius: 8
   }
 });
