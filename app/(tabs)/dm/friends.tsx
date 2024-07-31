@@ -197,7 +197,8 @@ const Friends = () => {
                   id={request.id}
                   username={request.username}
                   displayName={request.username}
-                  onlineStatus="online"
+                  showStatus
+                  subscribeToStatus
                   onCancel={() => handleCancelRequest(request.id)}
                 />
               ))}
@@ -211,7 +212,8 @@ const Friends = () => {
                   id={request.id}
                   username={request.username}
                   displayName={request.username}
-                  onlineStatus="online"
+                  showStatus
+                  subscribeToStatus
                   onAccept={() => handleAcceptRequest(request.id)}
                   onDecline={() => handleDeclineRequest(request.id)}
                 />
@@ -227,7 +229,8 @@ const Friends = () => {
                   id={request.id}
                   username={request.username}
                   displayName={request.username}
-                  onlineStatus="online"
+                  showStatus
+                  subscribeToStatus
                 />
               ))}
             </Accordion>
