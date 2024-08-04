@@ -6,12 +6,17 @@ import ServerInfo from '../../components/Servers_Channels/ServerInfo';
 
 export default function Servers() {
   return (
-    <View style={{ flex: 1 }}>
-      <Image source={DefaultCoverImage} style={styles.coverimg} />
-      <View style={styles.container}>
-        <ServerInfo />
-      </View>
-      <ServerList />
+    <View>
+      <Text
+        style={{
+          fontFamily: fonts.black
+        }}
+      >
+        Tab Servers Hello
+      </Text>
+      <Link href="/overview">Overview (Touch me)</Link>
+      <Link href="/members">Members (Touch me)</Link>
+      <Link href="/bans">Bans (Touch me)</Link>
     </View>
   );
 }
