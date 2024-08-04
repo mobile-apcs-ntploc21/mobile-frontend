@@ -20,6 +20,7 @@ import GlobalStyles from '@/styles/GlobalStyles';
 import { DefaultCoverImage, DefaultProfileImage } from '@/constants/images';
 import { MaterialIcons } from '@expo/vector-icons';
 import CustomTextInput from '@/components/common/CustomTextInput';
+import { MyButtonText } from '@/components/MyButton';
 
 const uriToBase64WithPrefix = async (uri: string) => {
   const base64 = await FileSystem.readAsStringAsync(uri, {
@@ -108,50 +109,64 @@ const Overview = () => {
 
   return (
     <View style={GlobalStyles.screen}>
-      <TouchableOpacity onPress={handlePickBannerImage}>
-        <Image
-          source={
-            formik.values.bannerImageUri
-              ? { uri: formik.values.bannerImageUri }
-              : DefaultCoverImage
-          }
-          style={styles.bannerImage}
-        />
-        <View style={GlobalStyles.darkOverlay} />
-        <MaterialIcons
-          name="edit"
-          size={48}
-          color={colors.white}
-          style={styles.editBannerImage}
-        />
-      </TouchableOpacity>
-      <View style={styles.fieldContainer}>
-        <TouchableOpacity
-          onPress={handlePickAvatarImage}
-          style={styles.avatarImageContainer}
-        >
-          <Image
-            source={
-              formik.values.avatarImageUri
-                ? { uri: formik.values.avatarImageUri }
-                : DefaultCoverImage
-            }
-            style={styles.avatarImage}
-          />
-          <View style={GlobalStyles.darkOverlay} />
-          <MaterialIcons
-            name="edit"
-            size={16}
-            color={colors.white}
-            style={styles.editAvatarImage}
-          />
-        </TouchableOpacity>
-        <View style={{ flex: 1 }}>
-          <CustomTextInput
-            title="Server Name"
-            placeholder="Add a server name"
-            value={formik.values.serverName}
-            onChangeText={formik.handleChange('serverName')}
+      <View style={styles.contentContainer}>
+        <View style={styles.editContainer}>
+          <TouchableOpacity onPress={handlePickBannerImage}>
+            <Image
+              source={
+                formik.values.bannerImageUri
+                  ? { uri: formik.values.bannerImageUri }
+                  : DefaultCoverImage
+              }
+              style={styles.bannerImage}
+            />
+            <View style={GlobalStyles.darkOverlay} />
+            <MaterialIcons
+              name="edit"
+              size={48}
+              color={colors.white}
+              style={styles.editBannerImage}
+            />
+          </TouchableOpacity>
+          <View style={styles.fieldContainer}>
+            <TouchableOpacity
+              onPress={handlePickAvatarImage}
+              style={styles.avatarImageContainer}
+            >
+              <Image
+                source={
+                  formik.values.avatarImageUri
+                    ? { uri: formik.values.avatarImageUri }
+                    : DefaultCoverImage
+                }
+                style={styles.avatarImage}
+              />
+              <View style={GlobalStyles.darkOverlay} />
+              <MaterialIcons
+                name="edit"
+                size={16}
+                color={colors.white}
+                style={styles.editAvatarImage}
+              />
+            </TouchableOpacity>
+            <View style={{ flex: 1 }}>
+              <CustomTextInput
+                title="Server Name"
+                placeholder="Add a server name"
+                value={formik.values.serverName}
+                onChangeText={formik.handleChange('serverName')}
+              />
+            </View>
+          </View>
+        </View>
+        <View style={styles.deleteButtonContainer}>
+          <MyButtonText
+            title="Delete Server"
+            onPress={() => console.log('Delete server')}
+            backgroundColor={colors.semantic_red}
+            textColor={colors.white}
+            containerStyle={styles.deleteButton}
+            reverseStyle
           />
         </View>
       </View>
@@ -165,6 +180,13 @@ const styles = StyleSheet.create({
   saveButton: {
     ...TextStyles.h3,
     color: colors.primary
+  },
+  contentContainer: {
+    flex: 1,
+    justifyContent: 'space-between'
+  },
+  editContainer: {
+    width: '100%'
   },
   bannerImage: {
     width: '100%',
@@ -197,5 +219,12 @@ const styles = StyleSheet.create({
     top: '50%',
     left: '50%',
     transform: [{ translateX: -8 }, { translateY: -8 }]
+  },
+  deleteButtonContainer: {
+    width: '100%',
+    padding: 16
+  },
+  deleteButton: {
+    width: '100%'
   }
 });
