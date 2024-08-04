@@ -91,7 +91,11 @@ const UserItemBase = (props: UserItemBaseProps) => {
               }
             ]}
           >
-            {statusText || getDefaultStatusText(statusType)}
+            {statusText ||
+              getDefaultStatusText(
+                props.onlineStatus ??
+                  (isOnline ? statusType : StatusType.OFFLINE)
+              )}
           </MyText>
         </View>
       </View>
