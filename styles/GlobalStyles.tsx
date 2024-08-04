@@ -10,5 +10,13 @@ export default StyleSheet.create({
     shadowColor: '#000',
     shadowOpacity: 0.25,
     elevation: 5
+  },
+  darkOverlay: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: colors.gray01_50
+  },
+  container: {
+    paddingHorizontal: 16,
+    flex: 1
   }
 });

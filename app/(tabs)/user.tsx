@@ -18,16 +18,25 @@ import { TextStyles } from '@/styles/TextStyles';
 import MyButtonIcon from '@/components/MyButton/MyButtonIcon';
 import SettingIcon from '@/assets/icons/SettingIcon';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
-import OnlineStatusBottomSheetModal from '@/components/modal/OnlineStatusBottomSheetModal';
+import MyBottomSheetModal from '@/components/modal/MyBottomSheetModal';
+import { router } from 'expo-router';
 
 const User = () => {
   const bottomSheetRef = useRef<BottomSheetModal>(null);
 
+  const handleOpenBottomSheet = () => {
+    bottomSheetRef.current?.present();
+  };
+
+  const handleCloseBottomSheet = () => {
+    bottomSheetRef.current?.dismiss();
+  };
+
   return (
     <View style={GlobalStyles.screen}>
-      <OnlineStatusBottomSheetModal
+      <MyBottomSheetModal
         ref={bottomSheetRef}
-        onClose={() => bottomSheetRef.current?.dismiss()}
+        onClose={handleCloseBottomSheet}
       />
       <Image source={DefaultCoverImage} style={styles.coverImage} />
       <MyButtonIcon
@@ -39,7 +48,7 @@ const User = () => {
       <View style={styles.profileContainer}>
         <View style={styles.profileImageContainer}>
           {/* TODO: Open onine status selection list */}
-          <TouchableOpacity onPress={() => bottomSheetRef.current?.present()}>
+          <TouchableOpacity onPress={handleOpenBottomSheet}>
             <Image source={DefaultProfileImage} style={styles.profileImage} />
             <View style={styles.statusButton} />
           </TouchableOpacity>
@@ -55,14 +64,14 @@ const User = () => {
         <View style={styles.buttonContainer}>
           <MyButtonTextIcon
             title="Edit Status"
-            onPress={() => {}}
+            onPress={() => router.push('edit-status')}
             iconAfter={EditStatusIcon}
             containerStyle={styles.button}
             textStyle={TextStyles.h4}
           />
           <MyButtonTextIcon
             title="Edit Profile"
-            onPress={() => {}}
+            onPress={() => router.push('edit-profile')}
             iconAfter={EditProfileIcon}
             containerStyle={styles.button}
             textStyle={TextStyles.h4}

@@ -39,13 +39,6 @@ export default function Login() {
   ) => {
     try {
       await login(email, password);
-
-      navigation.dispatch({
-        ...CommonActions.reset({
-          index: 0,
-          routes: [{ key: '(tabs)', name: '(tabs)' }]
-        })
-      });
     } catch (e: any) {
       switch (e.message) {
         case 'Invalid email or password':

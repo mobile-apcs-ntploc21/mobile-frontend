@@ -6,23 +6,18 @@ import {
   TouchableWithoutFeedback,
   View
 } from 'react-native';
-import React, { useCallback } from 'react';
-import { DefaultProfileImage } from '@/constants/images';
+import { ReactNode } from 'react';
 import { colors } from '@/constants/theme';
-import { getOnlineStatusColor } from '@/utils/user';
 import { router } from 'expo-router';
 import { TextStyles } from '@/styles/TextStyles';
-import { MyButtonText } from '../MyButton';
 import MyText from '../MyText';
+import Avatar, { AvatarProps } from '../Avatar';
 
-export interface UserItemBaseProps {
+export interface UserItemBaseProps extends AvatarProps {
   id: string;
   username: string;
   displayName?: string;
-  profilePic?: string;
-  onlineStatus?: string;
-  statusText?: string;
-  actionView?: React.ReactNode;
+  actionView?: ReactNode;
 }
 
 const UserItemBase = (props: UserItemBaseProps) => {
@@ -32,38 +27,32 @@ const UserItemBase = (props: UserItemBaseProps) => {
       onPress={() => router.navigate(`/user/${props.id}`)}
     >
       <View style={styles.contentContainer}>
-        <View style={styles.profilePicContainer}>
-          <Image
-            source={
-              props.profilePic ? { uri: props.profilePic } : DefaultProfileImage
-            }
-            style={styles.profilePic}
-          />
-          <View
-            style={[
-              styles.onlineStatus,
-              {
-                backgroundColor: getOnlineStatusColor(
-                  props.onlineStatus || 'offline'
-                )
-              }
-            ]}
-          />
-        </View>
+        <Avatar {...props} />
         <View style={styles.textContainer}>
           <MyText style={TextStyles.h5}>{props.displayName}</MyText>
-          {props.statusText && (
-            <MyText
-              style={[
-                TextStyles.bodyM,
-                {
-                  color: colors.gray02
-                }
-              ]}
-            >
-              {props.statusText}
-            </MyText>
-          )}
+          {/* {props.statusText && (
+          <MyText
+            style={[
+              TextStyles.bodyM,
+              {
+                color: colors.gray02
+              }
+            ]}
+          >
+            {props.statusText}
+          </MyText>
+        )} */}
+
+          <MyText
+            style={[
+              TextStyles.bodyM,
+              {
+                color: colors.gray02
+              }
+            ]}
+          >
+            {'Lorem ipsum'}
+          </MyText>
         </View>
       </View>
       {/* By some reasons the touch gesture to TouchableOpacity in actionView keeps propagating. This method is used to stop the touch propagation of it. */}
@@ -96,7 +85,7 @@ const styles = StyleSheet.create({
     height: 44,
     borderRadius: 22
   },
-  onlineStatus: {
+  statusType: {
     width: 12,
     height: 12,
     borderRadius: 6,

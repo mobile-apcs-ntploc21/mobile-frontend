@@ -1,5 +1,5 @@
 import { View, Text, ScrollView, TouchableOpacity } from 'react-native';
-import React from 'react';
+import React, { useState, useCallback } from 'react';
 import { colors, fonts } from '@/constants/theme';
 import MyText from '@/components/MyText';
 import { TextStyles } from '@/styles/TextStyles';
@@ -19,41 +19,97 @@ import StarIcon from '@/assets/icons/StarIcon';
 import MyButtonPress from '@/components/MyButton/MyButtonPress';
 import TickIcon from '@/assets/icons/TickIcon';
 import CrossIcon from '@/assets/icons/CrossIcon';
+import { useAuth } from '@/context/AuthProvider';
 import MyButtonTextIcon from '@/components/MyButton/MyButtonTextIcon';
-import UserItemBase from '@/components/UserItem/UserItemBase';
 import UserItemGeneral from '@/components/UserItem/UserItemGeneral';
 import UserItemReqSent from '@/components/UserItem/UserItemReqSent';
 import UserItemReqReceived from '@/components/UserItem/UserItemReqReceived';
+import { StatusType } from '@/types/user_status';
+import ButtonListBase from '@/components/ButtonList/ButtonListBase';
+import ButtonListText from '@/components/ButtonList/ButtonListText';
+import ButtonListRadio from '@/components/ButtonList/ButtonListRadio';
+import { router } from 'expo-router';
+import AddEmojiIcon from '@/assets/icons/AddEmojiIcon';
 
 const Playground = () => {
+  const [selected, setSelected] = useState<string>();
+  const handleValueChange = React.useCallback((value: string) => {
+    setSelected(value);
+  }, []);
+  const { logout } = useAuth();
+
   return (
     <ScrollView>
+      <MyButtonText
+        title="Blocked List"
+        onPress={() => router.navigate('/blocked')}
+      />
+      <TouchableOpacity onPress={() => router.navigate('/subPlayground')}>
+        <MyText>Go to subplayground</MyText>
+      </TouchableOpacity>
+      <View style={{ padding: 16 }}>
+        <ButtonListText
+          heading="Lorem ipsum"
+          items={Array.from({ length: 5 }, (_, index) => ({
+            text: `Item ${index}`,
+            onPress: () => console.log(`Item ${index} pressed`)
+          }))}
+        />
+        <ButtonListRadio
+          heading="Lorem ipsum"
+          items={Array.from({ length: 5 }, (_, index) => ({
+            value: `item-${index}`,
+            label: `Item ${index}`
+          }))}
+          value={selected}
+          onChange={handleValueChange}
+        />
+        <MyText>Selected value: {selected}</MyText>
+      </View>
+      <UserItemGeneral
+        id="669340c737c91b8d1fbc98ce"
+        username="johndoe"
+        displayName="Subcription user status"
+        showStatus
+        subscribeToStatus
+      />
       <UserItemGeneral
         id="123"
         username="johndoe"
-        displayName="John Doe"
-        onlineStatus="online"
+        displayName="John Doe 1"
+        showStatus
+        onlineStatus={StatusType.ONLINE}
       />
-      <UserItemReqSent
+      <UserItemGeneral
         id="123"
         username="johndoe"
-        displayName="John Doe"
-        onlineStatus="online"
+        displayName="John Doe 1"
+        showStatus
+        onlineStatus={StatusType.IDLE}
       />
-      <UserItemReqReceived
+      <UserItemGeneral
         id="123"
         username="johndoe"
-        displayName="John Doe"
-        onlineStatus="online"
+        displayName="John Doe 1"
+        showStatus
+        onlineStatus={StatusType.DO_NOT_DISTURB}
       />
-      <Accordion heading="(8) Requests Received">
-        {Array.from({ length: 8 }, (_, index) => (
+      <UserItemGeneral
+        id="123"
+        username="johndoe"
+        displayName="John Doe 1"
+        showStatus
+        onlineStatus={StatusType.INVISIBLE}
+      />
+      <UserItemReqSent id="123" username="johndoe" displayName="John Doe" />
+      <UserItemReqReceived id="123" username="johndoe" displayName="John Doe" />
+      <Accordion heading="(3) Requests Received">
+        {Array.from({ length: 3 }, (_, index) => (
           <UserItemReqReceived
             key={index}
             id={index.toString()}
             username="johndoe"
             displayName="John Doe"
-            onlineStatus="online"
           />
         ))}
       </Accordion>
@@ -62,6 +118,9 @@ const Playground = () => {
       <MyText style={TextStyles.h3}>Heading 3</MyText>
       <MyText style={TextStyles.bodyXL}>Body XL</MyText>
       <MyText>Body L</MyText>
+
+      <MyButtonText title="Logout" onPress={() => logout()} />
+
       <MyButtonText
         title="Default"
         onPress={() => console.log('Default')}
@@ -109,6 +168,7 @@ const Playground = () => {
         <MyButtonIcon icon={GroupIcon} />
         <MyButtonIcon icon={SettingIcon} />
         <MyButtonIcon icon={StarIcon} />
+        <MyButtonIcon icon={AddEmojiIcon} />
         <MyButtonPress
           comp={(props) => (
             <MyButtonIcon
@@ -156,7 +216,7 @@ const Playground = () => {
         FirstFC={({ isSelected }) => (
           <MyText
             style={{
-              color: isSelected ? colors.white : colors.primary
+              color: isSelected ? colors.primary : colors.white
             }}
           >
             Default
@@ -165,7 +225,7 @@ const Playground = () => {
         SecondFC={({ isSelected }) => (
           <MyText
             style={{
-              color: isSelected ? colors.white : colors.primary
+              color: isSelected ? colors.primary : colors.white
             }}
           >
             Toggle
@@ -177,7 +237,7 @@ const Playground = () => {
         FirstFC={({ isSelected }) => (
           <MyText
             style={{
-              color: isSelected ? colors.white : 'blue'
+              color: isSelected ? 'blue' : colors.white
             }}
           >
             Custom
@@ -186,7 +246,7 @@ const Playground = () => {
         SecondFC={({ isSelected }) => (
           <MyText
             style={{
-              color: isSelected ? colors.white : 'blue'
+              color: isSelected ? 'blue' : colors.white
             }}
           >
             Toggle
