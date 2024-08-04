@@ -31,7 +31,7 @@ const CustomTextInput = ({
           }
         ]}
       >
-        <Text style={styles.inputTitle}>{title}</Text>
+        {title && <Text style={styles.inputTitle}>{title}</Text>}
         <TextInput
           style={styles.input}
           placeholder={placeholder}
