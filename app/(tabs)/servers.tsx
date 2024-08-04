@@ -12,6 +12,7 @@ export default function Servers() {
       >
         Tab Servers Hello
       </Text>
+      <Link href="/emoji">Emoji (Touch me)</Link>
       <Link href="/members">Members (Touch me)</Link>
       <Link href="/bans">Bans (Touch me)</Link>
     </View>
