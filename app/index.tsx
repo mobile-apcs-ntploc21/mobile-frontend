@@ -7,6 +7,11 @@ export default function Index() {
   const router = useRouter();
   const { isAuthenticated, isInitialized, user } = useAuth();
 
+  if (process.env.EXPO_PUBLIC_REDIRECT_ENABLED === 'true') {
+    const route = process.env.EXPO_PUBLIC_REDIRECT_ROUTE;
+    if (route) return <Redirect href={route} />;
+  }
+
   // if not initialized, show loading spinner
   if (!isInitialized) {
     return <ActivityIndicator />;

@@ -10,6 +10,7 @@ import { ReactNode } from 'react';
 import { colors } from '@/constants/theme';
 import { router } from 'expo-router';
 import { TextStyles } from '@/styles/TextStyles';
+import MyText from '../MyText';
 import Avatar, { AvatarProps } from '../Avatar';
 
 export interface UserItemBaseProps extends AvatarProps {
@@ -27,7 +28,32 @@ const UserItemBase = (props: UserItemBaseProps) => {
     >
       <View style={styles.contentContainer}>
         <Avatar {...props} />
-        <Text style={TextStyles.h5}>{props.displayName}</Text>
+        <View style={styles.textContainer}>
+          <MyText style={TextStyles.h5}>{props.displayName}</MyText>
+          {/* {props.statusText && (
+          <MyText
+            style={[
+              TextStyles.bodyM,
+              {
+                color: colors.gray02
+              }
+            ]}
+          >
+            {props.statusText}
+          </MyText>
+        )} */}
+
+          <MyText
+            style={[
+              TextStyles.bodyM,
+              {
+                color: colors.gray02
+              }
+            ]}
+          >
+            {'Lorem ipsum'}
+          </MyText>
+        </View>
       </View>
       {/* By some reasons the touch gesture to TouchableOpacity in actionView keeps propagating. This method is used to stop the touch propagation of it. */}
       <TouchableWithoutFeedback>
@@ -67,5 +93,8 @@ const styles = StyleSheet.create({
     position: 'absolute',
     bottom: 0,
     right: 0
+  },
+  textContainer: {
+    gap: 4
   }
 });
