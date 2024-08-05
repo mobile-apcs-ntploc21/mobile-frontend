@@ -48,21 +48,25 @@ const EditProfile = () => {
     onSubmit: async (values) => {
       if (isSubmitting) return;
       setIsSubmitting(true);
-      const avatar = values.profileImageUri?.startsWith('file://')
-        ? await uriToBase64WithPrefix(values.profileImageUri)
-        : null;
-      const banner = values.coverImageUri?.startsWith('file://')
-        ? await uriToBase64WithPrefix(values.coverImageUri)
-        : null;
+      try {
+        const avatar = values.profileImageUri?.startsWith('file://')
+          ? await uriToBase64WithPrefix(values.profileImageUri)
+          : null;
+        const banner = values.coverImageUri?.startsWith('file://')
+          ? await uriToBase64WithPrefix(values.coverImageUri)
+          : null;
 
-      await patchData('/api/v1/profile', {
-        display_name: values.displayName,
-        about_me: values.aboutMe,
-        ...(avatar && { avatar }),
-        ...(banner && { banner })
-      });
-      setIsSubmitting(false);
-      router.back();
+        await patchData('/api/v1/profile', {
+          display_name: values.displayName,
+          about_me: values.aboutMe,
+          ...(avatar && { avatar }),
+          ...(banner && { banner })
+        });
+        router.back();
+      } catch (e) {
+      } finally {
+        setIsSubmitting(false);
+      }
     }
   });
 
