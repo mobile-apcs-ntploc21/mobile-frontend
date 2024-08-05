@@ -9,6 +9,8 @@ import { AuthProvider } from '@/context/AuthProvider';
 import { BottomSheetModalProvider } from '@gorhom/bottom-sheet';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import WsProvider from '@/context/WsProvider';
+import UserProvider from '@/context/UserProvider';
+import StatusProvider from '@/context/StatusProvider';
 
 export {
   // Catch any errors thrown by the Layout component.
@@ -55,28 +57,32 @@ function RootLayoutNav() {
       <BottomSheetModalProvider>
         <AuthProvider>
           <WsProvider>
-            <GlobalProvider>
-              <SafeAreaView style={{ flex: 1 }}>
-                <Stack>
-                  <Stack.Screen
-                    name="(auth)"
-                    options={{ headerShown: false }}
-                  />
-                  <Stack.Screen
-                    name="(tabs)"
-                    options={{ headerShown: false }}
-                  />
-                  <Stack.Screen
-                    name="modal"
-                    options={{ presentation: 'modal' }}
-                  />
-                  <Stack.Screen
-                    name="user/[userId]"
-                    options={{ headerShown: false }}
-                  />
-                </Stack>
-              </SafeAreaView>
-            </GlobalProvider>
+            <StatusProvider>
+              <UserProvider>
+                <GlobalProvider>
+                  <SafeAreaView style={{ flex: 1 }}>
+                    <Stack>
+                      <Stack.Screen
+                        name="(auth)"
+                        options={{ headerShown: false }}
+                      />
+                      <Stack.Screen
+                        name="(tabs)"
+                        options={{ headerShown: false }}
+                      />
+                      <Stack.Screen
+                        name="modal"
+                        options={{ presentation: 'modal' }}
+                      />
+                      <Stack.Screen
+                        name="user/[userId]"
+                        options={{ headerShown: false }}
+                      />
+                    </Stack>
+                  </SafeAreaView>
+                </GlobalProvider>
+              </UserProvider>
+            </StatusProvider>
           </WsProvider>
         </AuthProvider>
       </BottomSheetModalProvider>

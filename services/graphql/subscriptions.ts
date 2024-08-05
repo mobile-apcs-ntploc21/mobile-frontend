@@ -11,3 +11,17 @@ export const USER_STATUS_SUBSCRIPTION = gql`
     }
   }
 `;
+
+export const USER_PROFILE_SUBSCRIPTION = gql`
+  subscription OnUserProfileUpdated($user_id: ID!, $server_id: ID) {
+    userProfileUpdated(user_id: $user_id, server_id: $server_id) {
+      user_id
+      server_id
+      display_name
+      username
+      about_me
+      avatar_url
+      banner_url
+    }
+  }
+`;

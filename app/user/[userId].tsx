@@ -36,6 +36,9 @@ import {
   unblockUser
 } from '@/services/friend';
 import { IconProps } from '@/types';
+import { getOnlineStatusColor } from '@/utils/user';
+import { useUserById } from '@/hooks/useUserById';
+import { StatusType } from '@/types/user_status';
 
 const UserById = () => {
   const { userId } = useLocalSearchParams<{ userId: string }>();
@@ -43,6 +46,7 @@ const UserById = () => {
   const navigation = useNavigation();
   const [relationship, setRelationship] = useState<string>('');
   const [loading, setLoading] = useState<boolean>(false);
+  const { data: userData } = useUserById(userId!);
 
   const fetchRelationship = async () => {
     try {
@@ -267,7 +271,14 @@ const UserById = () => {
       >
         {renderBottomSheetContent()}
       </MyBottomSheetModal>
-      <Image source={DefaultCoverImage} style={styles.coverImage} />
+      <Image
+        source={
+          userData?.banner_url
+            ? { uri: userData.banner_url }
+            : DefaultCoverImage
+        }
+        style={styles.coverImage}
+      />
       {router.canGoBack() && (
         <MyButtonIcon
           icon={ArrowBackIcon}
@@ -285,18 +296,38 @@ const UserById = () => {
       <View style={styles.profileContainer}>
         <View style={styles.profileImageContainer}>
           <View>
-            <Image source={DefaultProfileImage} style={styles.profileImage} />
-            <View style={styles.onlineStatus} />
+            <Image
+              source={
+                userData?.avatar_url
+                  ? { uri: userData.avatar_url }
+                  : DefaultProfileImage
+              }
+              style={styles.profileImage}
+            />
+            <View
+              style={[
+                styles.onlineStatus,
+                {
+                  backgroundColor: getOnlineStatusColor(
+                    userData?.onlineStatus?.is_online
+                      ? userData?.onlineStatus?.type
+                      : StatusType.OFFLINE
+                  )
+                }
+              ]}
+            />
           </View>
         </View>
         <View style={styles.nameContainer}>
-          <Text style={styles.displayName}>John Doe</Text>
-          <Text style={styles.username}>@{userId?.slice(0, 10)}</Text>
+          <Text style={styles.displayName}>{userData?.display_name}</Text>
+          <Text style={styles.username}>@{userData?.username}</Text>
         </View>
-        <StatusBubble
-          emoji="👋"
-          text="Lorem ipsum dolor sit amet consectetur"
-        />
+        {userData?.onlineStatus?.status_text && (
+          <StatusBubble
+            // emoji="👋"
+            text={userData?.onlineStatus?.status_text}
+          />
+        )}
         <View style={styles.buttonContainer}>
           <MyButtonTextIcon
             title="Message"
@@ -307,16 +338,14 @@ const UserById = () => {
           />
           {renderFriendButton(relationship)}
         </View>
-        <View style={styles.aboutMeContainer}>
-          <Text style={styles.aboutMeTitle}>ABOUT ME</Text>
-          <View style={styles.aboutMeContent}>
-            <Text style={styles.aboutMeText}>
-              Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nunc
-              tincidunt, nunc sit amet tincidunt fermentum, nunc magna
-              tincidunt.
-            </Text>
+        {userData?.about_me && (
+          <View style={styles.aboutMeContainer}>
+            <Text style={styles.aboutMeTitle}>ABOUT ME</Text>
+            <View style={styles.aboutMeContent}>
+              <Text style={styles.aboutMeText}>{userData?.about_me}</Text>
+            </View>
           </View>
-        </View>
+        )}
       </View>
     </View>
   );
@@ -382,8 +411,7 @@ const styles = StyleSheet.create({
     right: 0,
     width: 32,
     height: 32,
-    borderRadius: 16,
-    backgroundColor: colors.status_online
+    borderRadius: 16
   },
   nameContainer: {
     marginTop: 64,
