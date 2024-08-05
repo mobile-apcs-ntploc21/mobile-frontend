@@ -101,7 +101,8 @@ const EditProfile = () => {
   const pickImageAsync = async (type: 'profileImageUri' | 'coverImageUri') => {
     let result = await ImagePicker.launchImageLibraryAsync({
       allowsEditing: true,
-      quality: 1
+      quality: 1,
+      aspect: type === 'profileImageUri' ? [1, 1] : [16, 9]
     });
 
     if (!result.canceled) {
