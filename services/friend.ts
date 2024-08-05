@@ -12,6 +12,16 @@ export async function addFriend(friendId: string): Promise<any> {
   }
 }
 
+export async function searchByUsername(username: string): Promise<any> {
+  try {
+    const response = await getData(`/api/v1/profile/u/${username}`);
+
+    return response;
+  } catch (e: any) {
+    throw new Error(e);
+  }
+}
+
 export async function deleteFriend(friendId: string): Promise<any> {
   try {
     const response = await deleteData(`/api/v1/friends/${friendId}`);
