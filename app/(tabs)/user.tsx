@@ -61,7 +61,7 @@ const OnlineStatusItem = (type: StatusType, onClose: () => void) => {
       </View>
     ),
     onPress: async () => {
-      await postData('/api/v1/status/type', {
+      postData('/api/v1/status/type', {
         type
       });
       onClose();
