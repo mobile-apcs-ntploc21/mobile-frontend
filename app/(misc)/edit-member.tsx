@@ -1,6 +1,7 @@
 import { useNavigation } from 'expo-router';
 import { useLayoutEffect, useRef, useState } from 'react';
 import {
+  Alert,
   Pressable,
   ScrollView,
   StyleSheet,
@@ -46,6 +47,26 @@ const EditMember = () => {
             >
               <MyText style={styles.save}>Save</MyText>
             </TouchableWithoutFeedback>
+          }
+          onGoBack={() =>
+            new Promise((resolve, reject) => {
+              Alert.alert(
+                'Discard changes',
+                'Are you sure you want to discard changes?',
+                [
+                  {
+                    text: 'No',
+                    style: 'cancel',
+                    onPress: () => reject()
+                  },
+                  {
+                    text: 'Yes',
+                    style: 'destructive',
+                    onPress: () => resolve()
+                  }
+                ]
+              );
+            })
           }
         />
       )

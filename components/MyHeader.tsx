@@ -1,4 +1,5 @@
 import {
+  GestureResponderEvent,
   StyleSheet,
   Text,
   Touchable,
@@ -17,13 +18,27 @@ import { TextStyles } from '@/styles/TextStyles';
 interface MyHeaderProps extends NativeStackHeaderProps {
   title?: string;
   headerRight?: React.ReactNode;
+  onGoBack?: () => Promise<void>;
 }
 
 const MyHeader = (props: MyHeaderProps) => {
   return (
     <View style={styles.container}>
       {props.navigation.canGoBack() && (
-        <TouchableOpacity onPress={() => props.navigation.goBack()}>
+        <TouchableOpacity
+          onPress={() => {
+            if (props.onGoBack) {
+              props
+                .onGoBack()
+                .then(() => props.navigation.goBack())
+                .catch((e) =>
+                  console.warn('User cancelled with reason:', e ?? 'unknown')
+                );
+            } else {
+              props.navigation.goBack();
+            }
+          }}
+        >
           <Entypo name="chevron-thin-left" size={32} color={colors.black} />
         </TouchableOpacity>
       )}
