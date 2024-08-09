@@ -26,7 +26,7 @@ const defaultRoles = Array.from(
 );
 
 const defaultActions = Array.from(
-  { length: 3 },
+  { length: 20 },
   (_, index) => `Action ${index + 1}`
 );
 
@@ -74,95 +74,100 @@ const EditMember = () => {
   }, []);
 
   return (
-    <ScrollView style={GlobalStyles.container}>
-      <Formik
-        innerRef={formikRef}
-        initialValues={{
-          nickname: '',
-          roles: defaultRoles.slice(0, 2)
-        }}
-        onSubmit={(values) => {
-          console.log(values);
-          navigation.goBack();
-        }}
-      >
-        {({ handleChange, handleBlur, values }) => (
-          <View>
-            <View style={styles.nicknameContainer}>
-              <Avatar
-                id="#"
-                avatarStyle={{
-                  width: 64,
-                  height: 64,
-                  borderRadius: 32
-                }}
-              />
-              <View style={styles.nicknameBlock}>
-                <MyText style={styles.label}>NICKNAME</MyText>
-                <TextInput
-                  style={styles.input}
-                  value={values.nickname}
-                  onChangeText={handleChange('nickname')}
-                  onBlur={handleBlur('nickname')}
-                  placeholder="Add a nickname"
-                  placeholderTextColor={colors.gray02}
+    <ScrollView style={GlobalStyles.subcontainer}>
+      <View style={{ flex: 1, paddingBottom: 16 }}>
+        <Formik
+          innerRef={formikRef}
+          initialValues={{
+            nickname: '',
+            roles: defaultRoles.slice(0, 2)
+          }}
+          onSubmit={(values) => {
+            console.log(values);
+            navigation.goBack();
+          }}
+        >
+          {({ handleChange, handleBlur, values }) => (
+            <View>
+              <View style={styles.nicknameContainer}>
+                <Avatar
+                  id="#"
+                  avatarStyle={{
+                    width: 64,
+                    height: 64,
+                    borderRadius: 32
+                  }}
                 />
+                <View style={styles.nicknameBlock}>
+                  <MyText style={styles.label}>NICKNAME</MyText>
+                  <TextInput
+                    style={styles.input}
+                    value={values.nickname}
+                    onChangeText={handleChange('nickname')}
+                    onBlur={handleBlur('nickname')}
+                    placeholder="Add a nickname"
+                    placeholderTextColor={colors.gray02}
+                  />
+                </View>
+              </View>
+              <View style={styles.rolesContainer}>
+                <Pressable
+                  style={styles.btnEdit}
+                  onPress={() => setEditState(!editState)}
+                >
+                  <MyText style={styles.editText}>
+                    {editState ? 'Cancel' : 'Edit'}
+                  </MyText>
+                </Pressable>
+                {editState ? (
+                  <ButtonListCheckbox
+                    heading="Roles"
+                    items={defaultRoles.map((role) => ({
+                      value: role,
+                      label: role
+                    }))}
+                    values={values.roles}
+                    onAdd={(value) =>
+                      handleChange({
+                        target: {
+                          name: 'roles',
+                          value: [...values.roles, value]
+                        }
+                      })
+                    }
+                    onRemove={(value) =>
+                      handleChange({
+                        target: {
+                          name: 'roles',
+                          value: values.roles.filter(
+                            (role: string) => role !== value
+                          )
+                        }
+                      })
+                    }
+                  />
+                ) : (
+                  <ButtonListText
+                    heading="Roles"
+                    items={values.roles.map((role: string) => ({
+                      text: role
+                    }))}
+                  />
+                )}
               </View>
             </View>
-            <View style={styles.rolesContainer}>
-              <Pressable
-                style={styles.btnEdit}
-                onPress={() => setEditState(!editState)}
-              >
-                <MyText style={styles.editText}>
-                  {editState ? 'Cancel' : 'Edit'}
-                </MyText>
-              </Pressable>
-              {editState ? (
-                <ButtonListCheckbox
-                  heading="Roles"
-                  items={defaultRoles.map((role) => ({
-                    value: role,
-                    label: role
-                  }))}
-                  values={values.roles}
-                  onAdd={(value) =>
-                    handleChange({
-                      target: { name: 'roles', value: [...values.roles, value] }
-                    })
-                  }
-                  onRemove={(value) =>
-                    handleChange({
-                      target: {
-                        name: 'roles',
-                        value: values.roles.filter(
-                          (role: string) => role !== value
-                        )
-                      }
-                    })
-                  }
-                />
-              ) : (
-                <ButtonListText
-                  heading="Roles"
-                  items={values.roles.map((role: string) => ({
-                    text: role
-                  }))}
-                />
-              )}
-            </View>
-          </View>
-        )}
-      </Formik>
-      <View style={styles.actionsContainer}>
-        <ButtonListText
-          heading="Actions"
-          items={defaultActions.map((action) => ({
-            text: action,
-            style: { color: colors.semantic_red },
-            onPress: () => console.log(action)
-          }))}
-        />
+          )}
+        </Formik>
+        <View style={styles.actionsContainer}>
+          <ButtonListText
+            heading="Actions"
+            items={defaultActions.map((action) => ({
+              text: action,
+              style: { color: colors.semantic_red },
+              onPress: () => console.log(action)
+            }))}
+          />
+        </View>
       </View>
     </ScrollView>
   );
