@@ -33,12 +33,12 @@ const Members = () => {
   }, []);
 
   return (
-    <View style={{ flex: 1 }}>
+    <View style={{ flex: 1, marginTop: 16 }}>
       <FilterModal
         visible={modalVisible}
         onClose={() => setModalVisible(false)}
       />
-      <View style={[GlobalStyles.container, styles.searchContainer]}>
+      <View style={[GlobalStyles.subcontainer, styles.searchContainer]}>
         <View style={{ flex: 1 }}>
           <SearchBar />
         </View>
@@ -47,7 +47,7 @@ const Members = () => {
         </TouchableWithoutFeedback>
       </View>
       <ScrollView style={{ flex: 1 }}>
-        <View style={[GlobalStyles.container, { paddingBottom: 16 }]}>
+        <View style={[GlobalStyles.subcontainer, { paddingBottom: 16 }]}>
           <ButtonListBase
             heading="4 Members"
             items={Array.from({ length: 10 }, (_, index) => ({
