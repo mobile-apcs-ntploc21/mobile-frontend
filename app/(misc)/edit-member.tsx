@@ -1,6 +1,7 @@
 import { useNavigation } from 'expo-router';
-import { useLayoutEffect, useRef } from 'react';
+import { useLayoutEffect, useRef, useState } from 'react';
 import {
+  Pressable,
   ScrollView,
   StyleSheet,
   TextInput,
@@ -16,6 +17,7 @@ import MyText from '@/components/MyText';
 import GlobalStyles from '@/styles/GlobalStyles';
 import Avatar from '@/components/Avatar';
 import ButtonListText from '@/components/ButtonList/ButtonListText';
+import ButtonListCheckbox from '@/components/ButtonList/ButtonListCheckbox';
 
 const defaultRoles = Array.from(
   { length: 7 },
@@ -30,6 +32,7 @@ const defaultActions = Array.from(
 const EditMember = () => {
   const navigation = useNavigation();
   const formikRef = useRef<FormikProps<any>>(null);
+  const [editState, setEditState] = useState(false);
 
   useLayoutEffect(() => {
     navigation.setOptions({
@@ -62,7 +65,7 @@ const EditMember = () => {
           navigation.goBack();
         }}
       >
-        {({ handleChange, handleBlur, handleSubmit, values }) => (
+        {({ handleChange, handleBlur, values }) => (
           <View>
             <View style={styles.nicknameContainer}>
               <Avatar
@@ -86,12 +89,46 @@ const EditMember = () => {
               </View>
             </View>
             <View style={styles.rolesContainer}>
-              <ButtonListText
-                heading="Roles"
-                items={values.roles.map((role: string) => ({
-                  text: role
-                }))}
-              />
+              <Pressable
+                style={styles.btnEdit}
+                onPress={() => setEditState(!editState)}
+              >
+                <MyText style={styles.editText}>
+                  {editState ? 'Cancel' : 'Edit'}
+                </MyText>
+              </Pressable>
+              {editState ? (
+                <ButtonListCheckbox
+                  heading="Roles"
+                  items={defaultRoles.map((role) => ({
+                    value: role,
+                    label: role
+                  }))}
+                  values={values.roles}
+                  onAdd={(value) =>
+                    handleChange({
+                      target: { name: 'roles', value: [...values.roles, value] }
+                    })
+                  }
+                  onRemove={(value) =>
+                    handleChange({
+                      target: {
+                        name: 'roles',
+                        value: values.roles.filter(
+                          (role: string) => role !== value
+                        )
+                      }
+                    })
+                  }
+                />
+              ) : (
+                <ButtonListText
+                  heading="Roles"
+                  items={values.roles.map((role: string) => ({
+                    text: role
+                  }))}
+                />
+              )}
             </View>
           </View>
         )}
@@ -144,5 +181,16 @@ const styles = StyleSheet.create({
   },
   actionsContainer: {
     marginTop: 16
+  },
+  btnEdit: {
+    position: 'absolute',
+    right: 16,
+    top: 0,
+    zIndex: 1
+  },
+  editText: {
+    fontSize: 14,
+    fontFamily: fonts.bold,
+    color: colors.primary
   }
 });
