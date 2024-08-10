@@ -13,11 +13,15 @@ interface SimpleServerItemProps extends ServerItemProps {
   selected?: boolean;
 }
 
-const SimpleServerItem = (props: SimpleServerItemProps) => {
+const SimpleServerItem = ({
+  id,
+  selected,
+  onPress = (id) => console.log(id)
+}: SimpleServerItemProps) => {
   const [flag, setFlag] = useState(false);
 
-  const isControlled = props.selected !== undefined;
-  const state = isControlled ? props.selected : flag;
+  const isControlled = selected !== undefined;
+  const state = isControlled ? selected : flag;
 
   const animatedStyle = useAnimatedStyle(
     () => ({
@@ -30,7 +34,7 @@ const SimpleServerItem = (props: SimpleServerItemProps) => {
     if (!isControlled) {
       setFlag(!flag);
     }
-    props.onPress?.(props.id);
+    onPress(id);
   };
 
   return (
