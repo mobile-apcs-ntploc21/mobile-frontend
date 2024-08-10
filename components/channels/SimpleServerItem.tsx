@@ -6,11 +6,11 @@ import Animated, {
   useSharedValue,
   withTiming
 } from 'react-native-reanimated';
+import { ServerItemProps } from '@/types';
 
-interface SimpleServerItemProps {
+interface SimpleServerItemProps extends ServerItemProps {
   id: string;
   selected?: boolean;
-  onPress?: (id: string) => void;
 }
 
 const SimpleServerItem = (props: SimpleServerItemProps) => {
