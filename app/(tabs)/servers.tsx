@@ -6,9 +6,10 @@ import Avatar from '@/components/Avatar';
 import ChannelItem from '@/components/channels/ChannelItem';
 import MyButtonIcon from '@/components/MyButton/MyButtonIcon';
 import MyText from '@/components/MyText';
+import ServerList from '@/components/channels/ServerList';
 import { DefaultCoverImage } from '@/constants/images';
 import { colors, fonts } from '@/constants/theme';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { StyleSheet, Text, View, Image, ScrollView } from 'react-native';
 
 const MAXUSERS = 4;
@@ -23,7 +24,7 @@ export default function Servers() {
   }, []);
 
   return (
-    <View>
+    <View style={{ flex: 1 }}>
       <Image source={DefaultCoverImage} style={styles.coverimg} />
       <View style={styles.container}>
         <View style={styles.serverInfoContainer}>
@@ -81,6 +82,7 @@ export default function Servers() {
           </View>
         </ScrollView>
       </View>
+      <ServerList />
     </View>
   );
 }
