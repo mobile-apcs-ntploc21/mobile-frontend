@@ -20,10 +20,10 @@ const ServerList = () => {
   const [servers, setServers] = useState(
     Array.from({ length: 10 }, (_, i) => ({
       id: i.toString(),
-      name: `Server ${i}`
+      name: i > 0 ? `Server ${i}` : 'Create Server'
     }))
   );
-  const [currentServer, setCurrentServer] = useState(servers[0]);
+  const [currentServer, setCurrentServer] = useState(servers[1]);
   const [currentIndex, setCurrentIndex] = useState(0);
 
   const handlePress = (id: string) => {

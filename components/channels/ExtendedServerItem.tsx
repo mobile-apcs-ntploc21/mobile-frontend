@@ -1,32 +1,41 @@
-import { Pressable, StyleSheet, Text, View } from 'react-native';
-import { useState } from 'react';
+import { StyleSheet, TouchableOpacity, View } from 'react-native';
 import { colors, fonts } from '@/constants/theme';
 import { ServerItemProps } from '@/types';
 import MyText from '../MyText';
+import { FontAwesome5 } from '@expo/vector-icons';
 
-interface ExtendedServerItemProps extends ServerItemProps {}
+interface ExtendedServerItemProps extends ServerItemProps {
+  name: string;
+}
 
 const ExtendedServerItem = ({
   id,
+  name,
   onPress = (id) => console.log(id)
 }: ExtendedServerItemProps) => {
   return (
-    <Pressable
+    <TouchableOpacity
       onPress={() => {
         onPress(id);
       }}
     >
       <View style={styles.container}>
-        <View style={styles.serverImg} />
+        {name === 'Create Server' ? (
+          <View style={styles.btnAdd}>
+            <FontAwesome5 name="plus" size={28} color={colors.primary} />
+          </View>
+        ) : (
+          <View style={styles.serverImg} />
+        )}
         <MyText
           style={styles.serverName}
           numberOfLines={2}
           ellipsizeMode="tail"
         >
-          Server {id}
+          {name}
         </MyText>
       </View>
-    </Pressable>
+    </TouchableOpacity>
   );
 };
 
@@ -47,5 +56,15 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
     fontSize: 12,
     fontFamily: fonts.bold
+  },
+  btnAdd: {
+    width: 64,
+    height: 64,
+    borderRadius: 64 / 2,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 4,
+    borderColor: colors.primary,
+    borderStyle: 'dashed'
   }
 });
