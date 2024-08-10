@@ -4,9 +4,9 @@ import { colors, fonts } from '@/constants/theme';
 import { ServerItemProps } from '@/types';
 import MyText from '../MyText';
 
-interface ExtendServerItemProps extends ServerItemProps {}
+interface ExtendedServerItemProps extends ServerItemProps {}
 
-const ExtendServerItem = (props: ExtendServerItemProps) => {
+const ExtendedServerItem = (props: ExtendedServerItemProps) => {
   return (
     <Pressable
       onPress={() => {
@@ -15,17 +15,25 @@ const ExtendServerItem = (props: ExtendServerItemProps) => {
     >
       <View style={styles.container}>
         <View style={styles.serverImg} />
-        <MyText style={styles.serverName}>Server {props.id}</MyText>
+        <MyText
+          style={styles.serverName}
+          numberOfLines={2}
+          ellipsizeMode="tail"
+        >
+          Server {props.id}
+        </MyText>
       </View>
     </Pressable>
   );
 };
 
-export default ExtendServerItem;
+export default ExtendedServerItem;
 
 const styles = StyleSheet.create({
   container: {
-    gap: 8
+    gap: 8,
+    width: 64,
+    backgroundColor: 'plum'
   },
   serverImg: {
     width: 64,
