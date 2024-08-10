@@ -11,7 +11,7 @@ import { colors, fonts } from '@/constants/theme';
 import MyText from '../MyText';
 import SimpleServerItem from './SimpleServerItem';
 import SimpleServerList from './SimpleServerList';
-import ExtendServerList from './ExtendServerList';
+import ExtendedServerList from './ExtendedServerList';
 import Toggle from '../Toggle';
 
 const ServerList = () => {
@@ -51,40 +51,42 @@ const ServerList = () => {
           currentServerId={currentServer.id}
         />
       ) : (
-        <ExtendServerList
+        <ExtendedServerList
           servers={servers}
           onChange={handlePress}
           currentServerId={currentServer.id}
         />
       )}
-      <View style={styles.toggleContainer}>
-        <Toggle
-          FirstFC={({ isSelected }) => (
-            <MyText
-              style={[
-                styles.toggleText,
-                {
-                  color: isSelected ? colors.primary : colors.white
-                }
-              ]}
-            >
-              All Servers
-            </MyText>
-          )}
-          SecondFC={({ isSelected }) => (
-            <MyText
-              style={[
-                styles.toggleText,
-                {
-                  color: isSelected ? colors.primary : colors.white
-                }
-              ]}
-            >
-              Favorite Servers
-            </MyText>
-          )}
-        />
-      </View>
+      {currentIndex === 1 && (
+        <View style={styles.toggleContainer}>
+          <Toggle
+            FirstFC={({ isSelected }) => (
+              <MyText
+                style={[
+                  styles.toggleText,
+                  {
+                    color: isSelected ? colors.primary : colors.white
+                  }
+                ]}
+              >
+                All Servers
+              </MyText>
+            )}
+            SecondFC={({ isSelected }) => (
+              <MyText
+                style={[
+                  styles.toggleText,
+                  {
+                    color: isSelected ? colors.primary : colors.white
+                  }
+                ]}
+              >
+                Favorite Servers
+              </MyText>
+            )}
+          />
+        </View>
+      )}
     </BottomSheet>
   );
 };

@@ -2,11 +2,11 @@ import { FlatList, StyleSheet, Text, View } from 'react-native';
 import React from 'react';
 import { ServerListProps } from '@/types';
 import SimpleServerItem from './SimpleServerItem';
-import ExtendServerItem from './ExtendServerItem';
+import ExtendedServerItem from './ExtendedServerItem';
 
-interface ExtendServerListProps extends ServerListProps {}
+interface ExtendedServerListProps extends ServerListProps {}
 
-const ExtendServerList = (props: ExtendServerListProps) => {
+const ExtendedServerList = (props: ExtendedServerListProps) => {
   return (
     <View style={styles.container}>
       <FlatList
@@ -14,7 +14,7 @@ const ExtendServerList = (props: ExtendServerListProps) => {
         keyExtractor={(item) => item.id}
         renderItem={({ item }) => (
           <View style={{ margin: 16 }}>
-            <ExtendServerItem id={item.id} onPress={props.onChange} />
+            <ExtendedServerItem id={item.id} onPress={props.onChange} />
           </View>
         )}
         numColumns={4}
@@ -24,7 +24,7 @@ const ExtendServerList = (props: ExtendServerListProps) => {
   );
 };
 
-export default ExtendServerList;
+export default ExtendedServerList;
 
 const styles = StyleSheet.create({
   container: {
