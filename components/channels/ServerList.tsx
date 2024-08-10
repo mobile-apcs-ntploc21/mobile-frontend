@@ -10,6 +10,7 @@ import BottomSheet from '@gorhom/bottom-sheet';
 import { colors } from '@/constants/theme';
 import MyText from '../MyText';
 import SimpleServerItem from './SimpleServerItem';
+import SimpleServerList from './SimpleServerList';
 
 const ServerList = () => {
   const ref = useRef<BottomSheet>(null);
@@ -21,10 +22,15 @@ const ServerList = () => {
     }))
   );
   const [currentServer, setCurrentServer] = useState(servers[0]);
+  const [currentIndex, setCurrentIndex] = useState(0);
 
   const handlePress = (id: string) => {
     if (id !== currentServer.id)
       setCurrentServer(servers.find((server) => server.id === id)!);
+  };
+
+  const handleSheetChanges = (index: number) => {
+    setCurrentIndex(index);
   };
 
   return (
@@ -34,32 +40,20 @@ const ServerList = () => {
       handleComponent={() => <View style={styles.handle} />}
       backgroundStyle={{ backgroundColor: colors.gray03 }}
       enableContentPanningGesture={false}
+      onChange={handleSheetChanges}
     >
-      <View style={styles.container}>
-        <FlatList
-          horizontal
-          data={servers}
-          keyExtractor={(item) => item.id}
-          renderItem={({ item }) => (
-            <View style={{ marginLeft: 8 }}>
-              <SimpleServerItem
-                id={item.id}
-                selected={item.id === currentServer.id}
-                onPress={handlePress}
-              />
-            </View>
-          )}
-          showsHorizontalScrollIndicator={false}
+      {currentIndex === 0 ? (
+        <SimpleServerList
+          servers={servers}
+          onChange={handlePress}
+          currentServerId={currentServer.id}
         />
-      </View>
+      ) : null}
     </BottomSheet>
   );
 };
 
 const styles = StyleSheet.create({
-  container: {
-    paddingBottom: 7
-  },
   handle: {
     marginTop: 5,
     marginBottom: 13,
