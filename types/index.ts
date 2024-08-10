@@ -15,4 +15,5 @@ export interface ServerItemProps {
 export interface ServerListProps {
   servers: Server[];
   onChange: (id: string) => void;
+  currentServerId: string;
 }

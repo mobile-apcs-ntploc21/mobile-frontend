@@ -11,6 +11,7 @@ import { colors } from '@/constants/theme';
 import MyText from '../MyText';
 import SimpleServerItem from './SimpleServerItem';
 import SimpleServerList from './SimpleServerList';
+import ExtendServerList from './ExtendServerList';
 
 const ServerList = () => {
   const ref = useRef<BottomSheet>(null);
@@ -48,7 +49,13 @@ const ServerList = () => {
           onChange={handlePress}
           currentServerId={currentServer.id}
         />
-      ) : null}
+      ) : (
+        <ExtendServerList
+          servers={servers}
+          onChange={handlePress}
+          currentServerId={currentServer.id}
+        />
+      )}
     </BottomSheet>
   );
 };

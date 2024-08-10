@@ -28,12 +28,13 @@ const styles = StyleSheet.create({
     gap: 8
   },
   serverImg: {
-    width: 44,
-    height: 44,
-    borderRadius: 44 / 2,
+    width: 64,
+    height: 64,
+    borderRadius: 64 / 2,
     backgroundColor: colors.gray02
   },
   serverName: {
+    alignSelf: 'center',
     fontSize: 12,
     fontFamily: fonts.bold
   }
