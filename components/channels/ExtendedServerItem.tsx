@@ -6,11 +6,14 @@ import MyText from '../MyText';
 
 interface ExtendedServerItemProps extends ServerItemProps {}
 
-const ExtendedServerItem = (props: ExtendedServerItemProps) => {
+const ExtendedServerItem = ({
+  id,
+  onPress = (id) => console.log(id)
+}: ExtendedServerItemProps) => {
   return (
     <Pressable
       onPress={() => {
-        props.onPress?.(props.id);
+        onPress(id);
       }}
     >
       <View style={styles.container}>
@@ -20,7 +23,7 @@ const ExtendedServerItem = (props: ExtendedServerItemProps) => {
           numberOfLines={2}
           ellipsizeMode="tail"
         >
-          Server {props.id}
+          Server {id}
         </MyText>
       </View>
     </Pressable>
@@ -32,8 +35,7 @@ export default ExtendedServerItem;
 const styles = StyleSheet.create({
   container: {
     gap: 8,
-    width: 64,
-    backgroundColor: 'plum'
+    width: 64
   },
   serverImg: {
     width: 64,
