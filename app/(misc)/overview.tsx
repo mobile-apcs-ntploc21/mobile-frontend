@@ -21,6 +21,7 @@ import { DefaultCoverImage, DefaultProfileImage } from '@/constants/images';
 import { MaterialIcons } from '@expo/vector-icons';
 import CustomTextInput from '@/components/common/CustomTextInput';
 import { MyButtonText } from '@/components/MyButton';
+import { patchData, postData } from '@/utils/api';
 
 const uriToBase64WithPrefix = async (uri: string) => {
   const base64 = await FileSystem.readAsStringAsync(uri, {
@@ -51,11 +52,13 @@ const Overview = () => {
         ? await uriToBase64WithPrefix(values.bannerImageUri)
         : null;
 
-      // await patchData('somethingsomething', {
-      //   serverName: values.serverName,
-      //   ...(avatar && { avatar }),
-      //   ...(banner && { banner })
-      // });
+      const serverId = '1234';
+      const response = patchData(`/api/v1/servers/${serverId}`, {
+        name: values.serverName,
+        ...(avatar && { avatar }),
+        ...(banner && { banner })
+      });
+
       setIsSubmitting(false);
       router.back();
     }
