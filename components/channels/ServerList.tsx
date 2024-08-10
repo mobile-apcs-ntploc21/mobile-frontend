@@ -9,6 +9,7 @@ import {
 import BottomSheet from '@gorhom/bottom-sheet';
 import { colors } from '@/constants/theme';
 import MyText from '../MyText';
+import SimpleServerItem from './SimpleServerItem';
 
 const ServerList = () => {
   const ref = useRef<BottomSheet>(null);
@@ -19,6 +20,12 @@ const ServerList = () => {
       name: `Server ${i}`
     }))
   );
+  const [currentServer, setCurrentServer] = useState(servers[0]);
+
+  const handlePress = (id: string) => {
+    if (id !== currentServer.id)
+      setCurrentServer(servers.find((server) => server.id === id)!);
+  };
 
   return (
     <BottomSheet
@@ -33,7 +40,15 @@ const ServerList = () => {
           horizontal
           data={servers}
           keyExtractor={(item) => item.id}
-          renderItem={() => <View style={styles.serverImg} />}
+          renderItem={({ item }) => (
+            <View style={{ marginLeft: 8 }}>
+              <SimpleServerItem
+                id={item.id}
+                selected={item.id === currentServer.id}
+                onPress={handlePress}
+              />
+            </View>
+          )}
           showsHorizontalScrollIndicator={false}
         />
       </View>
@@ -44,13 +59,6 @@ const ServerList = () => {
 const styles = StyleSheet.create({
   container: {
     paddingBottom: 7
-  },
-  serverImg: {
-    marginLeft: 8,
-    width: 44,
-    height: 44,
-    borderRadius: 22,
-    backgroundColor: colors.gray02
   },
   handle: {
     marginTop: 5,
