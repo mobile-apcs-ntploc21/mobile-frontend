@@ -3,12 +3,13 @@ import DotsIcon from '@/assets/icons/DotsIcon';
 import SettingIcon from '@/assets/icons/SettingIcon';
 import StarIcon from '@/assets/icons/StarIcon';
 import Avatar from '@/components/Avatar';
+import ChannelItem from '@/components/channels/ChannelItem';
 import MyButtonIcon from '@/components/MyButton/MyButtonIcon';
 import MyText from '@/components/MyText';
 import { DefaultCoverImage } from '@/constants/images';
 import { colors, fonts } from '@/constants/theme';
 import { useEffect, useState } from 'react';
-import { StyleSheet, Text, View, Image } from 'react-native';
+import { StyleSheet, Text, View, Image, ScrollView } from 'react-native';
 
 const MAXUSERS = 4;
 
@@ -68,7 +69,17 @@ export default function Servers() {
           </View>
         </View>
         <View style={styles.seperator} />
-        <View style={styles.newsContainer}></View>
+        <ScrollView
+          style={styles.newsContainer}
+          contentContainerStyle={{ rowGap: 16 }}
+        >
+          <View style={styles.newsWrapper}>
+            <ChannelItem />
+          </View>
+          <View style={styles.newsWrapper}>
+            <ChannelItem unreadCount={3} />
+          </View>
+        </ScrollView>
       </View>
     </View>
   );
@@ -144,5 +155,10 @@ const styles = StyleSheet.create({
   },
   newsContainer: {
     marginHorizontal: 16
+  },
+  newsWrapper: {
+    backgroundColor: colors.white,
+    borderRadius: 21,
+    padding: 16
   }
 });
