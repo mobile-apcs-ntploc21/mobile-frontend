@@ -46,11 +46,13 @@ const Draggable = ({ id, positions, children }: DraggableProps) => {
   const pan = Gesture.Pan()
     .minDistance(1)
     .onBegin(() => {
+      if (id <= 0) return;
       isGestureActive.value = true;
       scale.value = withTiming(1.1);
       prePos.value = { ...curPos.value };
     })
     .onUpdate((event) => {
+      if (id <= 0) return;
       curPos.value = {
         x: prePos.value.x + event.translationX,
         y: prePos.value.y + event.translationY
@@ -64,7 +66,7 @@ const Draggable = ({ id, positions, children }: DraggableProps) => {
         // console.log(
         //   `oldOrder: ${oldOrder}, newOrder: ${newOrder}, id: ${id}, idToSwap: ${idToSwap}`
         // );
-        if (idToSwap !== -1) {
+        if (idToSwap > 0) {
           const newPositions = [...positions.value];
           newPositions[id] = newOrder;
           newPositions[idToSwap] = oldOrder;
@@ -73,6 +75,7 @@ const Draggable = ({ id, positions, children }: DraggableProps) => {
       }
     })
     .onFinalize(() => {
+      if (id <= 0) return;
       const newPos = getPosition(positions.value[id]);
       //   console.log(`id: ${id}, newPos: ${newPos.x}, ${newPos.y}`);
       curPos.value = prePos.value = withTiming({
