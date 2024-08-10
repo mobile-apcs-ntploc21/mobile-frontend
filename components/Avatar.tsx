@@ -1,4 +1,11 @@
-import { StyleSheet, Text, View, Image } from 'react-native';
+import {
+  StyleSheet,
+  Text,
+  View,
+  Image,
+  ViewStyle,
+  ImageStyle
+} from 'react-native';
 import { colors } from '@/constants/theme';
 import { DefaultProfileImage } from '@/constants/images';
 import { getOnlineStatusColor } from '@/utils/user';
@@ -16,6 +23,7 @@ export interface AvatarProps {
   showStatus?: boolean;
   onlineStatus?: StatusType;
   subscribeToStatus?: boolean;
+  imgStyle?: ImageStyle;
 }
 
 const Avatar = ({
@@ -23,7 +31,8 @@ const Avatar = ({
   profilePic,
   showStatus,
   onlineStatus,
-  subscribeToStatus
+  subscribeToStatus,
+  imgStyle
 }: AvatarProps) => {
   const wsClient = useApolloClient();
   const [isOnline, setIsOnline] = useState(false);
@@ -61,7 +70,7 @@ const Avatar = ({
     <View style={styles.profilePicContainer}>
       <Image
         source={profilePic ? { uri: profilePic } : DefaultProfileImage}
-        style={styles.profilePic}
+        style={StyleSheet.flatten([styles.profilePic, imgStyle])}
       />
       {showStatus && (
         <View
