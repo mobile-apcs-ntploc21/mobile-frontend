@@ -10,7 +10,7 @@ const SimpleServerList = (props: SimpleServerListProps) => {
     <View style={styles.container}>
       <FlatList
         horizontal
-        data={props.servers}
+        data={props.servers.slice(1)}
         keyExtractor={(item) => item.id}
         renderItem={({ item }) => (
           <View style={{ marginLeft: 8 }}>
