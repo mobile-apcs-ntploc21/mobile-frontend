@@ -7,11 +7,12 @@ import {
   LayoutChangeEvent
 } from 'react-native';
 import BottomSheet from '@gorhom/bottom-sheet';
-import { colors } from '@/constants/theme';
+import { colors, fonts } from '@/constants/theme';
 import MyText from '../MyText';
 import SimpleServerItem from './SimpleServerItem';
 import SimpleServerList from './SimpleServerList';
 import ExtendServerList from './ExtendServerList';
+import Toggle from '../Toggle';
 
 const ServerList = () => {
   const ref = useRef<BottomSheet>(null);
@@ -56,6 +57,34 @@ const ServerList = () => {
           currentServerId={currentServer.id}
         />
       )}
+      <View style={styles.toggleContainer}>
+        <Toggle
+          FirstFC={({ isSelected }) => (
+            <MyText
+              style={[
+                styles.toggleText,
+                {
+                  color: isSelected ? colors.primary : colors.white
+                }
+              ]}
+            >
+              All Servers
+            </MyText>
+          )}
+          SecondFC={({ isSelected }) => (
+            <MyText
+              style={[
+                styles.toggleText,
+                {
+                  color: isSelected ? colors.primary : colors.white
+                }
+              ]}
+            >
+              Favorite Servers
+            </MyText>
+          )}
+        />
+      </View>
     </BottomSheet>
   );
 };
@@ -69,6 +98,14 @@ const styles = StyleSheet.create({
     borderRadius: 4,
     backgroundColor: colors.gray01,
     alignSelf: 'center'
+  },
+  toggleText: {
+    fontSize: 15,
+    fontFamily: fonts.bold
+  },
+  toggleContainer: {
+    marginHorizontal: 'auto',
+    marginBottom: 16
   }
 });
 
