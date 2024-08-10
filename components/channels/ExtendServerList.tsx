@@ -2,35 +2,33 @@ import { FlatList, StyleSheet, Text, View } from 'react-native';
 import React from 'react';
 import { ServerListProps } from '@/types';
 import SimpleServerItem from './SimpleServerItem';
+import ExtendServerItem from './ExtendServerItem';
 
-interface SimpleServerListProps extends ServerListProps {}
+interface ExtendServerListProps extends ServerListProps {}
 
-const SimpleServerList = (props: SimpleServerListProps) => {
+const ExtendServerList = (props: ExtendServerListProps) => {
   return (
     <View style={styles.container}>
       <FlatList
-        horizontal
         data={props.servers}
         keyExtractor={(item) => item.id}
         renderItem={({ item }) => (
-          <View style={{ marginLeft: 8 }}>
-            <SimpleServerItem
-              id={item.id}
-              selected={item.id === props.currentServerId}
-              onPress={props.onChange}
-            />
+          <View style={{ margin: 16 }}>
+            <ExtendServerItem id={item.id} onPress={props.onChange} />
           </View>
         )}
+        numColumns={4}
         showsHorizontalScrollIndicator={false}
       />
     </View>
   );
 };
 
-export default SimpleServerList;
+export default ExtendServerList;
 
 const styles = StyleSheet.create({
   container: {
-    paddingBottom: 7
+    flex: 1,
+    alignItems: 'center'
   }
 });
