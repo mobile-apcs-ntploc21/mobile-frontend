@@ -10,10 +10,15 @@ const SimpleServerList = () => {
     <View style={styles.container}>
       <FlatList
         horizontal
-        data={servers.slice(1)}
+        data={servers}
         keyExtractor={(item) => item.id}
-        renderItem={({ item }) => (
-          <View style={{ marginLeft: 8 }}>
+        renderItem={({ item, index }) => (
+          <View
+            style={{
+              marginLeft: 8,
+              marginRight: index === servers.length - 1 ? 8 : 0
+            }}
+          >
             <SimpleServerItem
               id={item.id}
               selected={item.id === currentServerId}

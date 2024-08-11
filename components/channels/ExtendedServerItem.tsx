@@ -20,13 +20,7 @@ const ExtendedServerItem = ({
       }}
     >
       <View style={styles.container}>
-        {name === 'Create Server' ? (
-          <View style={styles.btnAdd}>
-            <FontAwesome5 name="plus" size={28} color={colors.primary} />
-          </View>
-        ) : (
-          <View style={styles.serverImg} />
-        )}
+        <View style={styles.serverImg} />
         <MyText
           style={styles.serverName}
           numberOfLines={2}
@@ -56,15 +50,5 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
     fontSize: 12,
     fontFamily: fonts.bold
-  },
-  btnAdd: {
-    width: 64,
-    height: 64,
-    borderRadius: 64 / 2,
-    justifyContent: 'center',
-    alignItems: 'center',
-    borderWidth: 4,
-    borderColor: colors.primary,
-    borderStyle: 'dashed'
   }
 });

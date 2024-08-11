@@ -55,7 +55,7 @@ const handlers: Record<
       payload.length === 0
         ? null
         : state.servers.length === 0
-        ? payload[1].id
+        ? payload[0].id
         : state.currentServerId
   })
 };
