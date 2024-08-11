@@ -44,7 +44,7 @@ const ServerList = () => {
       ref={ref}
       snapPoints={snapPoints}
       handleComponent={() => <View style={styles.handle} />}
-      backgroundStyle={{ backgroundColor: colors.gray03 }}
+      backgroundStyle={{ backgroundColor: colors.gray03, borderRadius: 30 }}
       enableContentPanningGesture={false}
       onChange={handleSheetChanges}
     >
