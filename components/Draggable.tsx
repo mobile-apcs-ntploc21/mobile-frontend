@@ -6,7 +6,7 @@ import {
   MARGIN_Y,
   WIDTH
 } from '@/utils/dragging';
-import { ReactNode } from 'react';
+import { ReactNode, useRef } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import Animated, {
@@ -29,13 +29,21 @@ const Draggable = ({ id, positions, children }: DraggableProps) => {
   const curPos = useSharedValue({ x: 0, y: 0 });
   const prePos = useSharedValue({ x: 0, y: 0 });
   const isGestureActive = useSharedValue(false);
+  const firstMount = useRef(true);
 
   useAnimatedReaction(
     () => positions.value[id],
     (newOrder) => {
       const newPos = getPosition(newOrder);
       //   console.log(`id: ${id}, reaction: ${newPos.x}, ${newPos.y}`);
-      if (!isGestureActive.value)
+      if (isGestureActive.value) return;
+      if (firstMount.current) {
+        curPos.value = prePos.value = {
+          x: newPos.x,
+          y: newPos.y
+        };
+        firstMount.current = false;
+      } else
         curPos.value = prePos.value = withTiming({
           x: newPos.x,
           y: newPos.y
