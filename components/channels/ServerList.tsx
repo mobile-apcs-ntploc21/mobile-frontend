@@ -13,27 +13,34 @@ import SimpleServerItem from './SimpleServerItem';
 import SimpleServerList from './SimpleServerList';
 import ExtendedServerList from './ExtendedServerList';
 import Toggle from '../Toggle';
+import useServers from '@/hooks/useServers';
 
 const ServerList = () => {
+  const { setServers } = useServers();
   const ref = useRef<BottomSheet>(null);
   const snapPoints = useMemo(() => ['13.5%', '95%'], []);
-  const [servers, setServers] = useState(
-    Array.from({ length: 10 }, (_, i) => ({
-      id: i.toString(),
-      name: i > 0 ? `Server ${i}` : 'Create Server'
-    }))
-  );
-  const [currentServer, setCurrentServer] = useState(servers[1]);
   const [currentIndex, setCurrentIndex] = useState(0);
-
-  const handlePress = (id: string) => {
-    if (id !== currentServer.id)
-      setCurrentServer(servers.find((server) => server.id === id)!);
-  };
 
   const handleSheetChanges = (index: number) => {
     setCurrentIndex(index);
   };
+
+  useEffect(() => {
+    // Fetch data (servers)
+    setServers(
+      Array.from({ length: 10 }, (_, i) =>
+        i > 0
+          ? {
+              id: i.toString(),
+              name: `Server ${i}`
+            }
+          : {
+              id: i.toString(),
+              name: 'Create Server'
+            }
+      )
+    );
+  }, []);
 
   return (
     <BottomSheet
@@ -44,19 +51,7 @@ const ServerList = () => {
       enableContentPanningGesture={false}
       onChange={handleSheetChanges}
     >
-      {currentIndex === 0 ? (
-        <SimpleServerList
-          servers={servers}
-          onChange={handlePress}
-          currentServerId={currentServer.id}
-        />
-      ) : (
-        <ExtendedServerList
-          servers={servers}
-          onChange={handlePress}
-          currentServerId={currentServer.id}
-        />
-      )}
+      {currentIndex === 0 ? <SimpleServerList /> : <ExtendedServerList />}
       {currentIndex === 1 && (
         <View style={styles.toggleContainer}>
           <Toggle

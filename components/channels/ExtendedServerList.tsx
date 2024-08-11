@@ -5,21 +5,26 @@ import SimpleServerItem from './SimpleServerItem';
 import ExtendedServerItem from './ExtendedServerItem';
 import Draggable from '../Draggable';
 import { useSharedValue } from 'react-native-reanimated';
+import useServers from '@/hooks/useServers';
 
-interface ExtendedServerListProps extends ServerListProps {}
-
-const ExtendedServerList = (props: ExtendedServerListProps) => {
-  const positions = useSharedValue(props.servers.map((item, index) => index));
+const ExtendedServerList = () => {
+  const { servers, selectServer } = useServers();
+  const positions = useSharedValue(servers.map((item, index) => index));
 
   useEffect(() => {
-    positions.value = props.servers.map((item, index) => index);
-  }, [props.servers]);
+    positions.value = servers.map((item, index) => index);
+  }, [servers]);
 
   return (
     <View style={styles.container}>
-      {props.servers.map((item, index) => (
+      {servers.map((item, index) => (
         <Draggable key={item.id} id={index} positions={positions}>
-          <ExtendedServerItem {...item} />
+          <ExtendedServerItem
+            {...item}
+            onPress={() => {
+              selectServer(positions.value[index]);
+            }}
+          />
         </Draggable>
       ))}
     </View>
