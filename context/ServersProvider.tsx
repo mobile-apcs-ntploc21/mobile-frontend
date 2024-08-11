@@ -9,7 +9,7 @@ enum Actions {
 
 type ServersState = {
   servers: Server[];
-  currentServerIndex: number;
+  currentServerId: string | null;
 };
 
 type ServerAction = {
@@ -18,7 +18,7 @@ type ServerAction = {
 };
 
 interface IServersContext extends ServersState {
-  selectServer: (index: number) => void;
+  selectServer: (id: string) => void;
   setServers: (newServers: Server[]) => void;
 }
 
@@ -29,7 +29,7 @@ interface ServersProviderProps {
 // Initial state
 const initialState: ServersState = {
   servers: [],
-  currentServerIndex: -1
+  currentServerId: null
 };
 
 // Context
@@ -46,11 +46,17 @@ const handlers: Record<
 > = {
   [Actions.SELECT_SERVER]: (state, { payload }) => ({
     ...state,
-    currentServerIndex: payload
+    currentServerId: payload
   }),
   [Actions.SET_SERVERS]: (state, { payload }) => ({
     ...state,
-    servers: payload
+    servers: payload,
+    currentServerId:
+      payload.length === 0
+        ? null
+        : state.servers.length === 0
+        ? payload[1].id
+        : state.currentServerId
   })
 };
 
@@ -67,11 +73,11 @@ const reducer = (state: ServersState, action: ServerAction) => {
 export const ServersProvider = ({ children }: ServersProviderProps) => {
   const [state, dispatch] = useReducer(reducer, initialState);
 
-  const selectServer = (index: number) => {
-    if (index < 0 || index >= state.servers.length) {
-      throw new Error('Invalid server index');
+  const selectServer = (id: string) => {
+    if (state.servers.findIndex((server) => server.id === id) === -1) {
+      throw new Error(`Server with id ${id} not found`);
     }
-    dispatch({ type: Actions.SELECT_SERVER, payload: index });
+    dispatch({ type: Actions.SELECT_SERVER, payload: id });
   };
 
   const setServers = (newServers: Server[]) => {

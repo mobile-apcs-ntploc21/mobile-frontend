@@ -7,13 +7,30 @@ import Draggable from '../Draggable';
 import { useSharedValue } from 'react-native-reanimated';
 import useServers from '@/hooks/useServers';
 
-const ExtendedServerList = () => {
-  const { servers, selectServer } = useServers();
+interface ExtendedServerListProps {
+  swipeDown: () => void;
+}
+
+const ExtendedServerList = ({ swipeDown }: ExtendedServerListProps) => {
+  const { servers, selectServer, setServers } = useServers();
   const positions = useSharedValue(servers.map((item, index) => index));
 
   useEffect(() => {
     positions.value = servers.map((item, index) => index);
   }, [servers]);
+
+  useEffect(
+    () => () => {
+      const newServers = [...servers];
+
+      positions.value.forEach((position, index) => {
+        newServers[position] = servers[index];
+      });
+
+      setServers(newServers);
+    },
+    []
+  );
 
   return (
     <View style={styles.container}>
@@ -22,7 +39,8 @@ const ExtendedServerList = () => {
           <ExtendedServerItem
             {...item}
             onPress={() => {
-              selectServer(positions.value[index]);
+              selectServer(item.id);
+              swipeDown();
             }}
           />
         </Draggable>
