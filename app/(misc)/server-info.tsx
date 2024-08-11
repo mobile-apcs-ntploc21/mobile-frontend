@@ -11,6 +11,7 @@ import Avatar from '@/components/Avatar';
 import DotsIcon from '@/assets/icons/DotsIcon';
 import { colors, fonts } from '@/constants/theme';
 import useServers from '@/hooks/useServers';
+import Accordion from '@/components/Accordion';
 
 const MAXUSERS = 4;
 
@@ -74,12 +75,30 @@ const ServerInfo = () => {
         style={styles.newsContainer}
         contentContainerStyle={{ rowGap: 16 }}
       >
+        {/* Uncategorized channels */}
         <View style={styles.newsWrapper}>
           <ChannelItem />
         </View>
         <View style={styles.newsWrapper}>
           <ChannelItem unreadCount={3} />
         </View>
+        {/* Categorized channels */}
+        <Accordion heading={'General'} defaultOpen>
+          <View style={styles.newsWrapper}>
+            <ChannelItem />
+          </View>
+          <View style={styles.newsWrapper}>
+            <ChannelItem unreadCount={3} />
+          </View>
+        </Accordion>
+        <Accordion heading={'Project'} defaultOpen>
+          <View style={styles.newsWrapper}>
+            <ChannelItem />
+          </View>
+          <View style={styles.newsWrapper}>
+            <ChannelItem unreadCount={3} />
+          </View>
+        </Accordion>
       </ScrollView>
     </View>
   );
@@ -89,7 +108,8 @@ export default ServerInfo;
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1
+    flex: 1,
+    marginBottom: '11%'
   },
   serverInfoContainer: {
     marginTop: 16,
@@ -146,7 +166,8 @@ const styles = StyleSheet.create({
     backgroundColor: colors.gray03
   },
   newsContainer: {
-    marginHorizontal: 16
+    flex: 1,
+    paddingHorizontal: 16
   },
   newsWrapper: {
     backgroundColor: colors.white,

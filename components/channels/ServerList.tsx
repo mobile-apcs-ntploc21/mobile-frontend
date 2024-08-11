@@ -18,7 +18,7 @@ import useServers from '@/hooks/useServers';
 const ServerList = () => {
   const { setServers } = useServers();
   const ref = useRef<BottomSheet>(null);
-  const snapPoints = useMemo(() => ['13.5%', '95%'], []);
+  const snapPoints = useMemo(() => ['11%', '95%'], []);
   const [currentIndex, setCurrentIndex] = useState(0);
 
   const handleSheetChanges = (index: number) => {
