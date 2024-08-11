@@ -1,4 +1,10 @@
-import { FlatList, StyleSheet, Text, View } from 'react-native';
+import {
+  FlatList,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View
+} from 'react-native';
 import React, { useEffect, useMemo } from 'react';
 import { ServerListProps } from '@/types';
 import SimpleServerItem from './SimpleServerItem';
@@ -6,6 +12,10 @@ import ExtendedServerItem from './ExtendedServerItem';
 import Draggable from '../Draggable';
 import { useSharedValue } from 'react-native-reanimated';
 import useServers from '@/hooks/useServers';
+import { colors, fonts } from '@/constants/theme';
+import { FontAwesome5 } from '@expo/vector-icons';
+import MyText from '../MyText';
+import { template } from '@babel/core';
 
 interface ExtendedServerListProps {
   swipeDown: () => void;
@@ -13,10 +23,12 @@ interface ExtendedServerListProps {
 
 const ExtendedServerList = ({ swipeDown }: ExtendedServerListProps) => {
   const { servers, selectServer, setServers } = useServers();
-  const positions = useSharedValue(servers.map((item, index) => index));
+  const positions = useSharedValue<number[]>([]);
 
   useEffect(() => {
-    positions.value = servers.map((item, index) => index);
+    const tmp = servers.map((item, index) => index + 1);
+    tmp.unshift(0);
+    positions.value = tmp;
   }, [servers]);
 
   useEffect(
@@ -24,7 +36,7 @@ const ExtendedServerList = ({ swipeDown }: ExtendedServerListProps) => {
       const newServers = [...servers];
 
       positions.value.forEach((position, index) => {
-        newServers[position] = servers[index];
+        if (index > 0) newServers[position - 1] = servers[index - 1];
       });
 
       setServers(newServers);
@@ -34,8 +46,18 @@ const ExtendedServerList = ({ swipeDown }: ExtendedServerListProps) => {
 
   return (
     <View style={styles.container}>
+      <Draggable key={'create-server'} id={0} positions={positions}>
+        <TouchableOpacity style={styles.btnContainer} onPress={() => {}}>
+          <View style={styles.btnAdd}>
+            <FontAwesome5 name="plus" size={28} color={colors.primary} />
+          </View>
+          <MyText style={styles.textBtn} numberOfLines={2} ellipsizeMode="tail">
+            Create Server
+          </MyText>
+        </TouchableOpacity>
+      </Draggable>
       {servers.map((item, index) => (
-        <Draggable key={item.id} id={index} positions={positions}>
+        <Draggable key={item.id} id={index + 1} positions={positions}>
           <ExtendedServerItem
             {...item}
             onPress={() => {
@@ -56,5 +78,24 @@ const styles = StyleSheet.create({
     flex: 1,
     marginTop: -16,
     marginHorizontal: 16
+  },
+  btnAdd: {
+    width: 64,
+    height: 64,
+    borderRadius: 64 / 2,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 4,
+    borderColor: colors.primary,
+    borderStyle: 'dashed'
+  },
+  textBtn: {
+    alignSelf: 'center',
+    fontSize: 12,
+    fontFamily: fonts.bold
+  },
+  btnContainer: {
+    gap: 8,
+    width: 64
   }
 });
