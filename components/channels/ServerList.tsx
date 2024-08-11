@@ -25,6 +25,10 @@ const ServerList = () => {
     setCurrentIndex(index);
   };
 
+  const swipeDown = () => {
+    ref.current?.snapToIndex(0);
+  };
+
   useEffect(() => {
     // Fetch data (servers)
     setServers(
@@ -51,7 +55,11 @@ const ServerList = () => {
       enableContentPanningGesture={false}
       onChange={handleSheetChanges}
     >
-      {currentIndex === 0 ? <SimpleServerList /> : <ExtendedServerList />}
+      {currentIndex === 0 ? (
+        <SimpleServerList />
+      ) : (
+        <ExtendedServerList swipeDown={swipeDown} />
+      )}
       {currentIndex === 1 && (
         <View style={styles.toggleContainer}>
           <Toggle

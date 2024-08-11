@@ -5,19 +5,19 @@ import SimpleServerItem from './SimpleServerItem';
 import useServers from '@/hooks/useServers';
 
 const SimpleServerList = () => {
-  const { servers, currentServerIndex, selectServer } = useServers();
+  const { servers, currentServerId, selectServer } = useServers();
   return (
     <View style={styles.container}>
       <FlatList
         horizontal
         data={servers.slice(1)}
         keyExtractor={(item) => item.id}
-        renderItem={({ item, index }) => (
+        renderItem={({ item }) => (
           <View style={{ marginLeft: 8 }}>
             <SimpleServerItem
               id={item.id}
-              selected={index + 1 === currentServerIndex}
-              onPress={() => selectServer(index + 1)}
+              selected={item.id === currentServerId}
+              onPress={() => selectServer(item.id)}
             />
           </View>
         )}
