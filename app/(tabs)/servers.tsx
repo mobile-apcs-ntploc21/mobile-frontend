@@ -11,6 +11,8 @@ import { DefaultCoverImage } from '@/constants/images';
 import { colors, fonts } from '@/constants/theme';
 import { useEffect, useRef, useState } from 'react';
 import { StyleSheet, Text, View, Image, ScrollView } from 'react-native';
+import { ServersProvider } from '@/context/ServersProvider';
+import { useFocusEffect } from 'expo-router';
 
 const MAXUSERS = 4;
 
@@ -19,71 +21,73 @@ export default function Servers() {
     Array.from({ length: 10 }, (_, i) => i.toString())
   );
 
-  useEffect(() => {
-    // Fetch data (active users)
-  }, []);
+  useFocusEffect(() => {
+    // Fetch data (active users, servers)
+  });
 
   return (
-    <View style={{ flex: 1 }}>
-      <Image source={DefaultCoverImage} style={styles.coverimg} />
-      <View style={styles.container}>
-        <View style={styles.serverInfoContainer}>
-          <View style={styles.serverContainer}>
-            <View style={styles.serverimg}></View>
-            <MyText style={styles.serverName}>Server Name</MyText>
-          </View>
-          <View style={styles.serverActions}>
-            <MyButtonIcon
-              icon={StarIcon}
-              onPress={() => {}}
-              showOutline={false}
-              containerStyle={styles.actionStyle}
-            />
-            <MyButtonIcon
-              icon={AddFriendIcon}
-              onPress={() => {}}
-              showOutline={false}
-              containerStyle={styles.actionStyle}
-            />
-            <MyButtonIcon
-              icon={SettingIcon}
-              onPress={() => {}}
-              showOutline={false}
-              containerStyle={styles.actionStyle}
-            />
-          </View>
-        </View>
-        <View style={styles.activeMembersContainer}>
-          <MyText style={styles.activeTitle}>Active (40)</MyText>
-          <View style={styles.activeMembers}>
-            {userIds.slice(0, MAXUSERS).map((id) => (
-              <Avatar key={id} id={id} imgStyle={styles.activeMember} />
-            ))}
-            {userIds.length > MAXUSERS && (
+    <ServersProvider>
+      <View style={{ flex: 1 }}>
+        <Image source={DefaultCoverImage} style={styles.coverimg} />
+        <View style={styles.container}>
+          <View style={styles.serverInfoContainer}>
+            <View style={styles.serverContainer}>
+              <View style={styles.serverimg}></View>
+              <MyText style={styles.serverName}>Server Name</MyText>
+            </View>
+            <View style={styles.serverActions}>
               <MyButtonIcon
-                icon={DotsIcon}
+                icon={StarIcon}
                 onPress={() => {}}
                 showOutline={false}
-                containerStyle={styles.activeMember}
+                containerStyle={styles.actionStyle}
               />
-            )}
+              <MyButtonIcon
+                icon={AddFriendIcon}
+                onPress={() => {}}
+                showOutline={false}
+                containerStyle={styles.actionStyle}
+              />
+              <MyButtonIcon
+                icon={SettingIcon}
+                onPress={() => {}}
+                showOutline={false}
+                containerStyle={styles.actionStyle}
+              />
+            </View>
           </View>
+          <View style={styles.activeMembersContainer}>
+            <MyText style={styles.activeTitle}>Active (40)</MyText>
+            <View style={styles.activeMembers}>
+              {userIds.slice(0, MAXUSERS).map((id) => (
+                <Avatar key={id} id={id} imgStyle={styles.activeMember} />
+              ))}
+              {userIds.length > MAXUSERS && (
+                <MyButtonIcon
+                  icon={DotsIcon}
+                  onPress={() => {}}
+                  showOutline={false}
+                  containerStyle={styles.activeMember}
+                />
+              )}
+            </View>
+          </View>
+          <View style={styles.seperator} />
+          <ScrollView
+            style={styles.newsContainer}
+            contentContainerStyle={{ rowGap: 16 }}
+          >
+            <View style={styles.newsWrapper}>
+              <ChannelItem />
+            </View>
+            <View style={styles.newsWrapper}>
+              <ChannelItem unreadCount={3} />
+            </View>
+          </ScrollView>
         </View>
-        <View style={styles.seperator} />
-        <ScrollView
-          style={styles.newsContainer}
-          contentContainerStyle={{ rowGap: 16 }}
-        >
-          <View style={styles.newsWrapper}>
-            <ChannelItem />
-          </View>
-          <View style={styles.newsWrapper}>
-            <ChannelItem unreadCount={3} />
-          </View>
-        </ScrollView>
+        <ServerList />
       </View>
-      <ServerList />
-    </View>
+    </ServersProvider>
   );
 }
 
