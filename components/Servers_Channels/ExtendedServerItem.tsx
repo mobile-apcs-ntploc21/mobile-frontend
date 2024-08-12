@@ -49,6 +49,7 @@ const styles = StyleSheet.create({
   serverName: {
     alignSelf: 'center',
     fontSize: 12,
-    fontFamily: fonts.bold
+    fontFamily: fonts.bold,
+    textAlign: 'center'
   }
 });
