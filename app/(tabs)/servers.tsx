@@ -30,7 +30,7 @@ const styles = StyleSheet.create({
     position: 'absolute',
     width: '100%',
     top: 136,
-    height: 600,
+    bottom: 0,
     backgroundColor: colors.gray04,
     borderTopLeftRadius: 30,
     borderTopRightRadius: 30
