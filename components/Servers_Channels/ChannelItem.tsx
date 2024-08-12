@@ -36,7 +36,9 @@ export default ChannelItem;
 const styles = StyleSheet.create({
   container: {
     flexDirection: 'row',
-    justifyContent: 'space-between'
+    justifyContent: 'space-between',
+    paddingHorizontal: 16,
+    paddingVertical: 4
   },
   channelContainer: {
     flexDirection: 'row',
