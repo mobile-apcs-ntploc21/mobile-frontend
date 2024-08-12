@@ -1,7 +1,7 @@
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useMemo, useState } from 'react';
 
-import ChannelItem from '@/components/channels/ChannelItem';
+import ChannelItem from '@/components/Servers_Channels/ChannelItem';
 import MyButtonIcon from '@/components/MyButton/MyButtonIcon';
 import StarIcon from '@/assets/icons/StarIcon';
 import AddFriendIcon from '@/assets/icons/AddFriendIcon';

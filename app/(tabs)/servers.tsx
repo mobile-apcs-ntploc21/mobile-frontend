@@ -1,11 +1,11 @@
-import ServerList from '@/components/channels/ServerList';
+import ServerList from '@/components/Servers_Channels/ServerList';
 import { DefaultCoverImage } from '@/constants/images';
 import { colors } from '@/constants/theme';
 import { useState } from 'react';
 import { StyleSheet, Text, View, Image } from 'react-native';
 import { ServersProvider } from '@/context/ServersProvider';
 import { useFocusEffect } from 'expo-router';
-import ServerInfo from '../(misc)/server-info';
+import ServerInfo from '../../components/Servers_Channels/ServerInfo';
 
 export default function Servers() {
   return (
