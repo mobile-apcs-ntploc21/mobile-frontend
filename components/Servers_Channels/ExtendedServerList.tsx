@@ -16,6 +16,8 @@ import { colors, fonts } from '@/constants/theme';
 import { FontAwesome5 } from '@expo/vector-icons';
 import MyText from '../MyText';
 import { template } from '@babel/core';
+import { BottomSheetScrollView } from '@gorhom/bottom-sheet';
+import { COL, HEIGHT, MARGIN_Y } from '@/utils/dragging';
 
 interface ExtendedServerListProps {
   swipeDown: () => void;
@@ -45,7 +47,13 @@ const ExtendedServerList = ({ swipeDown }: ExtendedServerListProps) => {
   );
 
   return (
-    <View style={styles.container}>
+    <BottomSheetScrollView style={styles.container}>
+      <View
+        style={{
+          height: Math.ceil(servers.length / COL) * (HEIGHT + MARGIN_Y),
+          paddingBottom: MARGIN_Y
+        }}
+      />
       <Draggable key={'create-server'} id={0} positions={positions}>
         <TouchableOpacity style={styles.btnContainer} onPress={() => {}}>
           <View style={styles.btnAdd}>
@@ -67,7 +75,7 @@ const ExtendedServerList = ({ swipeDown }: ExtendedServerListProps) => {
           />
         </Draggable>
       ))}
-    </View>
+    </BottomSheetScrollView>
   );
 };
 
@@ -77,7 +85,8 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     marginTop: -16,
-    marginHorizontal: 16
+    marginHorizontal: 16,
+    marginBottom: 16
   },
   btnAdd: {
     width: 64,

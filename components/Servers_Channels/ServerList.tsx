@@ -38,7 +38,7 @@ const ServerList = () => {
   useEffect(() => {
     // Fetch data (servers)
     setServers(
-      Array.from({ length: 10 }, (_, i) => ({
+      Array.from({ length: 30 }, (_, i) => ({
         id: i.toString(),
         name: `Server ${i}`
       }))
