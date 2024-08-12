@@ -70,10 +70,10 @@ const ServerInfo = () => {
           )}
         </View>
       </View>
-      <View style={styles.seperator} />
+      <View style={styles.separator} />
       <ScrollView
         style={styles.newsContainer}
-        contentContainerStyle={{ rowGap: 16 }}
+        contentContainerStyle={{ rowGap: 16, paddingBottom: 85 + 16 }}
       >
         {/* Uncategorized channels */}
         <View style={styles.newsWrapper}>
@@ -140,7 +140,7 @@ const styles = StyleSheet.create({
   actionStyle: {
     width: 24,
     height: 24,
-    padding: 6
+    padding: 4
   },
   activeMembersContainer: {
     marginTop: 13,
@@ -160,13 +160,14 @@ const styles = StyleSheet.create({
     height: 56,
     borderRadius: 28
   },
-  seperator: {
-    marginVertical: 16,
+  separator: {
+    marginTop: 16,
     height: 1,
     backgroundColor: colors.gray03
   },
   newsContainer: {
     flex: 1,
+    paddingTop: 16,
     paddingHorizontal: 16
   },
   newsWrapper: {

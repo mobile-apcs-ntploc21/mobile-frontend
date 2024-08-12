@@ -1,4 +1,10 @@
-import React, { useRef, useMemo, useState, useEffect } from 'react';
+import React, {
+  useRef,
+  useMemo,
+  useState,
+  useEffect,
+  useCallback
+} from 'react';
 import {
   View,
   FlatList,
@@ -6,7 +12,7 @@ import {
   TouchableWithoutFeedback,
   LayoutChangeEvent
 } from 'react-native';
-import BottomSheet from '@gorhom/bottom-sheet';
+import BottomSheet, { BottomSheetBackdrop } from '@gorhom/bottom-sheet';
 import { colors, fonts } from '@/constants/theme';
 import MyText from '../MyText';
 import SimpleServerItem from './SimpleServerItem';
@@ -18,7 +24,7 @@ import useServers from '@/hooks/useServers';
 const ServerList = () => {
   const { setServers } = useServers();
   const ref = useRef<BottomSheet>(null);
-  const snapPoints = useMemo(() => ['11%', '95%'], []);
+  const snapPoints = useMemo(() => [85, '95%'], []);
   const [currentIndex, setCurrentIndex] = useState(0);
 
   const handleSheetChanges = (index: number) => {
@@ -39,11 +45,24 @@ const ServerList = () => {
     );
   }, []);
 
+  const renderBackdrop = useCallback(
+    (props: any) => (
+      <BottomSheetBackdrop
+        disappearsOnIndex={0}
+        appearsOnIndex={1}
+        pressBehavior="collapse"
+        {...props}
+      />
+    ),
+    []
+  );
+
   return (
     <BottomSheet
       ref={ref}
       snapPoints={snapPoints}
       handleComponent={() => <View style={styles.handle} />}
+      backdropComponent={renderBackdrop}
       backgroundStyle={{ backgroundColor: colors.gray03, borderRadius: 30 }}
       enableContentPanningGesture={false}
       onChange={handleSheetChanges}
