@@ -73,7 +73,11 @@ const ServerInfo = () => {
       <View style={styles.separator} />
       <ScrollView
         style={styles.newsContainer}
-        contentContainerStyle={{ rowGap: 16, paddingBottom: 85 + 16 }}
+        contentContainerStyle={{
+          rowGap: 16,
+          paddingTop: 16,
+          paddingBottom: 85 + 16
+        }}
       >
         {/* Uncategorized channels */}
         <View style={styles.newsWrapper}>
@@ -82,16 +86,12 @@ const ServerInfo = () => {
         </View>
         {/* Categorized channels */}
         <Accordion heading={'General'} defaultOpen>
-          <View style={styles.newsWrapper}>
-            <ChannelItem />
-            <ChannelItem unreadCount={3} />
-          </View>
+          <ChannelItem />
+          <ChannelItem unreadCount={3} />
         </Accordion>
         <Accordion heading={'Project'} defaultOpen>
-          <View style={styles.newsWrapper}>
-            <ChannelItem />
-            <ChannelItem unreadCount={3} />
-          </View>
+          <ChannelItem />
+          <ChannelItem unreadCount={3} />
         </Accordion>
       </ScrollView>
     </View>
@@ -102,8 +102,7 @@ export default ServerInfo;
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
-    marginBottom: '11%'
+    flex: 1
   },
   serverInfoContainer: {
     marginTop: 16,
@@ -161,13 +160,11 @@ const styles = StyleSheet.create({
   },
   newsContainer: {
     flex: 1,
-    paddingTop: 16,
     paddingHorizontal: 16
   },
   newsWrapper: {
     backgroundColor: colors.white,
     borderRadius: 21,
-    padding: 16,
-    rowGap: 8
+    paddingVertical: 16
   }
 });
