@@ -78,24 +78,18 @@ const ServerInfo = () => {
         {/* Uncategorized channels */}
         <View style={styles.newsWrapper}>
           <ChannelItem />
-        </View>
-        <View style={styles.newsWrapper}>
           <ChannelItem unreadCount={3} />
         </View>
         {/* Categorized channels */}
         <Accordion heading={'General'} defaultOpen>
           <View style={styles.newsWrapper}>
             <ChannelItem />
-          </View>
-          <View style={styles.newsWrapper}>
             <ChannelItem unreadCount={3} />
           </View>
         </Accordion>
         <Accordion heading={'Project'} defaultOpen>
           <View style={styles.newsWrapper}>
             <ChannelItem />
-          </View>
-          <View style={styles.newsWrapper}>
             <ChannelItem unreadCount={3} />
           </View>
         </Accordion>
@@ -173,6 +167,7 @@ const styles = StyleSheet.create({
   newsWrapper: {
     backgroundColor: colors.white,
     borderRadius: 21,
-    padding: 16
+    padding: 16,
+    rowGap: 8
   }
 });
