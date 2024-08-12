@@ -23,8 +23,9 @@ interface DraggableProps {
   children: ReactNode;
 }
 
+const TIME = 250;
+
 const Draggable = ({ id, positions, children }: DraggableProps) => {
-  const position = getPosition(positions.value[id]);
   const scale = useSharedValue(1);
   const curPos = useSharedValue({ x: 0, y: 0 });
   const prePos = useSharedValue({ x: 0, y: 0 });
@@ -44,10 +45,13 @@ const Draggable = ({ id, positions, children }: DraggableProps) => {
         };
         firstMount.current = false;
       } else
-        curPos.value = prePos.value = withTiming({
-          x: newPos.x,
-          y: newPos.y
-        });
+        curPos.value = prePos.value = withTiming(
+          {
+            x: newPos.x,
+            y: newPos.y
+          },
+          { duration: TIME }
+        );
     }
   );
 
@@ -56,7 +60,7 @@ const Draggable = ({ id, positions, children }: DraggableProps) => {
     .minDistance(1)
     .onBegin(() => {
       isGestureActive.value = true;
-      scale.value = withTiming(1.1);
+      scale.value = withTiming(1.1, { duration: TIME });
       prePos.value = { ...curPos.value };
     })
     .onUpdate((event) => {
@@ -84,10 +88,13 @@ const Draggable = ({ id, positions, children }: DraggableProps) => {
     .onFinalize(() => {
       const newPos = getPosition(positions.value[id]);
       //   console.log(`id: ${id}, newPos: ${newPos.x}, ${newPos.y}`);
-      curPos.value = prePos.value = withTiming({
-        x: newPos.x,
-        y: newPos.y
-      });
+      curPos.value = prePos.value = withTiming(
+        {
+          x: newPos.x,
+          y: newPos.y
+        },
+        { duration: TIME }
+      );
 
       scale.value = withTiming(1);
       isGestureActive.value = false;
@@ -113,5 +120,3 @@ const Draggable = ({ id, positions, children }: DraggableProps) => {
 };
 
 export default Draggable;
-
-const styles = StyleSheet.create({});
