@@ -30,6 +30,7 @@ const Draggable = ({ id, positions, children }: DraggableProps) => {
   const curPos = useSharedValue({ x: 0, y: 0 });
   const prePos = useSharedValue({ x: 0, y: 0 });
   const isGestureActive = useSharedValue(false);
+  const isLongPressed = useSharedValue(false);
   const firstMount = useRef(true);
 
   useAnimatedReaction(
@@ -55,10 +56,23 @@ const Draggable = ({ id, positions, children }: DraggableProps) => {
     }
   );
 
+  const longPress = Gesture.LongPress().onStart(() => {
+    // console.log(`long press ${id}`);
+    isLongPressed.value = true;
+  });
+
   const pan = Gesture.Pan()
     .enabled(id > 0)
     .minDistance(1)
-    .onBegin(() => {
+    .manualActivation(true)
+    .onTouchesMove((_, mng) => {
+      // console.log(`moving ${isLongPressed.value}`);
+      if (isLongPressed.value) {
+        mng.activate();
+        // console.log('activated');
+      } else mng.fail();
+    })
+    .onStart(() => {
       isGestureActive.value = true;
       scale.value = withTiming(1.1, { duration: TIME });
       prePos.value = { ...curPos.value };
@@ -85,7 +99,7 @@ const Draggable = ({ id, positions, children }: DraggableProps) => {
         }
       }
     })
-    .onFinalize(() => {
+    .onTouchesUp(() => {
       const newPos = getPosition(positions.value[id]);
       //   console.log(`id: ${id}, newPos: ${newPos.x}, ${newPos.y}`);
       curPos.value = prePos.value = withTiming(
@@ -98,6 +112,7 @@ const Draggable = ({ id, positions, children }: DraggableProps) => {
 
       scale.value = withTiming(1);
       isGestureActive.value = false;
+      isLongPressed.value = false;
     });
 
   const animatedStyle = useAnimatedStyle(() => ({
@@ -113,7 +128,7 @@ const Draggable = ({ id, positions, children }: DraggableProps) => {
   }));
 
   return (
-    <GestureDetector gesture={pan}>
+    <GestureDetector gesture={Gesture.Simultaneous(longPress, pan)}>
       <Animated.View style={animatedStyle}>{children}</Animated.View>
     </GestureDetector>
   );
