@@ -74,6 +74,7 @@ const FilterModal = (props: FilterModalProps) => {
                   marginTop: 'auto',
                   width: '100%'
                 }}
+                textStyle={TextStyles.h3}
                 onPress={props.onClose}
               />
               <MyButtonText
@@ -83,6 +84,7 @@ const FilterModal = (props: FilterModalProps) => {
                   marginTop: 10,
                   width: '100%'
                 }}
+                textStyle={TextStyles.h3}
                 onPress={props.onClose}
               />
             </View>
