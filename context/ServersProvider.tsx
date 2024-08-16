@@ -19,7 +19,11 @@ type ServerAction = {
 
 interface IServersContext extends ServersState {
   selectServer: (id: string) => void;
-  setServers: (newServers: Server[]) => void;
+  setServers: (
+    newServers: Server[],
+    isForPositions?: boolean,
+    isNewServer?: boolean
+  ) => void;
 }
 
 interface ServersProviderProps {
@@ -48,14 +52,14 @@ const handlers: Record<
     ...state,
     currentServerId: payload
   }),
-  [Actions.SET_SERVERS]: (state, { payload }) => ({
+  [Actions.SET_SERVERS]: (state, { payload: { newServers, isNewServer } }) => ({
     ...state,
-    servers: payload,
+    servers: newServers,
     currentServerId:
-      payload.length === 0
+      newServers.length === 0
         ? null
-        : state.servers.length === 0
-        ? payload[0].id
+        : state.servers.length === 0 || isNewServer
+        ? newServers[0].id
         : state.currentServerId
   })
 };
@@ -80,8 +84,17 @@ export const ServersProvider = ({ children }: ServersProviderProps) => {
     dispatch({ type: Actions.SELECT_SERVER, payload: id });
   };
 
-  const setServers = (newServers: Server[]) => {
-    dispatch({ type: Actions.SET_SERVERS, payload: newServers });
+  const setServers = (
+    newServers: Server[],
+    isForPositions?: boolean,
+    isNewServer?: boolean
+  ) => {
+    if (!isForPositions || state.servers.length === newServers.length) {
+      dispatch({
+        type: Actions.SET_SERVERS,
+        payload: { newServers, isNewServer }
+      });
+    }
   };
 
   return (
