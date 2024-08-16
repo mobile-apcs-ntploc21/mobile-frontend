@@ -50,7 +50,6 @@ const CreateServerModal = (props: CreateServerModalProps) => {
                 What do you want to call this new server?
               </MyText>
               <CustomTextInput
-                title=""
                 placeholder="Server name"
                 value={serverName}
                 onChangeText={setServerName}
@@ -104,6 +103,7 @@ const styles = StyleSheet.create({
   bodyText: {
     ...TextStyles.bodyM,
     marginTop: 24,
+    marginBottom: 8,
     textAlign: 'center'
   },
   actionBtn: {
