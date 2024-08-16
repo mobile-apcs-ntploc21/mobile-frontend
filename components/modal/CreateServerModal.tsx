@@ -59,11 +59,13 @@ const CreateServerModal = (props: CreateServerModalProps) => {
                   title="Cancel"
                   reverseStyle
                   containerStyle={styles.actionBtn}
+                  textStyle={TextStyles.h3}
                   onPress={() => props.onClose()}
                 />
                 <MyButtonText
                   showOutline={false}
                   title="Confirm"
+                  textStyle={TextStyles.h3}
                   containerStyle={styles.actionBtn}
                   onPress={handleConfirm}
                 />
