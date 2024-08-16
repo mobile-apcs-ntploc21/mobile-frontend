@@ -5,7 +5,7 @@ import {
   TouchableOpacity,
   View
 } from 'react-native';
-import React, { useEffect, useMemo } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { ServerListProps } from '@/types';
 import SimpleServerItem from './SimpleServerItem';
 import ExtendedServerItem from './ExtendedServerItem';
@@ -18,6 +18,7 @@ import MyText from '../MyText';
 import { template } from '@babel/core';
 import { BottomSheetScrollView } from '@gorhom/bottom-sheet';
 import { COL, HEIGHT, MARGIN_Y } from '@/utils/dragging';
+import CreateServerModal from '../modal/CreateServerModal';
 
 interface ExtendedServerListProps {
   swipeDown: () => void;
@@ -26,6 +27,7 @@ interface ExtendedServerListProps {
 const ExtendedServerList = ({ swipeDown }: ExtendedServerListProps) => {
   const { servers, selectServer, setServers } = useServers();
   const positions = useSharedValue<number[]>([]);
+  const [showModal, setShowModal] = useState(false);
 
   useEffect(() => {
     const tmp = servers.map((item, index) => index + 1);
@@ -41,13 +43,19 @@ const ExtendedServerList = ({ swipeDown }: ExtendedServerListProps) => {
         if (index > 0) newServers[position - 1] = servers[index - 1];
       });
 
-      setServers(newServers);
+      setServers(newServers, true);
     },
     []
   );
 
+  const handleCloseModal = (isWithNewServer?: boolean) => {
+    setShowModal(false);
+    if (isWithNewServer) swipeDown();
+  };
+
   return (
     <BottomSheetScrollView style={styles.container}>
+      <CreateServerModal visible={showModal} onClose={handleCloseModal} />
       <View
         style={{
           height: Math.ceil(servers.length / COL) * (HEIGHT + MARGIN_Y),
@@ -55,7 +63,10 @@ const ExtendedServerList = ({ swipeDown }: ExtendedServerListProps) => {
         }}
       />
       <Draggable key={'create-server'} id={0} positions={positions}>
-        <TouchableOpacity style={styles.btnContainer} onPress={() => {}}>
+        <TouchableOpacity
+          style={styles.btnContainer}
+          onPress={() => setShowModal(true)}
+        >
           <View style={styles.btnAdd}>
             <FontAwesome5 name="plus" size={28} color={colors.primary} />
           </View>

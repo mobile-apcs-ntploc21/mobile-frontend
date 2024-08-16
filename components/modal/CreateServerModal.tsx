@@ -11,14 +11,26 @@ import { colors } from '@/constants/theme';
 import GlobalStyles from '@/styles/GlobalStyles';
 import { MyButtonText } from '../MyButton';
 import CustomTextInput from '../common/CustomTextInput';
+import useServers from '@/hooks/useServers';
 
 export interface CreateServerModalProps {
   visible: boolean;
-  onClose: () => void;
+  onClose: (isWithNewServer?: boolean) => void;
 }
 
 const CreateServerModal = (props: CreateServerModalProps) => {
+  const { servers, setServers, selectServer } = useServers();
   const [serverName, setServerName] = useState('');
+
+  const handleConfirm = () => {
+    // Create server here
+    setServers(
+      [{ id: servers.length.toString(), name: serverName }, ...servers],
+      false,
+      true
+    );
+    props.onClose(true);
+  };
 
   return (
     <Modal
@@ -29,7 +41,7 @@ const CreateServerModal = (props: CreateServerModalProps) => {
         console.log('Modal has been closed.');
       }}
     >
-      <TouchableWithoutFeedback onPress={props.onClose}>
+      <TouchableWithoutFeedback onPress={() => props.onClose()}>
         <View style={styles.modalContainer}>
           <TouchableWithoutFeedback>
             <View style={styles.modalView}>
@@ -38,7 +50,7 @@ const CreateServerModal = (props: CreateServerModalProps) => {
                 What do you want to call this new server?
               </MyText>
               <CustomTextInput
-                title="server_name"
+                title=""
                 placeholder="Server name"
                 value={serverName}
                 onChangeText={setServerName}
@@ -48,13 +60,13 @@ const CreateServerModal = (props: CreateServerModalProps) => {
                   title="Cancel"
                   reverseStyle
                   containerStyle={styles.actionBtn}
-                  onPress={props.onClose}
+                  onPress={() => props.onClose()}
                 />
                 <MyButtonText
                   showOutline={false}
-                  title="Show 4 results"
+                  title="Confirm"
                   containerStyle={styles.actionBtn}
-                  onPress={props.onClose}
+                  onPress={handleConfirm}
                 />
               </View>
             </View>
@@ -76,7 +88,6 @@ const styles = StyleSheet.create({
   },
   modalView: {
     padding: 16,
-    height: 480,
     backgroundColor: colors.gray04,
     borderRadius: 16
   },
@@ -96,7 +107,7 @@ const styles = StyleSheet.create({
     textAlign: 'center'
   },
   actionBtn: {
-    width: 112,
-    height: 40
+    marginTop: 24,
+    width: 112
   }
 });
