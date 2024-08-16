@@ -17,7 +17,7 @@ import { FontAwesome5 } from '@expo/vector-icons';
 import MyText from '../MyText';
 import { template } from '@babel/core';
 import { BottomSheetScrollView } from '@gorhom/bottom-sheet';
-import { COL, HEIGHT, MARGIN_Y } from '@/utils/dragging';
+import { COL, HEIGHT, MARGIN_X, MARGIN_Y, WIDTH } from '@/utils/dragging';
 import CreateServerModal from '../modal/CreateServerModal';
 
 interface ExtendedServerListProps {
@@ -54,7 +54,12 @@ const ExtendedServerList = ({ swipeDown }: ExtendedServerListProps) => {
   };
 
   return (
-    <BottomSheetScrollView style={styles.container}>
+    <BottomSheetScrollView
+      style={styles.container}
+      contentContainerStyle={{
+        alignItems: 'center'
+      }}
+    >
       <CreateServerModal visible={showModal} onClose={handleCloseModal} />
       <View
         style={{
@@ -62,30 +67,41 @@ const ExtendedServerList = ({ swipeDown }: ExtendedServerListProps) => {
           paddingBottom: MARGIN_Y
         }}
       />
-      <Draggable key={'create-server'} id={0} positions={positions}>
-        <TouchableOpacity
-          style={styles.btnContainer}
-          onPress={() => setShowModal(true)}
-        >
-          <View style={styles.btnAdd}>
-            <FontAwesome5 name="plus" size={28} color={colors.primary} />
-          </View>
-          <MyText style={styles.textBtn} numberOfLines={2} ellipsizeMode="tail">
-            Create Server
-          </MyText>
-        </TouchableOpacity>
-      </Draggable>
-      {servers.map((item, index) => (
-        <Draggable key={item.id} id={index + 1} positions={positions}>
-          <ExtendedServerItem
-            {...item}
-            onPress={() => {
-              selectServer(item.id);
-              swipeDown();
-            }}
-          />
+      <View
+        style={{
+          position: 'absolute',
+          width: COL * (WIDTH + MARGIN_X) + MARGIN_X
+        }}
+      >
+        <Draggable key={'create-server'} id={0} positions={positions}>
+          <TouchableOpacity
+            style={styles.btnContainer}
+            onPress={() => setShowModal(true)}
+          >
+            <View style={styles.btnAdd}>
+              <FontAwesome5 name="plus" size={28} color={colors.primary} />
+            </View>
+            <MyText
+              style={styles.textBtn}
+              numberOfLines={2}
+              ellipsizeMode="tail"
+            >
+              Create Server
+            </MyText>
+          </TouchableOpacity>
         </Draggable>
-      ))}
+        {servers.map((item, index) => (
+          <Draggable key={item.id} id={index + 1} positions={positions}>
+            <ExtendedServerItem
+              {...item}
+              onPress={() => {
+                selectServer(item.id);
+                swipeDown();
+              }}
+            />
+          </Draggable>
+        ))}
+      </View>
     </BottomSheetScrollView>
   );
 };
@@ -96,7 +112,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     marginTop: -16,
-    marginHorizontal: 16,
     marginBottom: 16
   },
   btnAdd: {
