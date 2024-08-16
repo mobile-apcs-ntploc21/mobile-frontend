@@ -5,17 +5,10 @@ import React, {
   useEffect,
   useCallback
 } from 'react';
-import {
-  View,
-  FlatList,
-  StyleSheet,
-  TouchableWithoutFeedback,
-  LayoutChangeEvent
-} from 'react-native';
+import { View, StyleSheet } from 'react-native';
 import BottomSheet, { BottomSheetBackdrop } from '@gorhom/bottom-sheet';
 import { colors, fonts } from '@/constants/theme';
 import MyText from '../MyText';
-import SimpleServerItem from './SimpleServerItem';
 import SimpleServerList from './SimpleServerList';
 import ExtendedServerList from './ExtendedServerList';
 import Toggle from '../Toggle';
