@@ -75,7 +75,7 @@ const EditMember = () => {
 
   return (
     <ScrollView style={GlobalStyles.subcontainer}>
-      <View style={{ flex: 1, paddingBottom: 16 }}>
+      <View style={{ flex: 1, paddingVertical: 16 }}>
         <Formik
           innerRef={formikRef}
           initialValues={{
