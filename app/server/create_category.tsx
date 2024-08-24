@@ -1,10 +1,4 @@
-import {
-  FlatList,
-  StyleSheet,
-  View,
-  TouchableOpacity,
-  Alert
-} from 'react-native';
+import { FlatList, StyleSheet, View, TouchableOpacity } from 'react-native';
 import React, { useCallback, useLayoutEffect, useMemo, useRef } from 'react';
 import { router, useNavigation } from 'expo-router';
 import { NativeStackHeaderProps } from '@react-navigation/native-stack';
@@ -21,10 +15,10 @@ import CustomTextInput from '@/components/common/CustomTextInput';
 import { Formik, FormikProps } from 'formik';
 
 type FormProps = {
-  channelName: string;
+  categoryName: string;
 };
 
-const CreateChannel = () => {
+const CreateCategory = () => {
   const { categories } = useServers();
   const navigation = useNavigation();
   const formRef = useRef<FormikProps<FormProps>>(null);
@@ -37,7 +31,7 @@ const CreateChannel = () => {
     try {
       // handle create here
     } catch (e) {
-      setErrors('channelName', 'Invalid channel name');
+      setErrors('categoryName', 'Invalid channel name');
     }
   };
 
@@ -46,7 +40,7 @@ const CreateChannel = () => {
       header: (props: NativeStackHeaderProps) => (
         <MyHeader
           {...props}
-          title="Create Channel"
+          title="Create Category"
           headerRight={
             <TouchableOpacity
               onPress={() => {
@@ -55,26 +49,6 @@ const CreateChannel = () => {
             >
               <MyText style={styles.headerEdit}>Create</MyText>
             </TouchableOpacity>
-          }
-          onGoBack={() =>
-            new Promise((resolve, reject) => {
-              Alert.alert(
-                'Discard changes',
-                'Are you sure you want to discard changes?',
-                [
-                  {
-                    text: 'No',
-                    style: 'cancel',
-                    onPress: () => reject()
-                  },
-                  {
-                    text: 'Yes',
-                    style: 'destructive',
-                    onPress: () => resolve()
-                  }
-                ]
-              );
-            })
           }
         />
       )
@@ -86,7 +60,7 @@ const CreateChannel = () => {
       <Formik
         innerRef={formRef}
         initialValues={{
-          channelName: ''
+          categoryName: ''
         }}
         onSubmit={(values, { setFieldError }) => {
           handleSubmit(values, setFieldError);
@@ -94,13 +68,13 @@ const CreateChannel = () => {
       >
         {({ values, errors, touched, handleChange }) => (
           <CustomTextInput
-            title="CHANNEL NAME"
-            placeholder="Add a channel name"
-            value={values.channelName}
-            onChangeText={handleChange('channelName')}
+            title="CATEGORY NAME"
+            placeholder="Add a category name"
+            value={values.categoryName}
+            onChangeText={handleChange('categoryName')}
             errorMessage={
-              errors.channelName && touched.channelName
-                ? errors.channelName
+              errors.categoryName && touched.categoryName
+                ? errors.categoryName
                 : undefined
             }
           />
@@ -110,7 +84,7 @@ const CreateChannel = () => {
   );
 };
 
-export default CreateChannel;
+export default CreateCategory;
 
 const styles = StyleSheet.create({
   container: {
