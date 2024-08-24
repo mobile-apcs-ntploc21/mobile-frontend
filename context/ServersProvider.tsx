@@ -78,7 +78,7 @@ const handlers: Record<
       categories
     };
   },
-  [Actions.SET_SERVERS]: (state, { payload }) => {
+  [Actions.SET_SERVERS]: (state, { payload: { newServers, isNewServer } }) => {
     // fetch server with id provided
     const categories: Category[] = Array.from({ length: 5 }, (_, i) => ({
       id: i.toString(),
@@ -90,12 +90,12 @@ const handlers: Record<
     }));
     return {
       ...state,
-      servers: payload,
+      servers: newServers,
       currentServerId:
-        payload.length === 0
+        newServers.length === 0
           ? null
-          : state.servers.length === 0
-          ? payload[0].id
+          : state.servers.length === 0 || isNewServer
+          ? newServers[0].id
           : state.currentServerId,
       categories
     };
