@@ -1,5 +1,6 @@
 import { colors } from '@/constants/theme';
 import { StyleSheet } from 'react-native';
+import { TextStyles } from './TextStyles';
 
 export default StyleSheet.create({
   screen: {
@@ -20,5 +21,12 @@ export default StyleSheet.create({
   },
   subcontainer: {
     paddingHorizontal: 16
+  },
+  smallButtonContainer: {
+    height: 40,
+    borderRadius: 20
+  },
+  smallButtonText: {
+    ...TextStyles.h3
   }
 });
