@@ -1,6 +1,6 @@
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import React, { useLayoutEffect, useMemo } from 'react';
-import { router, useNavigation } from 'expo-router';
+import { useNavigation } from 'expo-router';
 import { NativeStackHeaderProps } from '@react-navigation/native-stack';
 
 import MyHeader from '@/components/MyHeader';
@@ -11,40 +11,28 @@ import ButtonListText from '@/components/ButtonList/ButtonListText';
 const Settings = () => {
   const navigation = useNavigation();
 
-  const generalActions = useMemo(
+  const createActions = useMemo(
     () => [
       {
-        text: 'Overview',
+        text: 'Create categories',
         onPress: () => {}
       },
       {
-        text: 'Channels',
-        onPress: () => router.navigate('./channels')
-      },
-      {
-        text: 'Emoji',
-        onPress: () => {}
-      },
-      {
-        text: 'Invite code',
+        text: 'Create channels',
         onPress: () => {}
       }
     ],
     []
   );
 
-  const memberActions = useMemo(
+  const editActions = useMemo(
     () => [
       {
-        text: 'Members',
+        text: 'Edit categories',
         onPress: () => {}
       },
       {
-        text: 'Roles',
-        onPress: () => {}
-      },
-      {
-        text: 'Bans',
+        text: 'Edit channels',
         onPress: () => {}
       }
     ],
@@ -54,15 +42,15 @@ const Settings = () => {
   useLayoutEffect(() => {
     navigation.setOptions({
       header: (props: NativeStackHeaderProps) => (
-        <MyHeader {...props} title="Server Settings" />
+        <MyHeader {...props} title="Channels" />
       )
     });
   }, []);
 
   return (
     <ScrollView style={styles.container} contentContainerStyle={{ gap: 16 }}>
-      <ButtonListText heading="General" items={generalActions} />
-      <ButtonListText heading="Member Management" items={memberActions} />
+      <ButtonListText heading="General" items={createActions} />
+      <ButtonListText heading="Member Management" items={editActions} />
     </ScrollView>
   );
 };

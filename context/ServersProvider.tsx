@@ -7,9 +7,21 @@ enum Actions {
   SET_SERVERS = 'SET_SERVERS'
 }
 
+type Channel = {
+  id: string;
+  name: string;
+};
+
+type Category = {
+  id: string;
+  name: string;
+  channels: Channel[];
+};
+
 type ServersState = {
   servers: Server[];
   currentServerId: string | null;
+  categories: Category[];
 };
 
 type ServerAction = {
@@ -33,7 +45,14 @@ interface ServersProviderProps {
 // Initial state
 const initialState: ServersState = {
   servers: [],
-  currentServerId: null
+  currentServerId: null,
+  categories: [
+    {
+      id: '_uncategorized',
+      name: 'Uncategorized',
+      channels: []
+    }
+  ]
 };
 
 // Context
@@ -78,6 +97,7 @@ export const ServersProvider = ({ children }: ServersProviderProps) => {
   const [state, dispatch] = useReducer(reducer, initialState);
 
   const selectServer = (id: string) => {
+    // Fetch server id
     if (state.servers.findIndex((server) => server.id === id) === -1) {
       throw new Error(`Server with id ${id} not found`);
     }
