@@ -1,7 +1,6 @@
 import { StyleSheet, Text, View } from 'react-native';
 import React, { useLayoutEffect } from 'react';
 import { Stack, useNavigation } from 'expo-router';
-import { ServerProvider } from '@/context/ServerContext';
 
 const Layout = () => {
   const navigation = useNavigation();
@@ -10,11 +9,7 @@ const Layout = () => {
       headerShown: false
     });
   }, []);
-  return (
-    <ServerProvider>
-      <Stack />
-    </ServerProvider>
-  );
+  return <Stack />;
 };
 
 export default Layout;

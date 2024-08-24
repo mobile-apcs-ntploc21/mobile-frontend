@@ -49,9 +49,7 @@ const ServerInfo = () => {
           />
           <MyButtonIcon
             icon={SettingIcon}
-            onPress={() =>
-              router.navigate(`/server/${currentServerId}/settings`)
-            }
+            onPress={() => router.navigate(`/server/settings`)}
             showOutline={false}
             containerStyle={styles.actionStyle}
           />
