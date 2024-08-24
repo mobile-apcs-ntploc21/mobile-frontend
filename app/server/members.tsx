@@ -52,7 +52,7 @@ const Members = () => {
             heading="4 Members"
             items={Array.from({ length: 10 }, (_, index) => ({
               itemComponent: <MemberItem />,
-              onPress: () => router.navigate('/edit-member')
+              onPress: () => router.navigate('./edit_member')
             }))}
           />
         </View>
