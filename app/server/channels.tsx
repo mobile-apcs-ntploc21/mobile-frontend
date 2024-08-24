@@ -12,7 +12,7 @@ import { BottomSheetModal } from '@gorhom/bottom-sheet';
 import MyText from '@/components/MyText';
 import { colors, fonts } from '@/constants/theme';
 
-const Settings = () => {
+const Channels = () => {
   const { categories } = useServers();
   const navigation = useNavigation();
   const bottomSheetModalRef = useRef<BottomSheetModal>(null);
@@ -25,7 +25,10 @@ const Settings = () => {
       },
       {
         text: 'Create channel',
-        onPress: () => {}
+        onPress: () => {
+          handleClose();
+          router.navigate('./create_channel');
+        }
       }
     ],
     []
@@ -47,6 +50,10 @@ const Settings = () => {
 
   const handleOpen = useCallback(() => {
     bottomSheetModalRef.current?.present();
+  }, [bottomSheetModalRef]);
+
+  const handleClose = useCallback(() => {
+    bottomSheetModalRef.current?.close();
   }, [bottomSheetModalRef]);
 
   useLayoutEffect(() => {
@@ -102,7 +109,7 @@ const Settings = () => {
   );
 };
 
-export default Settings;
+export default Channels;
 
 const styles = StyleSheet.create({
   container: {
