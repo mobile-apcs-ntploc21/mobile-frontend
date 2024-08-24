@@ -1,4 +1,10 @@
-import { FlatList, StyleSheet, View, TouchableOpacity } from 'react-native';
+import {
+  FlatList,
+  StyleSheet,
+  View,
+  TouchableOpacity,
+  Alert
+} from 'react-native';
 import React, { useCallback, useLayoutEffect, useMemo, useRef } from 'react';
 import { router, useNavigation } from 'expo-router';
 import { NativeStackHeaderProps } from '@react-navigation/native-stack';
@@ -49,6 +55,26 @@ const CreateCategory = () => {
             >
               <MyText style={styles.headerEdit}>Create</MyText>
             </TouchableOpacity>
+          }
+          onGoBack={() =>
+            new Promise((resolve, reject) => {
+              Alert.alert(
+                'Discard changes',
+                'Are you sure you want to discard changes?',
+                [
+                  {
+                    text: 'No',
+                    style: 'cancel',
+                    onPress: () => reject()
+                  },
+                  {
+                    text: 'Yes',
+                    style: 'destructive',
+                    onPress: () => resolve()
+                  }
+                ]
+              );
+            })
           }
         />
       )
