@@ -72,7 +72,8 @@ const FilterModal = (props: FilterModalProps) => {
                 reverseStyle
                 containerStyle={{
                   marginTop: 'auto',
-                  width: '100%'
+                  width: '100%',
+                  height: 40
                 }}
                 textStyle={TextStyles.h3}
                 onPress={props.onClose}
@@ -82,7 +83,8 @@ const FilterModal = (props: FilterModalProps) => {
                 title="Show 4 results"
                 containerStyle={{
                   marginTop: 10,
-                  width: '100%'
+                  width: '100%',
+                  height: 40
                 }}
                 textStyle={TextStyles.h3}
                 onPress={props.onClose}
