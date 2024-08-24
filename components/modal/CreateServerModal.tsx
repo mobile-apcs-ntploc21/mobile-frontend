@@ -110,6 +110,7 @@ const styles = StyleSheet.create({
   },
   actionBtn: {
     marginTop: 24,
-    width: 112
+    width: 112,
+    height: 40
   }
 });
