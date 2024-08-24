@@ -1,43 +1,24 @@
-import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import {
+  FlatList,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View
+} from 'react-native';
 import React, { useLayoutEffect, useMemo } from 'react';
-import { useNavigation } from 'expo-router';
+import { router, useNavigation } from 'expo-router';
 import { NativeStackHeaderProps } from '@react-navigation/native-stack';
 
 import MyHeader from '@/components/MyHeader';
 import { ScrollView } from 'react-native-gesture-handler';
 import GlobalStyles from '@/styles/GlobalStyles';
 import ButtonListText from '@/components/ButtonList/ButtonListText';
+import useServers from '@/hooks/useServers';
 
 const Settings = () => {
   const navigation = useNavigation();
-
-  const createActions = useMemo(
-    () => [
-      {
-        text: 'Create categories',
-        onPress: () => {}
-      },
-      {
-        text: 'Create channels',
-        onPress: () => {}
-      }
-    ],
-    []
-  );
-
-  const editActions = useMemo(
-    () => [
-      {
-        text: 'Edit categories',
-        onPress: () => {}
-      },
-      {
-        text: 'Edit channels',
-        onPress: () => {}
-      }
-    ],
-    []
-  );
+  const { categories } = useServers();
+  console.log(JSON.stringify(categories));
 
   useLayoutEffect(() => {
     navigation.setOptions({
@@ -48,10 +29,19 @@ const Settings = () => {
   }, []);
 
   return (
-    <ScrollView style={styles.container} contentContainerStyle={{ gap: 16 }}>
-      <ButtonListText heading="General" items={createActions} />
-      <ButtonListText heading="Member Management" items={editActions} />
-    </ScrollView>
+    <FlatList
+      data={categories}
+      keyExtractor={(item) => item.id}
+      renderItem={({ item: { name, channels } }) => (
+        <ButtonListText
+          heading={name}
+          items={channels.map(({ name }) => ({ text: name }))}
+        />
+      )}
+      ListFooterComponent={<View style={{ height: 16 }} />}
+      contentContainerStyle={{ gap: 16 }}
+      style={styles.container}
+    />
   );
 };
 
@@ -60,6 +50,7 @@ export default Settings;
 const styles = StyleSheet.create({
   container: {
     ...GlobalStyles.container,
-    paddingTop: 16
+    flex: 1,
+    paddingVertical: 16
   }
 });
