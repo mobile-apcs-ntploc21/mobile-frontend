@@ -45,13 +45,13 @@ const Bans = () => {
           items={[{ text: 'Unban', onPress: handleCloseBottomSheet }]}
         />
       </MyBottomSheetModal>
-      <View style={[GlobalStyles.container, styles.searchContainer]}>
+      <View style={[GlobalStyles.subcontainer, styles.searchContainer]}>
         <View style={{ flex: 1 }}>
           <SearchBar />
         </View>
       </View>
       <ScrollView style={{ flex: 1 }}>
-        <View style={[GlobalStyles.container, { paddingBottom: 16 }]}>
+        <View style={[GlobalStyles.subcontainer, { paddingBottom: 16 }]}>
           <ButtonListBase
             items={Array.from({ length: 20 }, (_, index) => ({
               itemComponent: <UserBanItem />,

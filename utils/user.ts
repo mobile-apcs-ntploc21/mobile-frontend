@@ -1,7 +1,7 @@
 import { colors } from '@/constants/theme';
 import { StatusType } from '@/types/user_status';
 
-export const getOnlineStatusColor = (status: StatusType) => {
+export const getOnlineStatusColor = (status?: StatusType) => {
   switch (status) {
     case StatusType.ONLINE:
       return colors.status_online;

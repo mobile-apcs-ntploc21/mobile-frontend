@@ -1,4 +1,4 @@
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text, TextStyle, View } from 'react-native';
 import React from 'react';
 import ButtonListBase, { ButtonListBaseProps } from './ButtonListBase';
 import MyText from '../MyText';
@@ -7,6 +7,7 @@ import { TextStyles } from '@/styles/TextStyles';
 interface ButtonListTextProps extends Omit<ButtonListBaseProps, 'items'> {
   items?: {
     text: string;
+    style?: TextStyle;
     onPress?: () => void;
   }[];
 }
@@ -17,7 +18,10 @@ const ButtonListText = (props: ButtonListTextProps) => {
       {...props}
       items={props.items?.map((item, index) => ({
         itemComponent: (
-          <MyText key={index} style={styles.text}>
+          <MyText
+            key={index}
+            style={StyleSheet.flatten([styles.text, item.style])}
+          >
             {item.text}
           </MyText>
         ),

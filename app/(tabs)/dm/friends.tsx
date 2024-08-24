@@ -29,7 +29,8 @@ import {
   declineFriendRequest,
   getFriendRequestsReceived,
   getFriendRequestsSent,
-  getFriends
+  getFriends,
+  searchByUsername
 } from '@/services/friend';
 import { showAlert } from '@/services/alert';
 
@@ -96,15 +97,17 @@ const Friends = () => {
 
   // FRIENDS MANAGEMENT -------------------------------------
 
-  const handleAddFriend = async (id: string) => {
+  const handleAddFriend = async (text: string) => {
     try {
-      await addFriend(id);
+      const user = await searchByUsername(text);
+      await addFriend(user.user_id);
+      showAlert('Friend request sent');
       await fetchRequestsSent();
       setSearchText('');
-      showAlert('Friend request sent');
-      Keyboard.dismiss();
     } catch (e) {
-      console.error(e);
+      showAlert('Could not send friend request');
+    } finally {
+      Keyboard.dismiss();
     }
   };
 
@@ -197,7 +200,8 @@ const Friends = () => {
                   id={request.id}
                   username={request.username}
                   displayName={request.username}
-                  onlineStatus="online"
+                  subscribeToStatus
+                  showStatus
                   onCancel={() => handleCancelRequest(request.id)}
                 />
               ))}
@@ -211,7 +215,8 @@ const Friends = () => {
                   id={request.id}
                   username={request.username}
                   displayName={request.username}
-                  onlineStatus="online"
+                  subscribeToStatus
+                  showStatus
                   onAccept={() => handleAcceptRequest(request.id)}
                   onDecline={() => handleDeclineRequest(request.id)}
                 />
@@ -227,7 +232,8 @@ const Friends = () => {
                   id={request.id}
                   username={request.username}
                   displayName={request.username}
-                  onlineStatus="online"
+                  subscribeToStatus
+                  showStatus
                 />
               ))}
             </Accordion>

@@ -43,7 +43,6 @@ const Toggle = ({
   }));
 
   useEffect(() => {
-    progress.value = state ? 0 : 1;
     progress.value = withTiming(state ? 1 : 0);
   }, [state]);
 

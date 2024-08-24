@@ -6,7 +6,7 @@ import {
   View
 } from 'react-native';
 import React, { useLayoutEffect, useState } from 'react';
-import { useNavigation } from 'expo-router';
+import { router, useNavigation } from 'expo-router';
 import { NativeStackHeaderProps } from '@react-navigation/native-stack';
 
 import SearchBar from '@/components/SearchBar';
@@ -33,12 +33,12 @@ const Members = () => {
   }, []);
 
   return (
-    <View style={{ flex: 1 }}>
+    <View style={{ flex: 1, marginTop: 16 }}>
       <FilterModal
         visible={modalVisible}
         onClose={() => setModalVisible(false)}
       />
-      <View style={[GlobalStyles.container, styles.searchContainer]}>
+      <View style={[GlobalStyles.subcontainer, styles.searchContainer]}>
         <View style={{ flex: 1 }}>
           <SearchBar />
         </View>
@@ -47,12 +47,12 @@ const Members = () => {
         </TouchableWithoutFeedback>
       </View>
       <ScrollView style={{ flex: 1 }}>
-        <View style={[GlobalStyles.container, { paddingBottom: 16 }]}>
+        <View style={[GlobalStyles.subcontainer, { paddingBottom: 16 }]}>
           <ButtonListBase
             heading="4 Members"
             items={Array.from({ length: 10 }, (_, index) => ({
               itemComponent: <MemberItem />,
-              onPress: () => console.log(`Item ${index} pressed`)
+              onPress: () => router.navigate('/edit-member')
             }))}
           />
         </View>
@@ -68,6 +68,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 13,
-    marginVertical: 16
+    marginBottom: 16
   }
 });
