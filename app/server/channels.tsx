@@ -76,7 +76,6 @@ const Channels = () => {
     <View style={{ flex: 1 }}>
       <MyBottomSheetModal
         ref={bottomSheetModalRef}
-        heading="Edit"
         onClose={() => {
           console.log('Close bottom modal');
         }}
