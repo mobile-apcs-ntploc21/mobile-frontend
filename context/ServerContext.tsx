@@ -1,5 +1,6 @@
+import useServers from '@/hooks/useServers';
 import { Server } from '@/types';
-import { createContext, ReactNode, useReducer } from 'react';
+import { createContext, ReactNode, useEffect, useReducer } from 'react';
 
 // Types
 enum Actions {
@@ -21,9 +22,7 @@ type ServerAction = {
   payload?: any;
 };
 
-interface IServerContext extends ServerState {
-  setServerId: (id: string) => void;
-}
+interface IServerContext extends ServerState {}
 
 interface ServerProviderProps {
   children: ReactNode;
@@ -42,23 +41,14 @@ const initialState: ServerState = {
 
 // Context
 export const ServerContext = createContext<IServerContext>({
-  ...initialState,
-  setServerId: () => {}
+  ...initialState
 });
 
 // Handlers
 const handlers: Record<
   string,
   (state: ServerState, action: ServerAction) => ServerState
-> = {
-  [Actions.SET_SERVER_ID]: (state, { payload }) => {
-    // Fetch server data
-    return {
-      ...state,
-      id: payload
-    };
-  }
-};
+> = {};
 
 // Reducer
 const reducer = (state: ServerState, action: ServerAction) => {
@@ -68,14 +58,15 @@ const reducer = (state: ServerState, action: ServerAction) => {
 
 // Provider
 export const ServerProvider = ({ children }: ServerProviderProps) => {
+  const { currentServerId } = useServers();
   const [state, dispatch] = useReducer(reducer, initialState);
 
-  const setServerId = (id: string) => {
-    dispatch({ type: Actions.SET_SERVER_ID, payload: id });
-  };
+  useEffect(() => {
+    dispatch({ type: Actions.SET_SERVER_ID, payload: currentServerId });
+  }, [currentServerId]);
 
   return (
-    <ServerContext.Provider value={{ ...state, setServerId }}>
+    <ServerContext.Provider value={{ ...state }}>
       {children}
     </ServerContext.Provider>
   );
