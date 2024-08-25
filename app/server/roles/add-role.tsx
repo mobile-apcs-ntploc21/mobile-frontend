@@ -194,7 +194,8 @@ const styles = StyleSheet.create({
   },
   hueContainer: {
     justifyContent: 'center',
-    alignItems: 'center'
+    alignItems: 'center',
+    backgroundColor: colors.gray03
   },
   hueStyle: {
     width: 320,
