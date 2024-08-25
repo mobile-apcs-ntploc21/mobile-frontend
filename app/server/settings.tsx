@@ -37,7 +37,7 @@ const Settings = () => {
     () => [
       {
         text: 'Members',
-        onPress: () => {}
+        onPress: () => router.navigate('./members')
       },
       {
         text: 'Roles',
@@ -45,7 +45,7 @@ const Settings = () => {
       },
       {
         text: 'Bans',
-        onPress: () => {}
+        onPress: () => router.navigate('./bans')
       }
     ],
     []
