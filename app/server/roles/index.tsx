@@ -1,6 +1,6 @@
 import { Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import React, { useLayoutEffect } from 'react';
-import { useNavigation } from 'expo-router';
+import { router, useNavigation } from 'expo-router';
 import MyHeader from '@/components/MyHeader';
 import MyText from '@/components/MyText';
 import { TextStyles } from '@/styles/TextStyles';
@@ -23,7 +23,7 @@ const Roles = () => {
           {...props}
           title="Roles"
           headerRight={
-            <TouchableOpacity onPress={() => {}}>
+            <TouchableOpacity onPress={() => router.navigate('./add-role')}>
               <MyText style={styles.headerAdd}>Add</MyText>
             </TouchableOpacity>
           }
