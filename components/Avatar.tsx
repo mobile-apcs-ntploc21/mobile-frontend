@@ -29,7 +29,7 @@ export interface AvatarProps {
   onlineStatus?: StatusType;
   subscribeToStatus?: boolean;
   avatarStyle?: ImageStyle;
-  setStatusText?: Dispatch<React.SetStateAction<string>>;
+  setStatusText?: (text: string) => void;
 }
 
 const Avatar = ({
