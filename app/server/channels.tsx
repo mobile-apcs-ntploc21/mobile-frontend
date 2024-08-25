@@ -21,7 +21,10 @@ const Channels = () => {
     () => [
       {
         text: 'Create category',
-        onPress: () => {}
+        onPress: () => {
+          handleClose();
+          router.navigate('./create_category');
+        }
       },
       {
         text: 'Create channel',
