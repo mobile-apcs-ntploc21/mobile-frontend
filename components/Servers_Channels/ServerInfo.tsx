@@ -12,6 +12,7 @@ import DotsIcon from '@/assets/icons/DotsIcon';
 import { colors, fonts } from '@/constants/theme';
 import useServers from '@/hooks/useServers';
 import Accordion from '@/components/Accordion';
+import { router } from 'expo-router';
 
 const MAXUSERS = 4;
 
@@ -48,7 +49,7 @@ const ServerInfo = () => {
           />
           <MyButtonIcon
             icon={SettingIcon}
-            onPress={() => {}}
+            onPress={() => router.navigate(`/server/settings`)}
             showOutline={false}
             containerStyle={styles.actionStyle}
           />
