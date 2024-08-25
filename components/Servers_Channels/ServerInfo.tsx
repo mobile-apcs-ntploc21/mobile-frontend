@@ -64,7 +64,7 @@ const ServerInfo = () => {
           {userIds.length > MAXUSERS && (
             <MyButtonIcon
               icon={DotsIcon}
-              onPress={() => {}}
+              onPress={() => router.navigate('server-members')}
               showOutline={false}
               containerStyle={styles.activeMember}
             />
