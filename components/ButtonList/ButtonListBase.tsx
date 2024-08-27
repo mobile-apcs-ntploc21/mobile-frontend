@@ -18,6 +18,7 @@ export interface ButtonListBaseProps {
     onPress?: () => void;
   }[];
   scrollable?: boolean;
+  disabled?: boolean;
 }
 
 const ButtonListBase = (props: ButtonListBaseProps) => {
@@ -25,7 +26,11 @@ const ButtonListBase = (props: ButtonListBaseProps) => {
     <>
       {props.items?.map((item, index) => (
         <View key={index}>
-          <TouchableOpacity style={styles.item} onPress={item.onPress}>
+          <TouchableOpacity
+            style={styles.item}
+            onPress={item.onPress}
+            disabled={props.disabled}
+          >
             {item.itemComponent}
           </TouchableOpacity>
           {index < props.items!.length - 1 && (

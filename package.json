@@ -44,6 +44,8 @@
     "react-native-screens": "3.31.1",
     "react-native-svg": "15.2.0",
     "react-native-web": "~0.19.10",
+    "reanimated-color-picker": "^3.0.4",
+    "toggle-switch-react-native": "^3.3.0",
     "yup": "^1.4.0"
   },
   "devDependencies": {
