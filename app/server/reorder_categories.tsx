@@ -7,7 +7,12 @@ import {
   TouchableWithoutFeedback,
   View
 } from 'react-native';
-import React, { useLayoutEffect, useState } from 'react';
+import React, {
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useState
+} from 'react';
 import { router, useNavigation } from 'expo-router';
 import { NativeStackHeaderProps } from '@react-navigation/native-stack';
 
@@ -16,10 +21,28 @@ import MyHeader from '@/components/MyHeader';
 import useServers from '@/hooks/useServers';
 import ReorderList from '@/components/reordering/ReorderList';
 import { colors, fonts } from '@/constants/theme';
+import MyAlert from '@/utils/alert';
 
 const ReorderCategories = () => {
   const navigation = useNavigation();
-  const { categories } = useServers();
+  const { categories, setCategories } = useServers();
+
+  const [positions, setPositions] = useState<string[]>([]);
+
+  const handleSave = useCallback(() => {
+    // save new positions
+    const newCategories = positions.map((id) =>
+      categories.find((category) => category.id === id)
+    );
+    newCategories.unshift(categories[0]);
+    // @ts-ignore
+    setCategories(newCategories);
+    router.canGoBack() && router.back();
+  }, [categories, positions]);
+
+  useEffect(() => {
+    setPositions(categories.slice(1).map((category) => category.id));
+  }, [categories]);
 
   useLayoutEffect(() => {
     navigation.setOptions({
@@ -28,22 +51,39 @@ const ReorderCategories = () => {
           {...props}
           title="Reorder Categories"
           headerRight={
-            <TouchableOpacity>
+            <TouchableOpacity onPress={handleSave}>
               <MyText style={styles.headingText}>Save</MyText>
             </TouchableOpacity>
           }
+          onGoBack={MyAlert}
         />
       )
     });
-  }, []);
+  }, [handleSave]);
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
       <ReorderList
-        items={categories.slice(1).map((category) => ({
-          text: category.name,
-          onPressUp: () => console.log('up', category.name),
-          onPressDown: () => console.log('down', category.name)
+        items={positions.map((id) => ({
+          text: categories.find((category) => category.id === id)?.name || '',
+          onPressUp: () => {
+            const index = positions.indexOf(id);
+            if (index > 0) {
+              const newPositions = [...positions];
+              newPositions[index] = positions[index - 1];
+              newPositions[index - 1] = id;
+              setPositions(newPositions);
+            }
+          },
+          onPressDown: () => {
+            const index = positions.indexOf(id);
+            if (index < positions.length - 1) {
+              const newPositions = [...positions];
+              newPositions[index] = positions[index + 1];
+              newPositions[index + 1] = id;
+              setPositions(newPositions);
+            }
+          }
         }))}
       />
     </ScrollView>

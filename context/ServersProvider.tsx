@@ -4,7 +4,8 @@ import { createContext, ReactNode, useReducer } from 'react';
 // Types
 enum Actions {
   SELECT_SERVER = 'SELECT_SERVER',
-  SET_SERVERS = 'SET_SERVERS'
+  SET_SERVERS = 'SET_SERVERS',
+  SET_CATEGORIES = 'SET_CATEGORIES'
 }
 
 type Channel = {
@@ -36,6 +37,7 @@ interface IServersContext extends ServersState {
     isForPositions?: boolean,
     isNewServer?: boolean
   ) => void;
+  setCategories: (categories: Category[]) => void;
 }
 
 interface ServersProviderProps {
@@ -53,7 +55,8 @@ const initialState: ServersState = {
 export const ServersContext = createContext<IServersContext>({
   ...initialState,
   selectServer: () => {},
-  setServers: () => {}
+  setServers: () => {},
+  setCategories: () => {}
 });
 
 // Handlers
@@ -99,6 +102,12 @@ const handlers: Record<
           : state.currentServerId,
       categories
     };
+  },
+  [Actions.SET_CATEGORIES]: (state, { payload }) => {
+    return {
+      ...state,
+      categories: payload
+    };
   }
 };
 
@@ -136,8 +145,14 @@ export const ServersProvider = ({ children }: ServersProviderProps) => {
     }
   };
 
+  const setCategories = (categories: Category[]) => {
+    dispatch({ type: Actions.SET_CATEGORIES, payload: categories });
+  };
+
   return (
-    <ServersContext.Provider value={{ ...state, selectServer, setServers }}>
+    <ServersContext.Provider
+      value={{ ...state, selectServer, setServers, setCategories }}
+    >
       {children}
     </ServersContext.Provider>
   );
