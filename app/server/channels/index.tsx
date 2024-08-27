@@ -93,7 +93,12 @@ const Channels = () => {
           <View>
             <TouchableOpacity
               style={styles.normalEdit}
-              onPress={() => console.log(`Pressed ${name}`)}
+              onPress={() =>
+                router.navigate({
+                  pathname: `./edit_category/${name}`,
+                  params: { categoryName: name }
+                })
+              }
             >
               <MyText style={styles.normalEditText}>Edit</MyText>
             </TouchableOpacity>
