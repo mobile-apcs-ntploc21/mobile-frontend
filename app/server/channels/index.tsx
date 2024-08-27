@@ -99,7 +99,14 @@ const Channels = () => {
             </TouchableOpacity>
             <ButtonListText
               heading={name}
-              items={channels.map(({ name }) => ({ text: name }))}
+              items={channels.map(({ name }) => ({
+                text: name,
+                onPress: () =>
+                  router.navigate({
+                    pathname: `./edit_channel/${name}`,
+                    params: { channelName: name }
+                  })
+              }))}
             />
           </View>
         )}
