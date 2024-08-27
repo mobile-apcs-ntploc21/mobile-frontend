@@ -160,9 +160,9 @@ export async function login(email: string, password: string): Promise<any> {
     const response = await postData('/api/v1/users/login', { email, password });
 
     // Save the ID token to AsyncStorage.
-    await AsyncStorage.setItem('uid', response['id']);
-    await AsyncStorage.setItem('idToken', response['jwtToken']);
-    await AsyncStorage.setItem('refreshToken', response['refreshToken']);
+    await AsyncStorage.setItem('uid', response.id);
+    await AsyncStorage.setItem('idToken', response.jwtToken);
+    await AsyncStorage.setItem('refreshToken', response.refreshToken);
 
     return response;
   } catch (e: any) {

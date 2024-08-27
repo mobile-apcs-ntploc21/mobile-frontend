@@ -9,6 +9,7 @@ interface CustomTextInputProps {
   onChangeText?: (text: string) => void;
   secureTextEntry?: boolean;
   errorMessage?: string;
+  keyboardType?: 'default' | 'numeric' | 'email-address' | 'visible-password';
 }
 
 const CustomTextInput = ({
@@ -17,7 +18,8 @@ const CustomTextInput = ({
   value,
   onChangeText,
   secureTextEntry = false,
-  errorMessage
+  errorMessage,
+  keyboardType = 'default'
 }: CustomTextInputProps) => {
   return (
     <View style={styles.container}>
@@ -38,6 +40,7 @@ const CustomTextInput = ({
           value={value}
           onChangeText={onChangeText}
           secureTextEntry={secureTextEntry}
+          keyboardType={keyboardType}
         />
       </View>
       {errorMessage && <Text style={styles.errorMessage}>{errorMessage}</Text>}

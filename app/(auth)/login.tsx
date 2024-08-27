@@ -97,6 +97,7 @@ export default function Login() {
                     errorMessage={
                       errors.email && touched.email ? errors.email : undefined
                     }
+                    keyboardType="email-address"
                   />
                   <CustomTextInput
                     title="Password"
@@ -109,6 +110,7 @@ export default function Login() {
                         ? errors.password
                         : undefined
                     }
+                    keyboardType="visible-password"
                   />
                   <Link
                     href="/"
