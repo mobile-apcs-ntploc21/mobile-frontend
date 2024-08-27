@@ -1,6 +1,6 @@
 import { Alert, StyleSheet, Text, View } from 'react-native';
 import React, { useLayoutEffect, useRef, useState } from 'react';
-import { router, useNavigation } from 'expo-router';
+import { router, useLocalSearchParams, useNavigation } from 'expo-router';
 import { Formik, FormikProps } from 'formik';
 import { NativeStackHeaderProps } from '@react-navigation/native-stack';
 import MyHeader from '@/components/MyHeader';
@@ -35,12 +35,17 @@ const RoleEdit = () => {
   const navigation = useNavigation();
   const formRef = useRef<FormikProps<FormProps>>(null);
 
+  const { roleId, roleTitle } = useLocalSearchParams<{
+    roleId: string;
+    roleTitle?: string;
+  }>();
+
   useLayoutEffect(() => {
     navigation.setOptions({
       header: (props: NativeStackHeaderProps) => (
         <MyHeader
           {...props}
-          title="Edit Role"
+          title={`Edit ${roleTitle || 'Role'}`}
           headerRight={
             <TouchableOpacity
               onPress={async () => {

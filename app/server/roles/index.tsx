@@ -56,10 +56,16 @@ const Roles = () => {
                   </View>
                   <Text style={styles.memberCount}>10</Text>
                 </View>
-                <Text style={styles.roleTitle}>Admin</Text>
+                <Text style={styles.roleTitle}>{`Role ${index + 1}`}</Text>
               </View>
             ),
-            onPress: () => router.navigate(`./${index}`)
+            onPress: () =>
+              router.navigate({
+                pathname: `./${index}`,
+                params: {
+                  roleTitle: `Role ${index + 1}`
+                }
+              })
           }))}
         />
       </ScrollView>
