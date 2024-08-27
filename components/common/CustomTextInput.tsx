@@ -9,7 +9,12 @@ interface CustomTextInputProps {
   onChangeText?: (text: string) => void;
   secureTextEntry?: boolean;
   errorMessage?: string;
-  keyboardType?: 'default' | 'numeric' | 'email-address' | 'visible-password';
+  keyboardType?:
+    | 'default'
+    | 'number-pad'
+    | 'email-address'
+    | 'visible-password'
+    | 'phone-pad';
 }
 
 const CustomTextInput = ({
