@@ -54,6 +54,7 @@ const RoleEdit = () => {
           }
           onGoBack={() =>
             new Promise((resolve, reject) => {
+              if (!formRef.current?.dirty) return resolve();
               Alert.alert(
                 'Discard changes',
                 'Are you sure you want to discard changes?',
@@ -75,7 +76,7 @@ const RoleEdit = () => {
         />
       )
     });
-  }, []);
+  }, [formRef.current?.dirty]);
 
   const [deleteModalVisible, setDeleteModalVisible] = useState(false);
 

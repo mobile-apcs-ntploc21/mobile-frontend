@@ -71,6 +71,7 @@ const Permissions = () => {
           }
           onGoBack={() =>
             new Promise((resolve, reject) => {
+              if (!formRef.current?.dirty) return resolve();
               Alert.alert(
                 'Discard changes',
                 'Are you sure you want to discard changes?',
@@ -92,7 +93,7 @@ const Permissions = () => {
         />
       )
     });
-  }, []);
+  }, [formRef.current?.dirty]);
 
   const handleSubmit = (
     values: FormProps,
