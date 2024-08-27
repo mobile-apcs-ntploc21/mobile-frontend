@@ -59,7 +59,7 @@ const Roles = () => {
                 <Text style={styles.roleTitle}>Admin</Text>
               </View>
             ),
-            onPress: () => {}
+            onPress: () => router.navigate(`./${index}`)
           }))}
         />
       </ScrollView>
