@@ -28,21 +28,18 @@ const ReorderCategories = () => {
   const navigation = useNavigation();
   const { categories, setCategories } = useServers();
 
-  const [positions, setPositions] = useState<string[]>([]);
+  const [currentCat, setCurrentCat] = useState<typeof categories>(
+    categories.slice(1)
+  );
 
   const handleSave = useCallback(() => {
-    // save new positions
-    const newCategories = positions.map((id) =>
-      categories.find((category) => category.id === id)
-    );
-    newCategories.unshift(categories[0]);
-    // @ts-ignore
-    setCategories(newCategories);
+    currentCat.unshift(categories[0]);
+    setCategories(currentCat);
     router.canGoBack() && router.back();
-  }, [categories, positions]);
+  }, [currentCat]);
 
   useEffect(() => {
-    setPositions(categories.slice(1).map((category) => category.id));
+    setCurrentCat(categories.slice(1));
   }, [categories]);
 
   useLayoutEffect(() => {
@@ -53,6 +50,7 @@ const ReorderCategories = () => {
           headingText="Reorder Categories"
           headingRightText="Save"
           onRightPress={handleSave}
+          showAlert
         />
       )
     });
@@ -61,25 +59,21 @@ const ReorderCategories = () => {
   return (
     <ScrollView contentContainerStyle={styles.container}>
       <ReorderList
-        items={positions.map((id) => ({
-          text: categories.find((category) => category.id === id)?.name || '',
+        items={currentCat.map((category, index) => ({
+          text: category.name,
           onPressUp: () => {
-            const index = positions.indexOf(id);
-            if (index > 0) {
-              const newPositions = [...positions];
-              newPositions[index] = positions[index - 1];
-              newPositions[index - 1] = id;
-              setPositions(newPositions);
-            }
+            const newCat = [...currentCat];
+            if (index === 0) return;
+            newCat.splice(index, 1);
+            newCat.splice(index - 1, 0, category);
+            setCurrentCat(newCat);
           },
           onPressDown: () => {
-            const index = positions.indexOf(id);
-            if (index < positions.length - 1) {
-              const newPositions = [...positions];
-              newPositions[index] = positions[index + 1];
-              newPositions[index + 1] = id;
-              setPositions(newPositions);
-            }
+            const newCat = [...currentCat];
+            if (index === currentCat.length - 1) return;
+            newCat.splice(index, 1);
+            newCat.splice(index + 1, 0, category);
+            setCurrentCat(newCat);
           }
         }))}
       />
