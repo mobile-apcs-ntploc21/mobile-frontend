@@ -140,7 +140,7 @@ const EditChannel = () => {
                 items={[
                   {
                     text: 'Move to another category',
-                    onPress: () => {}
+                    onPress: () => router.navigate('./move')
                   }
                 ]}
               />
