@@ -30,6 +30,7 @@ import ButtonListText from '@/components/ButtonList/ButtonListText';
 import ButtonListRadio from '@/components/ButtonList/ButtonListRadio';
 import { router } from 'expo-router';
 import AddEmojiIcon from '@/assets/icons/AddEmojiIcon';
+import ReorderItem from '@/components/reordering/ReorderItem';
 
 const Playground = () => {
   const [selected, setSelected] = useState<string>();
@@ -40,6 +41,17 @@ const Playground = () => {
 
   return (
     <ScrollView>
+      <View
+        style={{
+          height: 40,
+          backgroundColor: 'white',
+          borderRadius: 20,
+          justifyContent: 'center',
+          paddingHorizontal: 16
+        }}
+      >
+        <ReorderItem text="Hello" onPressUp={() => {}} onPressDown={() => {}} />
+      </View>
       <MyButtonText
         title="Blocked List"
         onPress={() => router.navigate('/blocked')}
