@@ -13,6 +13,7 @@ import SimpleServerList from './SimpleServerList';
 import ExtendedServerList from './ExtendedServerList';
 import Toggle from '../Toggle';
 import useServers from '@/hooks/useServers';
+import { getData } from '@/utils/api';
 
 const ServerList = () => {
   const { servers, setServers, selectServer } = useServers();
@@ -30,12 +31,31 @@ const ServerList = () => {
   };
 
   useEffect(() => {
-    // Fetch data (servers)
-    const newServers = Array.from({ length: 30 }, (_, i) => ({
-      id: i.toString(),
-      name: `Server ${i}`
-    }));
-    setServers(newServers);
+    (async () => {
+      try {
+        const response = await getData('/api/v1/servers/list'); // return JSON array of servers
+
+        if (!response) {
+          setServers([]); // Set empty array if no servers
+          return;
+        }
+
+        const servers = Object.values(response).map(
+          (server: any, index: number) => ({
+            id: index.toString(),
+            name: server.name
+          })
+        );
+
+        if (Array.isArray(servers)) {
+          setServers(servers);
+        } else {
+          throw new Error('Failed to fetch servers.');
+        }
+      } catch (err: any) {
+        throw new Error(err.message);
+      }
+    })();
   }, []);
 
   useEffect(() => {
