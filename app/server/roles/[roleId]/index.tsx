@@ -129,7 +129,7 @@ const RoleEdit = () => {
           <BasicModal
             visible={deleteModalVisible}
             onClose={() => setDeleteModalVisible(false)}
-            title="Delete Emoji"
+            title="Delete Role"
             onConfirm={() => {
               // deleteData();
             }}
