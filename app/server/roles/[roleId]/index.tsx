@@ -1,6 +1,6 @@
 import { Alert, StyleSheet, Text, View } from 'react-native';
 import React, { useLayoutEffect, useRef, useState } from 'react';
-import { useNavigation } from 'expo-router';
+import { router, useNavigation } from 'expo-router';
 import { Formik, FormikProps } from 'formik';
 import { NativeStackHeaderProps } from '@react-navigation/native-stack';
 import MyHeader from '@/components/MyHeader';
@@ -186,7 +186,7 @@ const RoleEdit = () => {
                 items={[
                   {
                     text: 'Permissions',
-                    onPress: () => {}
+                    onPress: () => router.navigate('./permissions')
                   }
                 ]}
               />
