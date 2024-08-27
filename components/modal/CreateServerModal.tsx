@@ -38,13 +38,12 @@ const CreateServerModal = (props: CreateServerModalProps) => {
       throw new Error('Failed to create server.');
     }
 
-    const newServers = [
-      { id: servers.length.toString(), name: serverName },
-      ...servers
-    ];
+    setServers(
+      [{ id: servers.length.toString(), name: serverName }, ...servers],
+      false,
+      true
+    );
 
-    setServers(newServers, false, true);
-    setNewServerId(newServers[0].id);
     props.onClose(true);
   };
 
