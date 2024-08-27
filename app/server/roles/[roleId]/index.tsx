@@ -40,7 +40,7 @@ const RoleEdit = () => {
       header: (props: NativeStackHeaderProps) => (
         <MyHeader
           {...props}
-          title="Create Role"
+          title="Edit Role"
           headerRight={
             <TouchableOpacity
               onPress={async () => {
