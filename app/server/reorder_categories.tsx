@@ -22,6 +22,7 @@ import useServers from '@/hooks/useServers';
 import ReorderList from '@/components/reordering/ReorderList';
 import { colors, fonts } from '@/constants/theme';
 import MyAlert from '@/utils/alert';
+import MyHeaderRight from '@/components/MyHeaderRight';
 
 const ReorderCategories = () => {
   const navigation = useNavigation();
@@ -47,15 +48,11 @@ const ReorderCategories = () => {
   useLayoutEffect(() => {
     navigation.setOptions({
       header: (props: NativeStackHeaderProps) => (
-        <MyHeader
+        <MyHeaderRight
           {...props}
-          title="Reorder Categories"
-          headerRight={
-            <TouchableOpacity onPress={handleSave}>
-              <MyText style={styles.headingText}>Save</MyText>
-            </TouchableOpacity>
-          }
-          onGoBack={MyAlert}
+          headingText="Reorder Categories"
+          headingRightText="Save"
+          onRightPress={handleSave}
         />
       )
     });
@@ -95,10 +92,5 @@ export default ReorderCategories;
 const styles = StyleSheet.create({
   container: {
     padding: 16
-  },
-  headingText: {
-    color: colors.primary,
-    fontSize: 20,
-    fontFamily: fonts.medium
   }
 });
