@@ -89,7 +89,8 @@ export async function getIdToken(
   forceRefresh: boolean = false
 ): Promise<string | null> {
   const currentIdToken = await AsyncStorage.getItem('idToken');
-  if (!currentIdToken) {
+
+  if (!currentIdToken || currentIdToken == '') {
     return null;
   }
 
@@ -158,6 +159,10 @@ export async function getUser(forceRefresh: boolean = false): Promise<any> {
 export async function login(email: string, password: string): Promise<any> {
   try {
     const response = await postData('/api/v1/users/login', { email, password });
+
+    if (!response) {
+      throw new Error('Failed to login User.');
+    }
 
     // Save the ID token to AsyncStorage.
     await AsyncStorage.setItem('uid', response.id);

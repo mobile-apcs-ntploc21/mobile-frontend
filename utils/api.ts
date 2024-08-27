@@ -75,6 +75,7 @@ export const getData = async (
       const e = await response.json();
       throw new Error(e.message);
     }
+
     return await response.json();
   } catch (err: any) {
     throw new Error(err.message);

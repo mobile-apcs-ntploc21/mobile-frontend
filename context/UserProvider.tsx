@@ -4,7 +4,6 @@ import { useSubscription } from '@apollo/client';
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { useAuth } from './AuthProvider';
 import { useStatusContext } from './StatusProvider';
-import { set } from 'mongoose';
 
 interface UserContextValue {
   data: any;
@@ -39,15 +38,20 @@ export default function UserProvider({ children }: UserProviderProps) {
   useEffect(() => {
     (async () => {
       try {
-        const response = await getData('/api/v1/profile/me');
-        setData(response);
-        setLoading(false);
+        if (user) {
+          const response = await getData(`/api/v1/profile/me`);
+
+          setData(response);
+          setLoading(false);
+        } else {
+          setData(null);
+          setLoading(true);
+        }
       } catch (e: any) {
-        setData(null);
-        setLoading(false);
+        throw new Error(e.message);
       }
     })();
-  }, []);
+  }, [user]);
 
   useEffect(() => {
     if (dataPush) {
