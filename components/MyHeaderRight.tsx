@@ -16,7 +16,7 @@ const MyHeaderRight = (props: MyHeaderRightProps) => {
   return (
     <MyHeader
       {...props}
-      title="Reorder Categories"
+      title={props.headingText}
       headerRight={
         <TouchableOpacity onPress={props.onRightPress}>
           <MyText style={styles.headingText}>Save</MyText>

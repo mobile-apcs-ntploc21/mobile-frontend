@@ -34,7 +34,9 @@ export default ReorderList;
 const styles = StyleSheet.create({
   heading: {
     fontSize: 14,
-    fontFamily: fonts.bold
+    fontFamily: fonts.bold,
+    marginBottom: 4,
+    marginLeft: 24
   },
   list: {
     paddingHorizontal: 16,
