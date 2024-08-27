@@ -12,6 +12,7 @@ import GlobalStyles from '@/styles/GlobalStyles';
 import { MyButtonText } from '../MyButton';
 import CustomTextInput from '../common/CustomTextInput';
 import useServers from '@/hooks/useServers';
+import { postData } from '@/utils/api';
 
 export interface CreateServerModalProps {
   visible: boolean;
@@ -23,14 +24,26 @@ const CreateServerModal = (props: CreateServerModalProps) => {
   const [serverName, setServerName] = useState('');
   const [newServerId, setNewServerId] = useState('');
 
-  const handleConfirm = () => {
-    // Create server here
-    const newServers = [
-      { id: servers.length.toString(), name: serverName },
-      ...servers
-    ];
-    setServers(newServers, false, true);
-    setNewServerId(newServers[0].id);
+  const handleConfirm = async () => {
+    // Validate server name
+    if (serverName.length === 0) {
+      return;
+    }
+
+    const response = await postData('/api/v1/servers', {
+      name: serverName
+    });
+
+    if (!response) {
+      throw new Error('Failed to create server.');
+    }
+
+    setServers(
+      [{ id: servers.length.toString(), name: serverName }, ...servers],
+      false,
+      true
+    );
+
     props.onClose(true);
   };
 
@@ -62,6 +75,9 @@ const CreateServerModal = (props: CreateServerModalProps) => {
                 placeholder="Server name"
                 value={serverName}
                 onChangeText={setServerName}
+                errorMessage={
+                  serverName.length === 0 ? 'Server name is required' : ''
+                }
               />
               <View style={styles.actions}>
                 <MyButtonText
