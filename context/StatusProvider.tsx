@@ -36,14 +36,20 @@ export default function StatusProvider({ children }: StatusProviderProps) {
   useEffect(() => {
     (async () => {
       try {
-        const response = await getData('/api/v1/status');
-        setData(response);
-        setLoading(false);
+        if (user) {
+          const response = await getData(`/api/v1/status/`);
+
+          setData(response);
+          setLoading(false);
+        } else {
+          setData(null);
+          setLoading(true);
+        }
       } catch (e: any) {
         throw new Error(e.message);
       }
     })();
-  }, []);
+  }, [user]);
 
   useEffect(() => {
     if (dataPush) {
