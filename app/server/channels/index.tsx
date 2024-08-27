@@ -89,13 +89,13 @@ const Channels = () => {
       <FlatList
         data={categories}
         keyExtractor={(item) => item.id}
-        renderItem={({ item: { name, channels } }) => (
+        renderItem={({ item: { id, name, channels } }) => (
           <View>
             <TouchableOpacity
               style={styles.normalEdit}
               onPress={() =>
                 router.navigate({
-                  pathname: `./edit_category/${name}`,
+                  pathname: `./edit_category/${id}`,
                   params: { categoryName: name }
                 })
               }
@@ -104,11 +104,11 @@ const Channels = () => {
             </TouchableOpacity>
             <ButtonListText
               heading={name}
-              items={channels.map(({ name }) => ({
+              items={channels.map(({ id, name }) => ({
                 text: name,
                 onPress: () =>
                   router.navigate({
-                    pathname: `./edit_channel/${name}`,
+                    pathname: `./edit_channel/${id}`,
                     params: { channelName: name }
                   })
               }))}
