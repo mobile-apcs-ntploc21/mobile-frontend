@@ -4,7 +4,7 @@ import { Feather, FontAwesome5 } from '@expo/vector-icons';
 import { colors } from '@/constants/theme';
 import { TextStyles } from '@/styles/TextStyles';
 
-interface ReorderItemProps {
+export interface ReorderItemProps {
   text: string;
   onPressUp: () => void;
   onPressDown: () => void;
@@ -32,7 +32,8 @@ const styles = StyleSheet.create({
   container: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    alignItems: 'center'
+    alignItems: 'center',
+    paddingHorizontal: 4
   },
   actions: {
     flexDirection: 'row',

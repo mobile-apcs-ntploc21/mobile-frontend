@@ -41,7 +41,10 @@ const Channels = () => {
     () => [
       {
         text: 'Reorder categories',
-        onPress: () => {}
+        onPress: () => {
+          handleClose();
+          router.navigate('./reorder_categories');
+        }
       },
       {
         text: 'Reorder channels',
