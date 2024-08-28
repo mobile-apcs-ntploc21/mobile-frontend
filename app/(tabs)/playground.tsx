@@ -30,6 +30,7 @@ import ButtonListText from '@/components/ButtonList/ButtonListText';
 import ButtonListRadio from '@/components/ButtonList/ButtonListRadio';
 import { router } from 'expo-router';
 import AddEmojiIcon from '@/assets/icons/AddEmojiIcon';
+import ToggleItem3 from '@/components/Toggles/ToggleItem3';
 
 const Playground = () => {
   const [selected, setSelected] = useState<string>();
@@ -40,6 +41,13 @@ const Playground = () => {
 
   return (
     <ScrollView>
+      <View style={{
+        borderRadius: 999,
+        backgroundColor: colors.white,
+        padding: 12,
+      }}>
+        <ToggleItem3 text="hello"/>
+      </View>
       <MyButtonText
         title="Blocked List"
         onPress={() => router.navigate('/blocked')}
