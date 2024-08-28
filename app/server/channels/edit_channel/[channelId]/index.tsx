@@ -148,7 +148,7 @@ const EditChannel = () => {
                 items={[
                   {
                     text: 'Permissions',
-                    onPress: () => {}
+                    onPress: () => router.navigate('./permissions')
                   }
                 ]}
               />

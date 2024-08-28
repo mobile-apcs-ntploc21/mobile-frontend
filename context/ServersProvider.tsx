@@ -2,7 +2,7 @@ import { Server } from '@/types';
 import { createContext, ReactNode, useEffect, useReducer, useRef } from 'react';
 
 // Types
-enum Actions {
+export enum Actions {
   SELECT_SERVER = 'SELECT_SERVER',
   SET_SERVERS = 'SET_SERVERS',
   SET_CATEGORIES = 'SET_CATEGORIES',
@@ -10,24 +10,25 @@ enum Actions {
   SET_ROLES = 'SET_ROLES'
 }
 
-type Channel = {
+export type Channel = {
   id: string;
   name: string;
 };
 
-type Category = {
+export type Category = {
   id: string;
   name: string;
   channels: Channel[];
 };
 
-type Member = {
+export type Member = {
   id: string;
+  name: string;
   username: string;
   avatar?: string;
 };
 
-type Role = {
+export type Role = {
   id: string;
   name: string;
   color: string;
@@ -143,7 +144,8 @@ export const ServersProvider = ({ children }: ServersProviderProps) => {
 
     const members: Member[] = Array.from({ length: 10 }, (_, i) => ({
       id: i.toString(),
-      username: `user_${i}`
+      username: `user_${i}`,
+      name: `User ${i}`
     }));
 
     const roles: Role[] = Array.from({ length: 10 }, (_, i) => ({
