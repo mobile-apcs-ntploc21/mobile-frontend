@@ -40,7 +40,7 @@ const Permissions = () => {
                     console.log('Adding members:', memberIds);
                   }
                 });
-                router.push('/server/add_members');
+                router.navigate('/server/add_members');
               }
             },
             {
@@ -53,7 +53,7 @@ const Permissions = () => {
                     console.log('Adding roles:', roleIds);
                   }
                 });
-                router.push('/server/add_roles');
+                router.navigate('/server/add_roles');
               }
             }
           ]}
