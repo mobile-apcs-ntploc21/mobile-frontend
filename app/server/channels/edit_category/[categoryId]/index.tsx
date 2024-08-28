@@ -127,7 +127,7 @@ const EditCategory = () => {
                 items={[
                   {
                     text: 'Permissions',
-                    onPress: () => {}
+                    onPress: () => router.navigate('./permissions')
                   }
                 ]}
               />
