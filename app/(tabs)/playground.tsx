@@ -31,6 +31,7 @@ import ButtonListRadio from '@/components/ButtonList/ButtonListRadio';
 import { router } from 'expo-router';
 import AddEmojiIcon from '@/assets/icons/AddEmojiIcon';
 import ToggleItem3 from '@/components/Toggles/ToggleItem3';
+import MyList from '@/components/MyList';
 
 const Playground = () => {
   const [selected, setSelected] = useState<string>();
@@ -41,13 +42,12 @@ const Playground = () => {
 
   return (
     <ScrollView>
-      <View style={{
-        borderRadius: 999,
-        backgroundColor: colors.white,
-        padding: 12,
-      }}>
-        <ToggleItem3 text="hello"/>
-      </View>
+      <MyList
+        heading="Hello"
+        items={Array.from({ length: 5 }, (_, index) => (
+          <ToggleItem3 text={`Item ${index}`} />
+        ))}
+      />
       <MyButtonText
         title="Blocked List"
         onPress={() => router.navigate('/blocked')}
