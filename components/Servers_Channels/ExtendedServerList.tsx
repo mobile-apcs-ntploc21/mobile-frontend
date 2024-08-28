@@ -10,7 +10,7 @@ import { ServerListProps } from '@/types';
 import SimpleServerItem from './SimpleServerItem';
 import ExtendedServerItem from './ExtendedServerItem';
 import Draggable from '../Draggable';
-import { useSharedValue } from 'react-native-reanimated';
+import { useAnimatedReaction, useSharedValue } from 'react-native-reanimated';
 import useServers from '@/hooks/useServers';
 import { colors, fonts } from '@/constants/theme';
 import { FontAwesome5 } from '@expo/vector-icons';
@@ -19,6 +19,7 @@ import { template } from '@babel/core';
 import { BottomSheetScrollView } from '@gorhom/bottom-sheet';
 import { COL, HEIGHT, MARGIN_X, MARGIN_Y, WIDTH } from '@/utils/dragging';
 import CreateServerModal from '../modal/CreateServerModal';
+import { putData } from '@/utils/api';
 
 interface ExtendedServerListProps {
   swipeDown: () => void;
@@ -49,6 +50,45 @@ const ExtendedServerList = ({ swipeDown }: ExtendedServerListProps) => {
 
     setServers(newServers, true);
   }, [isFavorite]);
+
+  // This useEffect will save the server positions to AsyncStorage.
+  // It will run when the component is unmounted.
+  useEffect(() => {
+    return () => {
+      // Save the server positions to AsyncStorage
+      const newServers = [...servers];
+      positions.value.forEach((position, index) => {
+        if (index > 0) newServers[position - 1] = servers[index - 1];
+      });
+
+      // Save the new server positions to ServerProvider
+      setServers(newServers, true);
+
+      // Compile array of { _id, id }
+      const serverPositions = newServers.map((server, index) => ({
+        server_id: server._id,
+        position: index
+      }));
+
+      const saveServerPositions = async () => {
+        try {
+          const response = await putData('/api/v1/servers/move', {
+            servers: serverPositions
+          });
+
+          if (!response) {
+            throw new Error('Failed to save server positions.');
+          }
+
+          console.log('Server positions saved successfully.');
+        } catch (err: any) {
+          console.error(err);
+        }
+      };
+
+      saveServerPositions();
+    };
+  }, []);
 
   const handleCloseModal = (isWithNewServer?: boolean) => {
     setShowModal(false);
