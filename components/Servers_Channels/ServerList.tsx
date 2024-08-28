@@ -55,6 +55,13 @@ const ServerList = () => {
       } catch (err: any) {
         throw new Error(err.message);
       }
+
+      // setServers(
+      //   Array.from({ length: 30 }, (_, index) => ({
+      //     id: index.toString(),
+      //     name: `Server ${index + 1}`
+      //   }))
+      // );
     })();
   }, []);
 
