@@ -4,7 +4,7 @@ import {
   TouchableWithoutFeedback,
   View
 } from 'react-native';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import MyText from '../MyText';
 import { TextStyles } from '@/styles/TextStyles';
 import { colors } from '@/constants/theme';
@@ -21,16 +21,25 @@ export interface CreateServerModalProps {
 const CreateServerModal = (props: CreateServerModalProps) => {
   const { servers, setServers, selectServer } = useServers();
   const [serverName, setServerName] = useState('');
+  const [newServerId, setNewServerId] = useState('');
 
   const handleConfirm = () => {
     // Create server here
-    setServers(
-      [{ id: servers.length.toString(), name: serverName }, ...servers],
-      false,
-      true
-    );
+    const newServers = [
+      { id: servers.length.toString(), name: serverName },
+      ...servers
+    ];
+    setServers(newServers, false, true);
+    setNewServerId(newServers[0].id);
     props.onClose(true);
   };
+
+  useEffect(() => {
+    if (newServerId) {
+      selectServer(newServerId);
+      setNewServerId('');
+    }
+  }, [servers]);
 
   return (
     <Modal

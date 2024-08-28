@@ -15,10 +15,11 @@ import Toggle from '../Toggle';
 import useServers from '@/hooks/useServers';
 
 const ServerList = () => {
-  const { setServers } = useServers();
+  const { servers, setServers, selectServer } = useServers();
   const ref = useRef<BottomSheet>(null);
   const snapPoints = useMemo(() => [85, '95%'], []);
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [isInitialMount, setIsInitialMount] = useState(true);
 
   const handleSheetChanges = (index: number) => {
     setCurrentIndex(index);
@@ -30,13 +31,19 @@ const ServerList = () => {
 
   useEffect(() => {
     // Fetch data (servers)
-    setServers(
-      Array.from({ length: 30 }, (_, i) => ({
-        id: i.toString(),
-        name: `Server ${i}`
-      }))
-    );
+    const newServers = Array.from({ length: 30 }, (_, i) => ({
+      id: i.toString(),
+      name: `Server ${i}`
+    }));
+    setServers(newServers);
   }, []);
+
+  useEffect(() => {
+    if (servers && servers.length > 0 && isInitialMount) {
+      selectServer(servers[0].id);
+      setIsInitialMount(false);
+    }
+  }, [servers]);
 
   const renderBackdrop = useCallback(
     (props: any) => (
