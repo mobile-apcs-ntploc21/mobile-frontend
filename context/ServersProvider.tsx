@@ -3,6 +3,7 @@ import { createContext, ReactNode, useEffect, useReducer, useRef } from 'react';
 
 // Types
 export enum Actions {
+  SET_CALLBACK = 'SET_CALLBACK',
   SELECT_SERVER = 'SELECT_SERVER',
   SET_SERVERS = 'SET_SERVERS',
   SET_CATEGORIES = 'SET_CATEGORIES',
@@ -35,6 +36,7 @@ export type Role = {
 };
 
 type ServersState = {
+  callback: (...args: any[]) => void;
   servers: Server[];
   currentServerId: string | null;
   categories: Category[];
@@ -63,6 +65,7 @@ interface ServersProviderProps {
 
 // Initial state
 const initialState: ServersState = {
+  callback: () => {},
   servers: [],
   currentServerId: null,
   categories: [],
@@ -83,6 +86,12 @@ const handlers: Record<
   string,
   (state: ServersState, action: ServerAction) => ServersState
 > = {
+  [Actions.SET_CALLBACK]: (state, { payload }) => {
+    return {
+      ...state,
+      callback: payload
+    };
+  },
   [Actions.SELECT_SERVER]: (state, { payload }) => {
     return {
       ...state,
@@ -151,9 +160,9 @@ export const ServersProvider = ({ children }: ServersProviderProps) => {
     const roles: Role[] = Array.from({ length: 10 }, (_, i) => ({
       id: i.toString(),
       name: `role_${i}`,
-      color: `#${
-        Math.floor(Math.random() * 16777215).toString(16) // random color
-      }`
+      color: `#${Array.from({ length: 6 }, () =>
+        Math.floor(Math.random() * 16).toString(16)
+      ).join('')}`
     }));
     dispatch({ type: Actions.SET_CATEGORIES, payload: categories });
     dispatch({ type: Actions.SET_MEMBERS, payload: members });

@@ -1,6 +1,6 @@
 import { StyleSheet, Text, View } from 'react-native';
 import React, { useLayoutEffect } from 'react';
-import { useNavigation } from 'expo-router';
+import { router, useNavigation } from 'expo-router';
 import { NativeStackHeaderProps } from '@react-navigation/native-stack';
 import MyHeader from '@/components/MyHeader';
 import { colors } from '@/constants/theme';
@@ -11,10 +11,12 @@ import useServers from '@/hooks/useServers';
 import { ScrollView } from 'react-native-gesture-handler';
 import RoleIcon from '@/assets/icons/RoleIcon';
 import { TextStyles } from '@/styles/TextStyles';
+import { Actions } from '@/context/ServersProvider';
+import RoleItem from '@/components/userManagment/RoleItem';
 
 const Permissions = () => {
   const navigation = useNavigation();
-  const { members, roles } = useServers();
+  const { members, roles, dispatch } = useServers();
 
   useLayoutEffect(() => {
     navigation.setOptions({
@@ -30,11 +32,29 @@ const Permissions = () => {
           items={[
             {
               text: 'Add members',
-              onPress: () => {}
+              onPress: () => {
+                dispatch({
+                  type: Actions.SET_CALLBACK,
+                  payload: (memberIds: string[]) => {
+                    // add members to the server
+                    console.log('Adding members:', memberIds);
+                  }
+                });
+                router.push('/server/add_members');
+              }
             },
             {
               text: 'Add roles',
-              onPress: () => {}
+              onPress: () => {
+                dispatch({
+                  type: Actions.SET_CALLBACK,
+                  payload: (roleIds: string[]) => {
+                    // add roles to the server
+                    console.log('Adding roles:', roleIds);
+                  }
+                });
+                router.push('/server/add_roles');
+              }
             }
           ]}
         />
@@ -51,17 +71,7 @@ const Permissions = () => {
           <ButtonListBase
             heading="Roles"
             items={roles.map((role, index) => ({
-              itemComponent: (
-                <View style={styles.roleItem}>
-                  <View style={styles.roleIcon}>
-                    <View style={styles.iconWrapper}>
-                      <RoleIcon color={role.color} />
-                    </View>
-                    <Text style={styles.memberCount}>10</Text>
-                  </View>
-                  <Text style={styles.roleTitle}>{role.name}</Text>
-                </View>
-              ),
+              itemComponent: <RoleItem role={role} key={index} />,
               onPress: () => {}
             }))}
           />

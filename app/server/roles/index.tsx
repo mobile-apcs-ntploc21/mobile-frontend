@@ -13,6 +13,7 @@ import { ScrollView } from 'react-native-gesture-handler';
 import ButtonListBase from '@/components/ButtonList/ButtonListBase';
 import IconWithSize from '@/components/IconWithSize';
 import RoleIcon from '@/assets/icons/RoleIcon';
+import RoleItem from '@/components/userManagment/RoleItem';
 
 const Roles = () => {
   const navigation = useNavigation();
@@ -49,15 +50,13 @@ const Roles = () => {
           heading={`(10) Roles`}
           items={Array.from({ length: 10 }, (_, index) => ({
             itemComponent: (
-              <View style={styles.roleItem}>
-                <View style={styles.roleIcon}>
-                  <View style={styles.iconWrapper}>
-                    <RoleIcon color={colors.primary} />
-                  </View>
-                  <Text style={styles.memberCount}>10</Text>
-                </View>
-                <Text style={styles.roleTitle}>{`Role ${index + 1}`}</Text>
-              </View>
+              <RoleItem
+                role={{
+                  id: `role-${index}`,
+                  name: `Role ${index + 1}`,
+                  color: colors.primary
+                }}
+              />
             ),
             onPress: () =>
               router.navigate({
@@ -87,31 +86,5 @@ const styles = StyleSheet.create({
   scrollView: {
     paddingHorizontal: 16,
     paddingBottom: 16
-  },
-  roleItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 16
-  },
-  roleIcon: {
-    justifyContent: 'center',
-    alignItems: 'center',
-    width: 40,
-    height: 40
-  },
-  iconWrapper: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0
-  },
-  memberCount: {
-    ...TextStyles.bodyS,
-    color: colors.black
-  },
-  roleTitle: {
-    ...TextStyles.bodyXL,
-    color: colors.black
   }
 });
