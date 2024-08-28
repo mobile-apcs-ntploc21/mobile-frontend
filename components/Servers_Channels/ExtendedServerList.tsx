@@ -23,12 +23,16 @@ import { putData } from '@/utils/api';
 
 interface ExtendedServerListProps {
   swipeDown: () => void;
+  isFavorite?: boolean;
 }
 
-const ExtendedServerList = ({ swipeDown }: ExtendedServerListProps) => {
+const ExtendedServerList = ({
+  swipeDown,
+  isFavorite
+}: ExtendedServerListProps) => {
   const { servers, selectServer, setServers } = useServers();
-  const positions = useSharedValue<number[]>([]);
   const [showModal, setShowModal] = useState(false);
+  const positions = useSharedValue<number[]>([]);
 
   useEffect(() => {
     const filteredServers = servers.filter((server) =>
@@ -40,13 +44,12 @@ const ExtendedServerList = ({ swipeDown }: ExtendedServerListProps) => {
     positions.value = tmp;
   }, [servers, isFavorite]);
 
-  useEffect(
-    () => () => {
-      const newServers = [...servers];
+  useEffect(() => {
+    const newServers = [...servers];
 
-      positions.value.forEach((position, index) => {
-        if (index > 0) newServers[position - 1] = servers[index - 1];
-      });
+    positions.value.forEach((position, index) => {
+      if (index > 0) newServers[position - 1] = servers[index - 1];
+    });
 
     setServers(newServers, true);
   }, [isFavorite]);
@@ -97,6 +100,24 @@ const ExtendedServerList = ({ swipeDown }: ExtendedServerListProps) => {
     if (isWithNewServer) swipeDown();
   };
 
+  const handleRenderServer = () => {
+    const filteredServers = servers.filter((server) =>
+      isFavorite ? server.is_favorite : true
+    );
+
+    return filteredServers.map((item, index) => (
+      <Draggable key={item.id} id={index + 1} positions={positions}>
+        <ExtendedServerItem
+          {...item}
+          onPress={() => {
+            selectServer(item.id);
+            swipeDown();
+          }}
+        />
+      </Draggable>
+    ));
+  };
+
   return (
     <BottomSheetScrollView
       style={styles.container}
@@ -135,17 +156,7 @@ const ExtendedServerList = ({ swipeDown }: ExtendedServerListProps) => {
             </MyText>
           </TouchableOpacity>
         </Draggable>
-        {servers.map((item, index) => (
-          <Draggable key={item.id} id={index + 1} positions={positions}>
-            <ExtendedServerItem
-              {...item}
-              onPress={() => {
-                selectServer(item.id);
-                swipeDown();
-              }}
-            />
-          </Draggable>
-        ))}
+        {handleRenderServer()}
       </View>
     </BottomSheetScrollView>
   );
