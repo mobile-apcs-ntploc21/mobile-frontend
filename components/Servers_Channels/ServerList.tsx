@@ -18,7 +18,7 @@ import { getData } from '@/utils/api';
 const ServerList = () => {
   const { servers, setServers, selectServer } = useServers();
   const ref = useRef<BottomSheet>(null);
-  const snapPoints = useMemo(() => [85, '95%'], []);
+  const snapPoints = useMemo(() => [90, '95%'], []);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isInitialMount, setIsInitialMount] = useState(true);
 
@@ -55,6 +55,13 @@ const ServerList = () => {
       } catch (err: any) {
         throw new Error(err.message);
       }
+
+      // setServers(
+      //   Array.from({ length: 30 }, (_, index) => ({
+      //     id: index.toString(),
+      //     name: `Server ${index + 1}`
+      //   }))
+      // );
     })();
   }, []);
 
@@ -81,10 +88,12 @@ const ServerList = () => {
     <BottomSheet
       ref={ref}
       snapPoints={snapPoints}
+      index={0}
       handleComponent={() => <View style={styles.handle} />}
       backdropComponent={renderBackdrop}
       backgroundStyle={{ backgroundColor: colors.gray03, borderRadius: 30 }}
-      enableContentPanningGesture={false}
+      enableContentPanningGesture={true}
+      enablePanDownToClose={false}
       onChange={handleSheetChanges}
     >
       {currentIndex === 0 ? (
@@ -128,7 +137,7 @@ const ServerList = () => {
 
 const styles = StyleSheet.create({
   handle: {
-    marginTop: 5,
+    marginTop: 13,
     marginBottom: 13,
     width: 39,
     height: 8,

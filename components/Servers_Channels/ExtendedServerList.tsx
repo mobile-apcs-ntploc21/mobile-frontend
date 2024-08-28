@@ -59,6 +59,7 @@ const ExtendedServerList = ({ swipeDown }: ExtendedServerListProps) => {
       contentContainerStyle={{
         alignItems: 'center'
       }}
+      nestedScrollEnabled
     >
       <CreateServerModal visible={showModal} onClose={handleCloseModal} />
       <View
