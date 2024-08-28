@@ -37,6 +37,7 @@ export default SimpleServerList;
 const styles = StyleSheet.create({
   container: {
     paddingBottom: 7,
-    paddingLeft: 8
+    paddingLeft: 8,
+    paddingRight: 8
   }
 });
