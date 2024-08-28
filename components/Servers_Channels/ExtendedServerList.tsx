@@ -30,10 +30,14 @@ const ExtendedServerList = ({ swipeDown }: ExtendedServerListProps) => {
   const [showModal, setShowModal] = useState(false);
 
   useEffect(() => {
-    const tmp = servers.map((item, index) => index + 1);
+    const filteredServers = servers.filter((server) =>
+      isFavorite ? server.is_favorite : true
+    );
+
+    const tmp = filteredServers.map((item, index) => index + 1);
     tmp.unshift(0);
     positions.value = tmp;
-  }, [servers]);
+  }, [servers, isFavorite]);
 
   useEffect(
     () => () => {
@@ -43,10 +47,8 @@ const ExtendedServerList = ({ swipeDown }: ExtendedServerListProps) => {
         if (index > 0) newServers[position - 1] = servers[index - 1];
       });
 
-      setServers(newServers, true);
-    },
-    []
-  );
+    setServers(newServers, true);
+  }, [isFavorite]);
 
   const handleCloseModal = (isWithNewServer?: boolean) => {
     setShowModal(false);
