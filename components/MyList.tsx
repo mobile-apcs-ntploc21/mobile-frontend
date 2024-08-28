@@ -49,8 +49,7 @@ const styles = StyleSheet.create({
     backgroundColor: colors.white
   },
   item: {
-    paddingVertical: 12,
-    paddingHorizontal: 4
+    paddingVertical: 12
   },
   seperator: {
     width: '100%',

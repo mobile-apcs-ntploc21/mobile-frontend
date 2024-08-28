@@ -33,7 +33,7 @@ const ToggleItem3 = (props: ToggleItem3Props) => {
 
   return (
     <View style={styles.container}>
-      <MyText style={TextStyles.bodyXL}>{props.text}</MyText>
+      <MyText style={styles.heading}>{props.text}</MyText>
       <View style={styles.actionsContainer}>
         {state !== STATE.NULL && (
           <TouchableOpacity onPress={() => handleChange(STATE.NULL)}>
@@ -86,8 +86,11 @@ const styles = StyleSheet.create({
   container: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingHorizontal: 4
+    alignItems: 'center'
+  },
+  heading: {
+    ...TextStyles.bodyXL,
+    marginLeft: 4
   },
   actionsContainer: {
     flexDirection: 'row',
