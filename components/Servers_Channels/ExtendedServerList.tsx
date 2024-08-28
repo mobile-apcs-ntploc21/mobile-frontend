@@ -54,8 +54,10 @@ const ExtendedServerList = ({ swipeDown }: ExtendedServerListProps) => {
   // This useEffect will save the server positions to AsyncStorage.
   // It will run when the component is unmounted.
   useEffect(() => {
+    if (isFavorite) return; // Do not save server positions if isFavorite is true
+
     return () => {
-      // Save the server positions to AsyncStorage
+      // Save the server positions to Database
       const newServers = [...servers];
       positions.value.forEach((position, index) => {
         if (index > 0) newServers[position - 1] = servers[index - 1];
