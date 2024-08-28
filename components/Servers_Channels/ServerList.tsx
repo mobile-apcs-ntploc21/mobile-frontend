@@ -21,6 +21,7 @@ const ServerList = () => {
   const snapPoints = useMemo(() => [90, '95%'], []);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isInitialMount, setIsInitialMount] = useState(true);
+  const [isFavorite, setIsFavorite] = useState(false);
 
   const handleSheetChanges = (index: number) => {
     setCurrentIndex(index);
@@ -57,13 +58,6 @@ const ServerList = () => {
       } catch (err: any) {
         throw new Error(err.message);
       }
-
-      // setServers(
-      //   Array.from({ length: 30 }, (_, index) => ({
-      //     id: index.toString(),
-      //     name: `Server ${index + 1}`
-      //   }))
-      // );
     })();
   }, []);
 
@@ -101,7 +95,7 @@ const ServerList = () => {
       {currentIndex === 0 ? (
         <SimpleServerList />
       ) : (
-        <ExtendedServerList swipeDown={swipeDown} />
+        <ExtendedServerList swipeDown={swipeDown} isFavorite={isFavorite} />
       )}
       {currentIndex === 1 && (
         <View style={styles.toggleContainer}>
@@ -130,6 +124,8 @@ const ServerList = () => {
                 Favorite Servers
               </MyText>
             )}
+            onChange={setIsFavorite}
+            value={isFavorite}
           />
         </View>
       )}
