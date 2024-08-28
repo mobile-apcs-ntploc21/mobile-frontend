@@ -2,7 +2,7 @@ import { StyleSheet, Text, TextInput, View } from 'react-native';
 import React from 'react';
 import { TextStyles } from '@/styles/TextStyles';
 import { colors } from '@/constants/theme';
-import { AntDesign, MaterialIcons } from '@expo/vector-icons';
+import { Feather } from '@expo/vector-icons';
 
 export interface SearchBarProps {
   value?: string;
@@ -13,7 +13,7 @@ export interface SearchBarProps {
 const SearchBar = (props: SearchBarProps) => {
   return (
     <View style={styles.container}>
-      <AntDesign name="search1" size={24} color={colors.gray01} />
+      <Feather name="search" size={24} color="black" />
       <TextInput
         style={styles.input}
         value={props.value}
