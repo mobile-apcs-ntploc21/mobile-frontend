@@ -22,6 +22,7 @@ import ButtonListText from '@/components/ButtonList/ButtonListText';
 import ButtonListCheckbox from '@/components/ButtonList/ButtonListCheckbox';
 import MyList from '@/components/MyList';
 import ToggleItem3, { STATE } from '@/components/Toggles/ToggleItem3';
+import SearchBar from '@/components/SearchBar';
 
 const EditPermissions = () => {
   const navigation = useNavigation();
@@ -82,17 +83,24 @@ const EditPermissions = () => {
   }, []);
 
   return (
-    <ScrollView contentContainerStyle={styles.container}>
-      {groupPermissions.map((group) => (
-        <MyList
-          heading={group.name}
-          // @ts-ignore
-          items={group.permissions.map((permission) => (
-            <ToggleItem3 text={permission.name} />
-          ))}
-        />
-      ))}
-    </ScrollView>
+    <View style={{ flex: 1 }}>
+      <View style={styles.searchContainer}>
+        <View style={{ flex: 1 }}>
+          <SearchBar />
+        </View>
+      </View>
+      <ScrollView contentContainerStyle={styles.container}>
+        {groupPermissions.map((group) => (
+          <MyList
+            heading={group.name}
+            // @ts-ignore
+            items={group.permissions.map((permission) => (
+              <ToggleItem3 text={permission.name} />
+            ))}
+          />
+        ))}
+      </ScrollView>
+    </View>
   );
 };
 
@@ -100,12 +108,19 @@ export default EditPermissions;
 
 const styles = StyleSheet.create({
   container: {
-    padding: 16,
+    paddingHorizontal: 16,
+    paddingBottom: 16,
     gap: 16
   },
   save: {
     color: colors.primary,
     fontSize: 20,
     fontFamily: fonts.medium
+  },
+  searchContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 13,
+    margin: 16
   }
 });
