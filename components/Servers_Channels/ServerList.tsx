@@ -56,6 +56,7 @@ const ServerList = () => {
           throw new Error('Failed to fetch servers.');
         }
       } catch (err: any) {
+        setServers([]); // Set empty array if error
         throw new Error(err.message);
       }
     })();
