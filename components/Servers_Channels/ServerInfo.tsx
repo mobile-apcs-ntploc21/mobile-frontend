@@ -1,4 +1,11 @@
-import { Animated, ScrollView, StyleSheet, Text, View } from 'react-native';
+import {
+  Animated,
+  Dimensions,
+  ScrollView,
+  StyleSheet,
+  Text,
+  View
+} from 'react-native';
 import { Image } from 'expo-image';
 import { useMemo, useState } from 'react';
 
@@ -24,14 +31,16 @@ interface ServerInfoProps {
 
 const ServerInfo = (props: ServerInfoProps) => {
   const { servers, currentServerId } = useServers();
-  const { members } = useServer();
-  const [userIds, setUserIds] = useState<string[]>(
-    Array.from({ length: 10 }, (_, i) => i.toString())
-  );
+  const [hasLoggedHeight, setHasLoggedHeight] = useState(false);
+  const [paddingBottom, setPaddingBottom] = useState(90 + 16);
 
   const thisServer = useMemo(
     () => servers.find((server) => server.id === currentServerId),
     [servers, currentServerId]
+  );
+
+  const [userIds, setUserIds] = useState<string[]>(
+    Array.from({ length: 10 }, (_, i) => i.toString())
   );
 
   return (
@@ -97,10 +106,17 @@ const ServerInfo = (props: ServerInfoProps) => {
       <View style={styles.separator} />
       <Animated.ScrollView
         style={styles.newsContainer}
+        onContentSizeChange={(width, height) => {
+          console.log('Content height:', height);
+          if (!hasLoggedHeight || height < 700) {
+            setPaddingBottom(paddingBottom + (700 - height));
+            setHasLoggedHeight(true);
+          }
+        }}
         contentContainerStyle={{
           rowGap: 16,
           paddingTop: 16,
-          paddingBottom: 85 + 16
+          paddingBottom: paddingBottom
         }}
         scrollEventThrottle={16}
         onScroll={Animated.event(
@@ -110,12 +126,10 @@ const ServerInfo = (props: ServerInfoProps) => {
       >
         {/* Uncategorized channels */}
         <View style={styles.newsWrapper}>
-          <ChannelItem />
           <ChannelItem unreadCount={3} />
         </View>
         {/* Categorized channels */}
         <Accordion heading={'General'} defaultOpen>
-          <ChannelItem />
           <ChannelItem unreadCount={3} />
         </Accordion>
         <Accordion heading={'Project'} defaultOpen>
@@ -189,6 +203,7 @@ const styles = StyleSheet.create({
   },
   newsContainer: {
     flex: 1,
+    flexGrow: 1,
     paddingHorizontal: 16
   },
   newsWrapper: {
