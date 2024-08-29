@@ -35,7 +35,7 @@ const uriToBase64WithPrefix = async (uri: string) => {
 const Overview = () => {
   const navigation = useNavigation();
   const [isSubmitting, setIsSubmitting] = React.useState(false);
-  const { servers, currentServerId } = useServers();
+  const { servers, currentServerId, setServers } = useServers();
 
   const formik = useFormik({
     initialValues: {
@@ -59,11 +59,28 @@ const Overview = () => {
         (server) => server.id === currentServerId
       );
       const serverID = currentServer?._id;
-      const response = patchData(`/api/v1/servers/${serverID}`, {
+      const response = await patchData(`/api/v1/servers/${serverID}`, {
         name: values.serverName,
         ...(avatar && { avatar }),
         ...(banner && { banner })
       });
+
+      if (response) {
+        // Set new server data
+        const newServers = [...servers];
+        const index = newServers.findIndex(
+          (server) => server.id === currentServerId
+        );
+
+        newServers[index] = {
+          ...newServers[index],
+          name: values.serverName,
+          ...(avatar && { avatar }),
+          ...(banner && { banner })
+        };
+
+        setServers(newServers, true);
+      }
 
       setIsSubmitting(false);
       router.back();
