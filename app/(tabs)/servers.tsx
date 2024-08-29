@@ -8,7 +8,7 @@ import ServerInfo from '../../components/Servers_Channels/ServerInfo';
 import useServers from '@/hooks/useServers';
 
 export default function Servers() {
-  const { serverMap, currentServerId } = useServers();
+  const { servers, serverMap, currentServerId } = useServers();
   const scrollY = useRef(new Animated.Value(0)).current;
   const thisServer = useMemo(
     () => (currentServerId !== null ? serverMap[currentServerId] : null),
@@ -27,26 +27,56 @@ export default function Servers() {
     extrapolate: 'clamp'
   });
 
+  const handleServerScreen = () => {
+    if (servers && servers.length > 0 && thisServer) {
+      return (
+        <View style={{ flex: 1 }}>
+          <Image
+            source={
+              thisServer?.banner
+                ? { uri: thisServer.banner }
+                : DefaultCoverImage
+            }
+            style={styles.coverimg}
+          />
+          <Animated.View
+            style={[
+              styles.container,
+              {
+                top: topInterpolate,
+                borderTopLeftRadius: radiusInterpolate,
+                borderTopRightRadius: radiusInterpolate
+              }
+            ]}
+          >
+            <ServerInfo scrollY={scrollY} />
+          </Animated.View>
+        </View>
+      );
+    }
+
+    return (
+      <View
+        style={{
+          flex: 1,
+          justifyContent: 'center',
+          alignItems: 'center',
+          marginHorizontal: 30
+        }}
+      >
+        <Text style={{ fontSize: 30, fontWeight: 'bold' }}>
+          No server found
+        </Text>
+        <Text style={{ fontSize: 20, textAlign: 'center' }}>
+          Join any server or create server to get started.
+        </Text>
+      </View>
+    );
+  };
+
   return (
     <View style={{ flex: 1 }}>
-      <Image
-        source={
-          thisServer?.banner ? { uri: thisServer.banner } : DefaultCoverImage
-        }
-        style={styles.coverimg}
-      />
-      <Animated.View
-        style={[
-          styles.container,
-          {
-            top: topInterpolate,
-            borderTopLeftRadius: radiusInterpolate,
-            borderTopRightRadius: radiusInterpolate
-          }
-        ]}
-      >
-        <ServerInfo scrollY={scrollY} />
-      </Animated.View>
+      {handleServerScreen()}
       <ServerList />
     </View>
   );
