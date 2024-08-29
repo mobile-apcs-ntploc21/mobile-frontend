@@ -43,10 +43,10 @@ const ServerList = () => {
 
         const servers = Object.values(response).map(
           (server: any, index: number) => ({
-            id: server.position,
-            _id: server.id,
+            id: server.id,
             name: server.name,
-            is_favorite: server.is_favorite
+            is_favorite: server.is_favorite,
+            position: server.position || index
           })
         );
 
