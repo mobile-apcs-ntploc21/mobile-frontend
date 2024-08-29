@@ -67,9 +67,28 @@ const handlers: Record<
   [ServersActions.SET_SERVERS]: (state, { payload }) => {
     return {
       ...state,
-      servers: payload
+      servers: newServers
     };
-  }
+  },
+  [Actions.SET_CATEGORIES]: (state, { payload }) => {
+    return {
+      ...state,
+      categories: payload
+    };
+  },
+  [Actions.SET_MEMBERS]: (state, { payload }) => {
+    return {
+      ...state,
+      members: payload
+    };
+  },
+  [Actions.SET_ROLES]: (state, { payload }) => {
+    return {
+      ...state,
+      roles: payload
+    };
+  },
+  default: (state) => state
 };
 
 // Reducer
@@ -131,6 +150,10 @@ export const ServersProvider = ({ children }: ServersProviderProps) => {
         payload: { newServers, isNewServer }
       });
     }
+  };
+
+  const setCategories = (categories: Category[]) => {
+    dispatch({ type: Actions.SET_CATEGORIES, payload: categories });
   };
 
   // Set server map for quick access using its id

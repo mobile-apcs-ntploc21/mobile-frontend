@@ -7,10 +7,10 @@ export interface IconProps {
 export interface Server {
   id: string;
   name: string;
-  _id?: string;
-  is_favorite?: boolean;
   avatar?: string | null;
   banner?: string | null;
+  position?: number;
+  is_favorite?: boolean;
 }
 
 export interface ServerItemProps {

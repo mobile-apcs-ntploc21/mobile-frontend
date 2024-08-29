@@ -45,12 +45,12 @@ const ServerList = () => {
         const servers = await Promise.all(
           Object.values(response).map(async (server: any, index: number) => {
             return {
-              id: server.position,
-              _id: server.id,
+              id: server.id,
               name: server.name,
               is_favorite: server.is_favorite,
               avatar: server.avatar_url,
-              banner: server.banner_url
+              banner: server.banner_url,
+              position: server.position || index
             };
           })
         );
