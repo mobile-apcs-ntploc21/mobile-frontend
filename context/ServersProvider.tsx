@@ -18,6 +18,10 @@ export enum ServersActions {
 type ServersState = {
   servers: Server[];
   currentServerId: string | null;
+  serverMap: Record<string, Server | null>;
+  categories: Category[];
+  members: Member[];
+  roles: Role[];
 };
 
 type ServerAction = {
@@ -36,7 +40,11 @@ interface ServersProviderProps {
 // Initial state
 const initialState: ServersState = {
   servers: [],
-  currentServerId: null
+  currentServerId: null,
+  serverMap: {},
+  categories: [],
+  members: [],
+  roles: []
 };
 
 // Context
@@ -125,9 +133,14 @@ export const ServersProvider = ({ children }: ServersProviderProps) => {
     }
   };
 
-  const setCategories = (categories: Category[]) => {
-    dispatch({ type: Actions.SET_CATEGORIES, payload: categories });
-  };
+  // Set server map for quick access using its id
+  state.serverMap = state.servers.reduce(
+    (acc, server) => {
+      acc[server.id] = server;
+      return acc;
+    },
+    { null: null } as Record<string, Server | null>
+  );
 
   return (
     <ServersContext.Provider

@@ -17,11 +17,8 @@ const ExtendedServerItem = ({
   onPress = (id) => console.log(id)
 }: ExtendedServerItemProps) => {
   const placeholderImg = 'https://via.placeholder.com/150';
-  const { servers } = useServers();
-  const currentServer = useMemo(
-    () => servers.find((server) => server.id === id),
-    [servers, id]
-  );
+  const { serverMap } = useServers();
+  const currentServer = useMemo(() => serverMap[id], [serverMap, id]);
 
   return (
     <TouchableOpacity

@@ -8,10 +8,10 @@ import ServerInfo from '../../components/Servers_Channels/ServerInfo';
 import useServers from '@/hooks/useServers';
 
 export default function Servers() {
-  const { servers, currentServerId } = useServers();
+  const { serverMap, currentServerId } = useServers();
   const thisServer = useMemo(
-    () => servers.find((server) => server.id === currentServerId),
-    [servers, currentServerId]
+    () => (currentServerId !== null ? serverMap[currentServerId] : null),
+    [serverMap, currentServerId]
   );
 
   return (

@@ -21,15 +21,12 @@ const SimpleServerItem = ({
   onPress = (id) => console.log(id)
 }: SimpleServerItemProps) => {
   const placeholderImg = 'https://via.placeholder.com/150';
-  const { servers } = useServers();
+  const { serverMap } = useServers();
   const [flag, setFlag] = useState(false);
 
   const isControlled = selected !== undefined;
   const state = isControlled ? selected : flag;
-  const currentServer = useMemo(
-    () => servers.find((server) => server.id === id),
-    [servers, id]
-  );
+  const currentServer = useMemo(() => serverMap[id], [serverMap, id]);
 
   const animatedStyle = useAnimatedStyle(
     () => ({
