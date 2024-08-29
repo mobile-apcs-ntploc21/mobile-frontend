@@ -1,4 +1,4 @@
-import { ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Animated, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { Image } from 'expo-image';
 import { useMemo, useState } from 'react';
 
@@ -18,7 +18,11 @@ import useServer from '@/hooks/useServer';
 
 const MAXUSERS = 4;
 
-const ServerInfo = () => {
+interface ServerInfoProps {
+  scrollY: Animated.Value;
+}
+
+const ServerInfo = (props: ServerInfoProps) => {
   const { servers, currentServerId } = useServers();
   const { members } = useServer();
   const [userIds, setUserIds] = useState<string[]>(
@@ -91,13 +95,18 @@ const ServerInfo = () => {
         </View>
       </View>
       <View style={styles.separator} />
-      <ScrollView
+      <Animated.ScrollView
         style={styles.newsContainer}
         contentContainerStyle={{
           rowGap: 16,
           paddingTop: 16,
           paddingBottom: 85 + 16
         }}
+        scrollEventThrottle={16}
+        onScroll={Animated.event(
+          [{ nativeEvent: { contentOffset: { y: props.scrollY } } }],
+          { useNativeDriver: false }
+        )}
       >
         {/* Uncategorized channels */}
         <View style={styles.newsWrapper}>
@@ -113,7 +122,7 @@ const ServerInfo = () => {
           <ChannelItem />
           <ChannelItem unreadCount={3} />
         </Accordion>
-      </ScrollView>
+      </Animated.ScrollView>
     </View>
   );
 };
