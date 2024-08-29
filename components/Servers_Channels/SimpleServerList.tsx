@@ -1,8 +1,9 @@
-import { FlatList, StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
 import React from 'react';
 import { ServerListProps } from '@/types';
 import SimpleServerItem from './SimpleServerItem';
 import useServers from '@/hooks/useServers';
+import { FlatList } from 'react-native-gesture-handler';
 
 const SimpleServerList = () => {
   const { servers, currentServerId, selectServer } = useServers();
