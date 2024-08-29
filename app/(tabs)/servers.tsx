@@ -1,13 +1,27 @@
+import { Image } from 'expo-image';
+import { useMemo } from 'react';
 import ServerList from '@/components/Servers_Channels/ServerList';
 import { DefaultCoverImage } from '@/constants/images';
 import { colors } from '@/constants/theme';
-import { StyleSheet, Text, View, Image } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
 import ServerInfo from '../../components/Servers_Channels/ServerInfo';
+import useServers from '@/hooks/useServers';
 
 export default function Servers() {
+  const { servers, currentServerId } = useServers();
+  const thisServer = useMemo(
+    () => servers.find((server) => server.id === currentServerId),
+    [servers, currentServerId]
+  );
+
   return (
     <View style={{ flex: 1 }}>
-      <Image source={DefaultCoverImage} style={styles.coverimg} />
+      <Image
+        source={
+          thisServer?.banner ? { uri: thisServer.banner } : DefaultCoverImage
+        }
+        style={styles.coverimg}
+      />
       <View style={styles.container}>
         <ServerInfo />
       </View>

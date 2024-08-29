@@ -1,12 +1,12 @@
 import {
   GestureResponderEvent,
-  Image,
   StyleSheet,
   Text,
   TouchableOpacity,
   View
 } from 'react-native';
-import React, { useLayoutEffect } from 'react';
+import { Image } from 'expo-image';
+import React, { useLayoutEffect, useMemo } from 'react';
 import { router, useNavigation } from 'expo-router';
 import { NativeStackHeaderProps } from '@react-navigation/native-stack';
 import MyHeader from '@/components/MyHeader';
@@ -37,6 +37,11 @@ const Overview = () => {
   const [isSubmitting, setIsSubmitting] = React.useState(false);
   const { servers, currentServerId, setServers } = useServers();
 
+  const thisServer = useMemo(
+    () => servers.find((server) => server.id === currentServerId),
+    [servers, currentServerId]
+  );
+
   const formik = useFormik({
     initialValues: {
       serverName: '',
@@ -55,14 +60,14 @@ const Overview = () => {
         ? await uriToBase64WithPrefix(values.bannerImageUri)
         : null;
 
-      const currentServer = servers.find(
-        (server) => server.id === currentServerId
-      );
-      const serverID = currentServer?._id;
+      // Get banner file name
+      console.log(values.bannerImageUri);
+
+      const serverID = thisServer?._id;
       const response = await patchData(`/api/v1/servers/${serverID}`, {
         name: values.serverName,
-        ...(avatar && { avatar }),
-        ...(banner && { banner })
+        avatar: avatar,
+        banner: banner
       });
 
       if (response) {
@@ -75,9 +80,11 @@ const Overview = () => {
         newServers[index] = {
           ...newServers[index],
           name: values.serverName,
-          ...(avatar && { avatar }),
-          ...(banner && { banner })
+          avatar: values.avatarImageUri,
+          banner: values.bannerImageUri
         };
+
+        console.log(newServers);
 
         setServers(newServers, true);
       }
@@ -88,15 +95,10 @@ const Overview = () => {
   });
 
   useLayoutEffect(() => {
-    const currentServer = servers.find(
-      (server) => server.id === currentServerId
-    );
-    if (!currentServer) {
-      throw new Error('Server not found');
-    }
-
     // Fetch user data
-    formik.setFieldValue('serverName', currentServer.name);
+    formik.setFieldValue('serverName', thisServer?.name || '');
+    formik.setFieldValue('avatarImageUri', thisServer?.avatar || '');
+    formik.setFieldValue('bannerImageUri', thisServer?.banner || '');
   }, []);
 
   useLayoutEffect(() => {

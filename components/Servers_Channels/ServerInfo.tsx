@@ -1,4 +1,5 @@
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Image } from 'expo-image';
 import { useMemo, useState } from 'react';
 
 import ChannelItem from '@/components/Servers_Channels/ChannelItem';
@@ -33,7 +34,14 @@ const ServerInfo = () => {
     <View style={styles.container}>
       <View style={styles.serverInfoContainer}>
         <View style={styles.serverContainer}>
-          <View style={styles.serverimg} />
+          {thisServer?.avatar ? (
+            <Image
+              source={{ uri: thisServer.avatar }}
+              style={styles.serverimg}
+            />
+          ) : (
+            <View style={styles.serverimg} />
+          )}
           <MyText style={styles.serverName}>{thisServer?.name}</MyText>
         </View>
         <View style={styles.serverActions}>
