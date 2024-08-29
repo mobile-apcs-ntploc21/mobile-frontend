@@ -35,6 +35,7 @@ const CreateServerModal = (props: CreateServerModalProps) => {
     });
 
     if (!response) {
+      props.onClose(true);
       throw new Error('Failed to create server.');
     }
 
