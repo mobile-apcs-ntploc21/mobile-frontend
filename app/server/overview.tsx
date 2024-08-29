@@ -21,9 +21,10 @@ import { DefaultCoverImage, DefaultProfileImage } from '@/constants/images';
 import { MaterialIcons } from '@expo/vector-icons';
 import CustomTextInput from '@/components/common/CustomTextInput';
 import { MyButtonText } from '@/components/MyButton';
-import { patchData, postData } from '@/utils/api';
+import { deleteData, patchData, postData } from '@/utils/api';
 import useServers from '@/hooks/useServers';
 import { useUserContext } from '@/context/UserProvider';
+import { showAlert } from '@/services/alert';
 
 const uriToBase64WithPrefix = async (uri: string) => {
   const base64 = await FileSystem.readAsStringAsync(uri, {
@@ -36,7 +37,7 @@ const uriToBase64WithPrefix = async (uri: string) => {
 const Overview = () => {
   const navigation = useNavigation();
   const [isSubmitting, setIsSubmitting] = React.useState(false);
-  const { servers, currentServerId, setServers } = useServers();
+  const { servers, currentServerId, setServers, selectServer } = useServers();
   const { data } = useUserContext();
   const thisServer = useMemo(
     () => servers.find((server) => server.id === currentServerId),
@@ -138,6 +139,32 @@ const Overview = () => {
     await pickImageAsync('bannerImageUri');
   };
 
+  // This only use after a modal of confirmation
+  const handleDeleteServer = async () => {
+    try {
+      const response = await deleteData(`/api/v1/servers/${thisServer?.id}`);
+
+      console.log(response);
+
+      if (response) {
+        // Remove server from servers list
+        const newServers = servers.filter(
+          (server) => server.id !== thisServer?.id
+        );
+        console.log(newServers);
+
+        setServers(newServers, false);
+        if (newServers.length) {
+          selectServer(newServers[0].id);
+        }
+      }
+
+      router.navigate('/servers');
+    } catch (err: any) {
+      showAlert(err.message);
+    }
+  };
+
   return (
     <View style={GlobalStyles.screen}>
       <View style={styles.contentContainer}>
@@ -194,7 +221,9 @@ const Overview = () => {
           <View style={styles.deleteButtonContainer}>
             <MyButtonText
               title="Delete Server"
-              onPress={() => console.log('Delete server')}
+              onPress={() => {
+                handleDeleteServer();
+              }}
               backgroundColor={colors.semantic_red}
               textColor={colors.white}
               containerStyle={styles.deleteButton}
