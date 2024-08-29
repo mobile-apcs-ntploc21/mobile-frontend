@@ -141,8 +141,9 @@ const ExtendedServerList = ({
       <CreateServerModal visible={showModal} onClose={handleCloseModal} />
       <View
         style={{
-          height: Math.ceil(servers.length / COL) * (HEIGHT + MARGIN_Y),
-          paddingBottom: MARGIN_Y
+          height: Math.ceil((servers.length + 1) / COL) * (HEIGHT + MARGIN_Y),
+          paddingBottom: MARGIN_Y,
+          backgroundColor: 'blue'
         }}
       />
       <View
