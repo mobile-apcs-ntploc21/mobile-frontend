@@ -34,7 +34,6 @@ const ExtendedServerList = ({
   const { servers, dispatch } = useServers();
   const [showModal, setShowModal] = useState(false);
   const positions = useSharedValue<number[]>([]);
-  const serverRef = useRef(servers);
 
   useEffect(() => {
     const filteredServers = servers.filter((server) =>
@@ -50,28 +49,20 @@ const ExtendedServerList = ({
     const newServers = [...servers];
 
     positions.value.forEach((position, index) => {
-      if (index > 0) {
-        newServers[position - 1] = servers[index - 1];
-        newServers[position - 1].position = position - 1;
-      }
+      if (index > 0) newServers[position - 1] = servers[index - 1];
     });
 
     dispatch({ type: ServersActions.SET_SERVERS, payload: newServers });
   }, [isFavorite]);
 
-  useEffect(() => {
-    serverRef.current = servers;
-  }, [servers]);
-
-  // This useEffect will save the server positions to the database.
+  // This useEffect will save the server positions to AsyncStorage.
   // It will run when the component is unmounted.
   useEffect(() => {
     if (isFavorite) return; // Do not save server positions if isFavorite is true
 
     return () => {
       // Save the server positions to Database
-      const newServers = [...serverRef.current];
-
+      const newServers = [...servers];
       positions.value.forEach((position, index) => {
         if (index > 0) {
           newServers[position - 1] = serverRef.current[index - 1];
@@ -79,11 +70,13 @@ const ExtendedServerList = ({
         }
       });
 
-      dispatch({ type: ServersActions.SET_SERVERS, payload: newServers });
+      // Save the new server positions to ServerProvider
+      setServers(newServers, true);
 
-      const serverPositions = newServers.map((server) => ({
-        server_id: server.id,
-        position: server.position
+      // Compile array of { _id, id }
+      const serverPositions = newServers.map((server, index) => ({
+        server_id: server._id,
+        position: index
       }));
 
       const saveServerPositions = async () => {
@@ -124,6 +117,24 @@ const ExtendedServerList = ({
           {...item}
           onPress={() => {
             dispatch({ type: ServersActions.SELECT_SERVER, payload: item.id });
+            swipeDown();
+          }}
+        />
+      </Draggable>
+    ));
+  };
+
+  const handleRenderServer = () => {
+    const filteredServers = servers.filter((server) =>
+      isFavorite ? server.is_favorite : true
+    );
+
+    return filteredServers.map((item, index) => (
+      <Draggable key={item.id} id={index + 1} positions={positions}>
+        <ExtendedServerItem
+          {...item}
+          onPress={() => {
+            selectServer(item.id);
             swipeDown();
           }}
         />

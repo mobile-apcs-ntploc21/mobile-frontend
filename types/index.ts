@@ -7,7 +7,7 @@ export interface IconProps {
 export interface Server {
   id: string;
   name: string;
-  position?: number;
+  _id?: string;
   is_favorite?: boolean;
 }
 
