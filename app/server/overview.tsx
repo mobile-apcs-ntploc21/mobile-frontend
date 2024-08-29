@@ -23,6 +23,7 @@ import CustomTextInput from '@/components/common/CustomTextInput';
 import { MyButtonText } from '@/components/MyButton';
 import { patchData, postData } from '@/utils/api';
 import useServers from '@/hooks/useServers';
+import { useUserContext } from '@/context/UserProvider';
 
 const uriToBase64WithPrefix = async (uri: string) => {
   const base64 = await FileSystem.readAsStringAsync(uri, {
@@ -36,6 +37,7 @@ const Overview = () => {
   const navigation = useNavigation();
   const [isSubmitting, setIsSubmitting] = React.useState(false);
   const { servers, currentServerId, setServers } = useServers();
+  const { data } = useUserContext();
   const thisServer = useMemo(
     () => servers.find((server) => server.id === currentServerId),
     [servers, currentServerId]
@@ -188,16 +190,18 @@ const Overview = () => {
             </View>
           </View>
         </View>
-        <View style={styles.deleteButtonContainer}>
-          <MyButtonText
-            title="Delete Server"
-            onPress={() => console.log('Delete server')}
-            backgroundColor={colors.semantic_red}
-            textColor={colors.white}
-            containerStyle={styles.deleteButton}
-            reverseStyle
-          />
-        </View>
+        {thisServer?.owner_id === data?.id && (
+          <View style={styles.deleteButtonContainer}>
+            <MyButtonText
+              title="Delete Server"
+              onPress={() => console.log('Delete server')}
+              backgroundColor={colors.semantic_red}
+              textColor={colors.white}
+              containerStyle={styles.deleteButton}
+              reverseStyle
+            />
+          </View>
+        )}
       </View>
     </View>
   );

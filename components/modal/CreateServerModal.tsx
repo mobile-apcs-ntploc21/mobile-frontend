@@ -44,6 +44,7 @@ const CreateServerModal = (props: CreateServerModalProps) => {
       ...servers,
       {
         id: response.id,
+        owner_id: response.owner_id,
         name: response.name,
         is_favorite: false,
         position: response.position || servers.length

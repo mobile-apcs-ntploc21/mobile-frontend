@@ -46,6 +46,7 @@ const ServerList = () => {
           Object.values(response).map(async (server: any, index: number) => {
             return {
               id: server.id,
+              owner_id: server.owner_id,
               name: server.name,
               is_favorite: server.is_favorite,
               avatar: server.avatar_url,

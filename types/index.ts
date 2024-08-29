@@ -6,6 +6,7 @@ export interface IconProps {
 
 export interface Server {
   id: string;
+  owner_id: string;
   name: string;
   avatar?: string | null;
   banner?: string | null;
