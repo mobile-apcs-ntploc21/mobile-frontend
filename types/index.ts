@@ -8,9 +8,9 @@ export interface Server {
   id: string;
   name: string;
   _id?: string;
-  avatar?: string;
-  banner?: string;
   is_favorite?: boolean;
+  avatar?: string | null;
+  banner?: string | null;
 }
 
 export interface ServerItemProps {
