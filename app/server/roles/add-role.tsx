@@ -14,11 +14,7 @@ import IconWithSize from '@/components/IconWithSize';
 import ColorizeIcon from '@/assets/icons/ColorizeIcon';
 import MyBottomSheetModal from '@/components/modal/MyBottomSheetModal';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
-import ColorPicker, {
-  HueCircular,
-  Panel1,
-  returnedResults
-} from 'reanimated-color-picker';
+import MyColorPicker from '@/components/MyColorPicker';
 
 type FormProps = {
   roleTitle: string;
@@ -111,22 +107,10 @@ const AddRole = () => {
             onClose={handleCloseBottomSheet}
             heading="Pick a Color"
           >
-            <ColorPicker
-              value={values.roleColor}
-              sliderThickness={20}
-              thumbSize={24}
-              onComplete={(color: returnedResults) =>
-                handleChange('roleColor')(color.hex)
-              }
-            >
-              <HueCircular
-                style={styles.hueStyle}
-                containerStyle={styles.hueContainer}
-                thumbShape="pill"
-              >
-                <Panel1 style={styles.panelStyle} />
-              </HueCircular>
-            </ColorPicker>
+            <MyColorPicker
+              color={values.roleColor}
+              handleChange={handleChange('roleColor')}
+            />
           </MyBottomSheetModal>
 
           <View style={styles.container}>
@@ -191,19 +175,5 @@ const styles = StyleSheet.create({
     bottom: 0,
     justifyContent: 'center',
     alignItems: 'center'
-  },
-  hueContainer: {
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: colors.gray03
-  },
-  hueStyle: {
-    width: 320,
-    height: 320
-  },
-  panelStyle: {
-    width: '70%',
-    height: '70%',
-    borderRadius: 16
   }
 });
