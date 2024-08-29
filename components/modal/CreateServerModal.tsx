@@ -40,12 +40,17 @@ const CreateServerModal = (props: CreateServerModalProps) => {
     }
 
     const newServers = [
-      { id: servers.length.toString(), name: serverName },
-      ...servers
+      ...servers,
+      {
+        id: response.id,
+        name: response.name,
+        is_favorite: false,
+        position: response.position || servers.length
+      }
     ];
 
     setServers(newServers, false, true);
-    setNewServerId(newServers[0].id);
+    setNewServerId(response.id);
     props.onClose(true);
   };
 
