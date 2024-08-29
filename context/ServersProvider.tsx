@@ -53,6 +53,7 @@ interface IServersContext extends ServersState {
     isForPositions?: boolean,
     isNewServer?: boolean
   ) => void;
+  setCategories: (categories: Category[]) => void;
   dispatch: React.Dispatch<ServerAction>;
 }
 
@@ -74,6 +75,7 @@ export const ServersContext = createContext<IServersContext>({
   ...initialState,
   selectServer: () => {},
   setServers: () => {},
+  setCategories: () => {},
   dispatch: () => {}
 });
 
@@ -110,6 +112,12 @@ const handlers: Record<
     return {
       ...state,
       roles: payload
+    };
+  },
+  [Actions.SET_CATEGORIES]: (state, { payload }) => {
+    return {
+      ...state,
+      categories: payload
     };
   }
 };
@@ -172,12 +180,17 @@ export const ServersProvider = ({ children }: ServersProviderProps) => {
     }
   };
 
+  const setCategories = (categories: Category[]) => {
+    dispatch({ type: Actions.SET_CATEGORIES, payload: categories });
+  };
+
   return (
     <ServersContext.Provider
       value={{
         ...state,
         selectServer,
         setServers,
+        setCategories,
         dispatch
       }}
     >
