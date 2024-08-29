@@ -22,6 +22,7 @@ import { MaterialIcons } from '@expo/vector-icons';
 import CustomTextInput from '@/components/common/CustomTextInput';
 import { MyButtonText } from '@/components/MyButton';
 import { patchData, postData } from '@/utils/api';
+import useServers from '@/hooks/useServers';
 
 const uriToBase64WithPrefix = async (uri: string) => {
   const base64 = await FileSystem.readAsStringAsync(uri, {
@@ -33,17 +34,19 @@ const uriToBase64WithPrefix = async (uri: string) => {
 
 const Overview = () => {
   const navigation = useNavigation();
-
   const [isSubmitting, setIsSubmitting] = React.useState(false);
+  const { servers, currentServerId } = useServers();
+
   const formik = useFormik({
     initialValues: {
       serverName: '',
       avatarImageUri: '',
       bannerImageUri: ''
     },
+
     onSubmit: async (values) => {
       if (isSubmitting) return;
-      console.log(values);
+
       setIsSubmitting(true);
       const avatar = values.avatarImageUri?.startsWith('file://')
         ? await uriToBase64WithPrefix(values.avatarImageUri)
@@ -52,8 +55,11 @@ const Overview = () => {
         ? await uriToBase64WithPrefix(values.bannerImageUri)
         : null;
 
-      const serverId = '1234';
-      const response = patchData(`/api/v1/servers/${serverId}`, {
+      const currentServer = servers.find(
+        (server) => server.id === currentServerId
+      );
+      const serverID = currentServer?._id;
+      const response = patchData(`/api/v1/servers/${serverID}`, {
         name: values.serverName,
         ...(avatar && { avatar }),
         ...(banner && { banner })
@@ -65,8 +71,15 @@ const Overview = () => {
   });
 
   useLayoutEffect(() => {
+    const currentServer = servers.find(
+      (server) => server.id === currentServerId
+    );
+    if (!currentServer) {
+      throw new Error('Server not found');
+    }
+
     // Fetch user data
-    formik.setFieldValue('serverName', 'John Doe');
+    formik.setFieldValue('serverName', currentServer.name);
   }, []);
 
   useLayoutEffect(() => {
