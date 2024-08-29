@@ -33,7 +33,7 @@ export default function TabLayout() {
             ),
             tabBarStyle: {
               backgroundColor: colors.white,
-              height: 66
+              height: 70
             }
           }}
         />
@@ -49,7 +49,7 @@ export default function TabLayout() {
           ),
           tabBarStyle: {
             backgroundColor: colors.white,
-            height: 66
+            height: 70
           }
         }}
       />

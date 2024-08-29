@@ -36,7 +36,6 @@ const Overview = () => {
   const navigation = useNavigation();
   const [isSubmitting, setIsSubmitting] = React.useState(false);
   const { servers, currentServerId, setServers } = useServers();
-
   const thisServer = useMemo(
     () => servers.find((server) => server.id === currentServerId),
     [servers, currentServerId]
@@ -60,34 +59,29 @@ const Overview = () => {
         ? await uriToBase64WithPrefix(values.bannerImageUri)
         : null;
 
-      // Get banner file name
-      console.log(values.bannerImageUri);
+      console.log('avatar', avatar ? avatar.slice(0, 100) : false);
+      console.log('banner', banner ? banner.slice(0, 100) : false);
 
-      const serverID = thisServer?._id;
-      const response = await patchData(`/api/v1/servers/${serverID}`, {
+      const serverID = thisServer?.id;
+      const response = patchData(`/api/v1/servers/${serverID}`, {
         name: values.serverName,
         avatar: avatar,
         banner: banner
       });
 
-      if (response) {
-        // Set new server data
-        const newServers = [...servers];
-        const index = newServers.findIndex(
-          (server) => server.id === currentServerId
-        );
+      // Set new server data
+      const newServers = [...servers];
+      const index = newServers.findIndex(
+        (server) => server.id === currentServerId
+      );
 
-        newServers[index] = {
-          ...newServers[index],
-          name: values.serverName,
-          avatar: values.avatarImageUri,
-          banner: values.bannerImageUri
-        };
-
-        console.log(newServers);
-
-        setServers(newServers, true);
-      }
+      newServers[index] = {
+        ...newServers[index],
+        name: values.serverName,
+        avatar: values.avatarImageUri,
+        banner: values.bannerImageUri
+      };
+      setServers(newServers, true);
 
       setIsSubmitting(false);
       router.back();
