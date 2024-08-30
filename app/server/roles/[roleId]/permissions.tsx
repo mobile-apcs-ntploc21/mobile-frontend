@@ -267,6 +267,7 @@ const styles = StyleSheet.create({
   },
   botContainer: {
     paddingHorizontal: 16,
-    paddingBottom: 16
+    paddingBottom: 16,
+    gap: 16
   }
 });
