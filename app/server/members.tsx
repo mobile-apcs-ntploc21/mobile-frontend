@@ -54,8 +54,10 @@ const Members = () => {
         <View style={[GlobalStyles.subcontainer, { paddingBottom: 16 }]}>
           <ButtonListBase
             heading={`${members.length} Members`}
-            items={members.map(({ user_id }) => ({
-              itemComponent: <MemberItem id={user_id} />,
+            items={members.map(({ user_profile, user_status }) => ({
+              itemComponent: (
+                <MemberItem profile={user_profile} status={user_status} />
+              ),
               onPress: () => router.navigate('./edit_member')
             }))}
           />

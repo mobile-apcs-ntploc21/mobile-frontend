@@ -2,26 +2,22 @@ import { StyleSheet, Text, View } from 'react-native';
 import React, { useEffect, useLayoutEffect, useState } from 'react';
 import MyText from '../MyText';
 import { colors, fonts } from '@/constants/theme';
-import { UserProfile } from '@/types';
+import { UserProfile, UserStatus } from '@/types';
 import Avatar from '../Avatar';
 import { getData } from '@/utils/api';
 import { Skeleton } from 'moti/skeleton';
 
 interface MemberItemProps {
   profile?: UserProfile;
+  status?: UserStatus;
 }
 
-const MemberItem = ({ profile }: MemberItemProps) => {
+const MemberItem = ({ profile, status }: MemberItemProps) => {
   return (
     <View style={styles.container}>
       <Skeleton colorMode="light" width={44} height={44} radius={'round'}>
         {profile && (
-          <Avatar
-            id={profile.user_id}
-            profilePic={profile.avatar_url}
-            showStatus
-            // subscribeToStatus
-          />
+          <Avatar id={profile.user_id} {...{ profile, status }} showStatus />
         )}
       </Skeleton>
       <View style={styles.info}>

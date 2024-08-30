@@ -62,6 +62,7 @@ const ServerInfo = () => {
             .slice(0, Math.min(members.length, MAXUSERS))
             .map(({ user_profile, user_status }) => (
               <Avatar
+                key={user_profile.user_id}
                 id={user_profile.user_id}
                 profile={user_profile}
                 status={user_status}
