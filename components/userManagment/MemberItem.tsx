@@ -12,20 +12,15 @@ interface MemberItemProps {
 }
 
 const MemberItem = (props: MemberItemProps) => {
-  const [profile, setProfile] = useState<UserProfile>({
-    user_id: props.id,
-    display_name: 'User',
-    username: 'username',
-    about_me: '',
-    avatar_url: '',
-    banner_url: ''
-  });
+  const [profile, setProfile] = useState<UserProfile | null>(null);
 
   useLayoutEffect(() => {
     (async () => {
       try {
-        const res = await getData(`/api/v1/profile/${props.id}`);
-        setProfile(res);
+        setTimeout(async () => {
+          const res = await getData(`/api/v1/profile/${props.id}`);
+          setProfile(res);
+        }, 3000);
       } catch (e: any) {
         throw new Error(e);
       }
@@ -34,12 +29,24 @@ const MemberItem = (props: MemberItemProps) => {
 
   return (
     <View style={styles.container}>
-      <Skeleton>
-        <Avatar id={profile.user_id} profilePic={profile.avatar_url} />
+      <Skeleton colorMode="light" width={44} height={44} radius={'round'}>
+        {profile && (
+          <Avatar id={profile.user_id} profilePic={profile.avatar_url} />
+        )}
       </Skeleton>
       <View style={styles.info}>
-        <MyText style={styles.nickname}>{profile.display_name}</MyText>
-        <MyText style={styles.username}>@{profile.username}</MyText>
+        <Skeleton colorMode="light" width={'50%'} height={16}>
+          {profile && (
+            <MyText style={styles.nickname}>{profile.display_name}</MyText>
+          )}
+        </Skeleton>
+        <View>
+          <Skeleton colorMode="light" width={'100%'} height={16}>
+            {profile && (
+              <MyText style={styles.username}>@{profile.username}</MyText>
+            )}
+          </Skeleton>
+        </View>
       </View>
     </View>
   );
@@ -61,6 +68,7 @@ const styles = StyleSheet.create({
     fontSize: 10
   },
   info: {
+    flex: 1,
     rowGap: 4
   }
 });
