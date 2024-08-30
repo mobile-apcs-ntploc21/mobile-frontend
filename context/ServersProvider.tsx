@@ -24,7 +24,7 @@ export type Category = {
 
 export type Member = {
   id: string;
-  name: string;
+  display_name: string;
   username: string;
   avatar?: string;
 };
@@ -156,7 +156,7 @@ export const ServersProvider = ({ children }: ServersProviderProps) => {
     const members: Member[] = Array.from({ length: 10 }, (_, i) => ({
       id: i.toString(),
       username: `user_${i}`,
-      name: `User ${i}`
+      display_name: `User ${i}`
     }));
 
     const roles: Role[] = Array.from({ length: 10 }, (_, i) => ({

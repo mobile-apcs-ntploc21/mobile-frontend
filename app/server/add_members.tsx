@@ -81,7 +81,7 @@ const AddMember = () => {
     return members.filter(
       (member) =>
         frequencyMatch(member.username, searchText) ||
-        frequencyMatch(member.name, searchText)
+        frequencyMatch(member.display_name, searchText)
     );
   }, [members, searchText]);
 

@@ -9,7 +9,7 @@ const MemberItem = ({ member }: { member?: Member }) => {
     <View style={styles.container}>
       <View style={styles.avatar}></View>
       <View style={styles.info}>
-        <MyText style={styles.nickname}>{member?.name}</MyText>
+        <MyText style={styles.nickname}>{member?.display_name}</MyText>
         <MyText style={styles.username}>{`@${member?.username}`}</MyText>
       </View>
     </View>
