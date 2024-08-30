@@ -44,6 +44,7 @@ const AddRole = () => {
           }
           onGoBack={() =>
             new Promise((resolve, reject) => {
+              if (!formRef.current?.dirty) return resolve();
               Alert.alert(
                 'Discard changes',
                 'Are you sure you want to discard changes?',
@@ -65,7 +66,7 @@ const AddRole = () => {
         />
       )
     });
-  }, []);
+  }, [formRef.current?.dirty]);
 
   const bottomSheetRef = useRef<BottomSheetModal>(null);
 

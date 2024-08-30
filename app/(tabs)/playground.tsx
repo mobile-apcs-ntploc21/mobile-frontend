@@ -30,6 +30,7 @@ import ButtonListText from '@/components/ButtonList/ButtonListText';
 import ButtonListRadio from '@/components/ButtonList/ButtonListRadio';
 import { router } from 'expo-router';
 import AddEmojiIcon from '@/assets/icons/AddEmojiIcon';
+import ButtonListToggle from '@/components/ButtonList/ButtonListToggle';
 import ToggleItem3 from '@/components/Toggles/ToggleItem3';
 import MyList from '@/components/MyList';
 import ReorderItem from '@/components/reordering/ReorderItem';
@@ -41,8 +42,39 @@ const Playground = () => {
   }, []);
   const { logout } = useAuth();
 
+  const [toggleList, setToggleList] = useState(
+    Array.from({ length: 5 }, (_, index) => ({
+      value: `item-${index}`,
+      isOn: false
+    }))
+  );
+
   return (
     <ScrollView>
+      <ButtonListToggle
+        heading="Lorem ipsum"
+        items={toggleList.map((item, index) => ({
+          value: item.value,
+          label: `Item ${index}`,
+          isOn: item.isOn,
+          onChange: (isOn) => {
+            setToggleList((prev) =>
+              prev.map((prevItem) =>
+                prevItem.value === item.value ? { ...prevItem, isOn } : prevItem
+              )
+            );
+          }
+        }))}
+      />
+      <MyButtonText
+        title="Binding test"
+        onPress={() =>
+          setToggleList((prev) =>
+            prev.map((item) => ({ ...item, isOn: !item.isOn }))
+          )
+        }
+      />
+
       <MyList
         heading="Hello"
         items={Array.from({ length: 5 }, (_, index) => (
