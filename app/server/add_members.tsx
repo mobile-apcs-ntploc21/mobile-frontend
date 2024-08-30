@@ -1,9 +1,15 @@
 import { Alert, StyleSheet, Text, View } from 'react-native';
-import React, { useLayoutEffect, useMemo, useRef, useState } from 'react';
+import React, {
+  useEffect,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  useState
+} from 'react';
 import { ScrollView, TouchableOpacity } from 'react-native-gesture-handler';
 import useServers from '@/hooks/useServers';
 import { Formik, FormikProps } from 'formik';
-import { useNavigation } from 'expo-router';
+import { router, useLocalSearchParams, useNavigation } from 'expo-router';
 import MyHeader from '@/components/MyHeader';
 import { NativeStackHeaderProps } from '@react-navigation/native-stack';
 import MyText from '@/components/MyText';
@@ -19,10 +25,34 @@ type FormProps = {
   memberIds: string[];
 };
 
+/***
+ * @description AddMember component is used to select members to perform an action on them
+ * Usage:
+ * - Use dispatch to set the callback function to be called when the user selects the members
+ * - Use router to navigate to the AddMember screen, and pass the `excluded` param to exclude some members from the list
+ * Example:
+ * ```ts
+ * dispatch({
+    type: Actions.SET_CALLBACK,
+    payload: (memberIds: string[]) => {
+      console.log('Adding members:', memberIds);
+    }
+  });
+  router.navigate({
+    pathname: '/server/add_members',
+    params: {
+      excluded: members.map((member) => member.id)
+    }
+  });
+ * ```
+ */
 const AddMember = () => {
   const { callback, members } = useServers();
   const navigation = useNavigation();
   const formRef = useRef<FormikProps<FormProps>>(null);
+  const { excluded } = useLocalSearchParams<{
+    excluded?: string;
+  }>();
 
   useLayoutEffect(() => {
     navigation.setOptions({
@@ -68,20 +98,22 @@ const AddMember = () => {
   }, [formRef.current?.dirty]);
 
   const handleSubmit = (values: FormProps) => {
-    callback(values.memberIds);
     try {
-      // handle create here
-    } catch (e) {}
+      callback(values.memberIds);
+      router.back();
+    } catch (e) {
+      console.error(e);
+    }
   };
 
   const [searchText, setSearchText] = useState('');
 
   const filteredMemberList = useMemo(() => {
-    if (!searchText) return members;
     return members.filter(
       (member) =>
-        frequencyMatch(member.username, searchText) ||
-        frequencyMatch(member.display_name, searchText)
+        (frequencyMatch(member.username, searchText) ||
+          frequencyMatch(member.display_name, searchText)) &&
+        !excluded?.split(',').includes(member.id)
     );
   }, [members, searchText]);
 

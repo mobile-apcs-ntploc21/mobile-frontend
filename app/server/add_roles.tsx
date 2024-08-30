@@ -1,9 +1,15 @@
 import { Alert, StyleSheet, Text, View } from 'react-native';
-import React, { useLayoutEffect, useMemo, useRef, useState } from 'react';
+import React, {
+  useEffect,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  useState
+} from 'react';
 import { ScrollView, TouchableOpacity } from 'react-native-gesture-handler';
 import useServers from '@/hooks/useServers';
 import { Formik, FormikProps } from 'formik';
-import { useNavigation } from 'expo-router';
+import { router, useLocalSearchParams, useNavigation } from 'expo-router';
 import MyHeader from '@/components/MyHeader';
 import { NativeStackHeaderProps } from '@react-navigation/native-stack';
 import MyText from '@/components/MyText';
@@ -20,10 +26,34 @@ type FormProps = {
   roleIds: string[];
 };
 
+/***
+ * @description AddRole component is used to select roles to perform an action on them
+ * Usage:
+ * - Use dispatch to set the callback function to be called when the user selects the roles
+ * - Use router to navigate to the AddRole screen, and pass the `excluded` param to exclude some roles from the list
+ * Example:
+ * ```ts
+ * dispatch({
+ *  type: Actions.SET_CALLBACK,
+ *  payload: (roleIds: string[]) => {
+ *   console.log('Adding roles:', roleIds);
+ *  }
+ * });
+ * router.navigate({
+ *  pathname: '/server/add_roles',
+ *  params: {
+ *   excluded: roles.map((role) => role.id)
+ *  }
+ * });
+ * ```
+ */
 const AddRole = () => {
   const { callback, roles } = useServers();
   const navigation = useNavigation();
   const formRef = useRef<FormikProps<FormProps>>(null);
+  const { excluded } = useLocalSearchParams<{
+    excluded?: string;
+  }>();
 
   useLayoutEffect(() => {
     navigation.setOptions({
@@ -69,17 +99,23 @@ const AddRole = () => {
   }, [formRef.current?.dirty]);
 
   const handleSubmit = (values: FormProps) => {
-    callback(values.roleIds);
     try {
-      // handle create here
-    } catch (e) {}
+      callback(values.roleIds);
+      router.back();
+    } catch (e) {
+      console.error(e);
+    }
   };
 
   const [searchText, setSearchText] = useState('');
 
   const filteredRoleList = useMemo(() => {
     if (!searchText) return roles;
-    return roles.filter((role) => frequencyMatch(role.name, searchText));
+    return roles.filter(
+      (role) =>
+        frequencyMatch(role.name, searchText) &&
+        !excluded?.split(',').includes(role.id)
+    );
   }, [roles, searchText]);
 
   const handleCheckboxPress = (value: string) => {
