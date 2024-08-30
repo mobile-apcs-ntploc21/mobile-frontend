@@ -5,7 +5,7 @@ import {
   TouchableWithoutFeedback,
   View
 } from 'react-native';
-import React, { useLayoutEffect, useState } from 'react';
+import React, { useEffect, useLayoutEffect, useState } from 'react';
 import { router, useNavigation } from 'expo-router';
 import { NativeStackHeaderProps } from '@react-navigation/native-stack';
 
@@ -19,9 +19,13 @@ import MemberItem from '@/components/userManagment/MemberItem';
 import Header from '@/components/Header';
 import FilterModal from '@/components/modal/FilterModal';
 import MyHeader from '@/components/MyHeader';
+import { UserProfile } from '@/types';
+import useServers from '@/hooks/useServers';
+import { getData } from '@/utils/api';
 
 const Members = () => {
   const navigation = useNavigation();
+  const { memberIds } = useServers();
   const [modalVisible, setModalVisible] = useState(false);
 
   useLayoutEffect(() => {
@@ -49,9 +53,9 @@ const Members = () => {
       <ScrollView style={{ flex: 1 }}>
         <View style={[GlobalStyles.subcontainer, { paddingBottom: 16 }]}>
           <ButtonListBase
-            heading="4 Members"
-            items={Array.from({ length: 10 }, (_, index) => ({
-              itemComponent: <MemberItem />,
+            heading={`${memberIds.length} Members`}
+            items={memberIds.map((id) => ({
+              itemComponent: <MemberItem id={id} />,
               onPress: () => router.navigate('./edit_member')
             }))}
           />

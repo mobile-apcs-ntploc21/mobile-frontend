@@ -35,6 +35,7 @@
     "graphql": "^15.8.0",
     "graphql-ws": "^5.16.0",
     "jwt-decode": "^4.0.0",
+    "moti": "^0.29.0",
     "react": "18.2.0",
     "react-dom": "18.2.0",
     "react-native": "0.74.3",
@@ -44,7 +45,8 @@
     "react-native-screens": "3.31.1",
     "react-native-svg": "15.2.0",
     "react-native-web": "~0.19.10",
-    "yup": "^1.4.0"
+    "yup": "^1.4.0",
+    "expo-linear-gradient": "~13.0.2"
   },
   "devDependencies": {
     "@babel/core": "^7.20.0",

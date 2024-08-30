@@ -34,8 +34,8 @@ export interface AvatarProps {
 
 const Avatar = ({
   id,
-  profilePic,
   showStatus,
+  profilePic,
   onlineStatus,
   avatarStyle,
   subscribeToStatus,
@@ -44,6 +44,7 @@ const Avatar = ({
   const wsClient = useApolloClient();
   const [isOnline, setIsOnline] = useState(false);
   const [statusType, setStatusType] = useState(StatusType.OFFLINE);
+  const [avatarUri, setAvatarUri] = useState<string | null>(null);
 
   const setStatusText = (text: string) => {
     setTextProps && setTextProps(text);
@@ -51,6 +52,16 @@ const Avatar = ({
 
   useFocusEffect(
     useCallback(() => {
+      if (profilePic) setAvatarUri(profilePic);
+      else
+        getData(`/api/v1/profile/${id}`)
+          .then((res) => {
+            if (res?.avatar_url) setAvatarUri(res.avatar_url);
+          })
+          .catch(() => {
+            setAvatarUri(null);
+          });
+
       if (!subscribeToStatus) return;
 
       getData(`/api/v1/status/${id}`)
@@ -91,14 +102,14 @@ const Avatar = ({
         }
       });
       return () => cleanup.unsubscribe();
-    }, [subscribeToStatus])
+    }, [profilePic, subscribeToStatus])
   );
 
   const combinedStyles = StyleSheet.flatten([styles.profilePic, avatarStyle]);
   return (
     <View>
       <Image
-        source={profilePic ? { uri: profilePic } : DefaultProfileImage}
+        source={avatarUri ? { uri: avatarUri } : DefaultProfileImage}
         style={combinedStyles}
       />
       {showStatus && (

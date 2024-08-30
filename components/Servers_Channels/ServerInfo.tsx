@@ -17,7 +17,7 @@ import { router } from 'expo-router';
 const MAXUSERS = 4;
 
 const ServerInfo = () => {
-  const { servers, currentServerId } = useServers();
+  const { servers, currentServerId, memberIds } = useServers();
   const [userIds, setUserIds] = useState<string[]>(
     Array.from({ length: 10 }, (_, i) => i.toString())
   );
@@ -58,13 +58,15 @@ const ServerInfo = () => {
       <View style={styles.activeMembersContainer}>
         <MyText style={styles.activeTitle}>Active (40)</MyText>
         <View style={styles.activeMembers}>
-          {userIds.slice(0, MAXUSERS).map((id) => (
-            <Avatar key={id} id={id} avatarStyle={styles.activeMember} />
-          ))}
+          {memberIds
+            .slice(0, Math.min(memberIds.length, MAXUSERS))
+            .map((id) => (
+              <Avatar key={id} id={id} avatarStyle={styles.activeMember} />
+            ))}
           {userIds.length > MAXUSERS && (
             <MyButtonIcon
               icon={DotsIcon}
-              onPress={() => {}}
+              onPress={() => router.navigate(`/server/members`)}
               showOutline={false}
               containerStyle={styles.activeMember}
             />

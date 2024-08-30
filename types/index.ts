@@ -19,3 +19,12 @@ export interface ServerListProps {
   onChange: (id: string) => void;
   currentServerId: string;
 }
+
+export interface UserProfile {
+  user_id: string;
+  display_name: string;
+  username: string;
+  about_me: string;
+  avatar_url: string;
+  banner_url: string;
+}
