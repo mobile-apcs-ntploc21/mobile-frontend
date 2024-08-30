@@ -17,10 +17,8 @@ const MemberItem = (props: MemberItemProps) => {
   useLayoutEffect(() => {
     (async () => {
       try {
-        setTimeout(async () => {
-          const res = await getData(`/api/v1/profile/${props.id}`);
-          setProfile(res);
-        }, 3000);
+        const res = await getData(`/api/v1/profile/${props.id}`);
+        setProfile(res);
       } catch (e: any) {
         throw new Error(e);
       }
@@ -31,7 +29,12 @@ const MemberItem = (props: MemberItemProps) => {
     <View style={styles.container}>
       <Skeleton colorMode="light" width={44} height={44} radius={'round'}>
         {profile && (
-          <Avatar id={profile.user_id} profilePic={profile.avatar_url} />
+          <Avatar
+            id={profile.user_id}
+            profilePic={profile.avatar_url}
+            showStatus
+            subscribeToStatus
+          />
         )}
       </Skeleton>
       <View style={styles.info}>

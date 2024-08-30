@@ -61,7 +61,13 @@ const ServerInfo = () => {
           {memberIds
             .slice(0, Math.min(memberIds.length, MAXUSERS))
             .map((id) => (
-              <Avatar key={id} id={id} avatarStyle={styles.activeMember} />
+              <Avatar
+                key={id}
+                id={id}
+                avatarStyle={styles.activeMember}
+                showStatus
+                subscribeToStatus
+              />
             ))}
           {userIds.length > MAXUSERS && (
             <MyButtonIcon
