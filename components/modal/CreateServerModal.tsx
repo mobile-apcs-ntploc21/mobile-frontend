@@ -4,7 +4,7 @@ import {
   TouchableWithoutFeedback,
   View
 } from 'react-native';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import MyText from '../MyText';
 import { TextStyles } from '@/styles/TextStyles';
 import { colors } from '@/constants/theme';
@@ -12,6 +12,7 @@ import GlobalStyles from '@/styles/GlobalStyles';
 import { MyButtonText } from '../MyButton';
 import CustomTextInput from '../common/CustomTextInput';
 import useServers from '@/hooks/useServers';
+import { postData } from '@/utils/api';
 
 export interface CreateServerModalProps {
   visible: boolean;
@@ -21,16 +22,44 @@ export interface CreateServerModalProps {
 const CreateServerModal = (props: CreateServerModalProps) => {
   const { servers, setServers, selectServer } = useServers();
   const [serverName, setServerName] = useState('');
+  const [newServerId, setNewServerId] = useState('');
 
-  const handleConfirm = () => {
-    // Create server here
-    setServers(
-      [{ id: servers.length.toString(), name: serverName }, ...servers],
-      false,
-      true
-    );
+  const handleConfirm = async () => {
+    // Validate server name
+    if (serverName.length === 0) {
+      return;
+    }
+
+    const response = await postData('/api/v1/servers', {
+      name: serverName
+    });
+
+    if (!response) {
+      props.onClose(true);
+      throw new Error('Failed to create server.');
+    }
+
+    const newServers = [
+      ...servers,
+      {
+        id: response.id,
+        name: response.name,
+        is_favorite: false,
+        position: response.position || servers.length
+      }
+    ];
+
+    setServers(newServers, false, true);
+    setNewServerId(response.id);
     props.onClose(true);
   };
+
+  useEffect(() => {
+    if (newServerId) {
+      selectServer(newServerId);
+      setNewServerId('');
+    }
+  }, [servers, newServerId]);
 
   return (
     <Modal
@@ -53,6 +82,9 @@ const CreateServerModal = (props: CreateServerModalProps) => {
                 placeholder="Server name"
                 value={serverName}
                 onChangeText={setServerName}
+                errorMessage={
+                  serverName.length === 0 ? 'Server name is required' : ''
+                }
               />
               <View style={styles.actions}>
                 <MyButtonText

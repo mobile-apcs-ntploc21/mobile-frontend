@@ -5,6 +5,8 @@ export interface IconProps {
 export interface Server {
   id: string;
   name: string;
+  position?: number;
+  is_favorite?: boolean;
 }
 
 export interface ServerItemProps {
