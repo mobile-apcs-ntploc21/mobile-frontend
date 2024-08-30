@@ -7,6 +7,10 @@ export default StyleSheet.create({
     flex: 1,
     backgroundColor: colors.white
   },
+  screenGray: {
+    flex: 1,
+    backgroundColor: colors.gray04
+  },
   floatUIShadow: {
     shadowColor: '#000',
     shadowOpacity: 0.25,

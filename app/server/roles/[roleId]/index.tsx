@@ -9,11 +9,6 @@ import MyText from '@/components/MyText';
 import { TextStyles } from '@/styles/TextStyles';
 import { colors, fonts } from '@/constants/theme';
 import MyBottomSheetModal from '@/components/modal/MyBottomSheetModal';
-import ColorPicker, {
-  HueCircular,
-  Panel1,
-  returnedResults
-} from 'reanimated-color-picker';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
 import CustomTextInput from '@/components/common/CustomTextInput';
 import RoleIcon from '@/assets/icons/RoleIcon';
@@ -24,6 +19,7 @@ import Accordion from '@/components/Accordion';
 import Avatar from '@/components/Avatar';
 import BasicModal from '@/components/modal/BasicModal';
 import ButtonListToggle from '@/components/ButtonList/ButtonListToggle';
+import MyColorPicker from '@/components/MyColorPicker';
 
 type FormProps = {
   roleTitle: string;
@@ -141,22 +137,10 @@ const RoleEdit = () => {
             onClose={handleCloseBottomSheet}
             heading="Pick a Color"
           >
-            <ColorPicker
-              value={values.roleColor}
-              sliderThickness={20}
-              thumbSize={24}
-              onComplete={(color: returnedResults) =>
-                handleChange('roleColor')(color.hex)
-              }
-            >
-              <HueCircular
-                style={styles.hueStyle}
-                containerStyle={styles.hueContainer}
-                thumbShape="pill"
-              >
-                <Panel1 style={styles.panelStyle} />
-              </HueCircular>
-            </ColorPicker>
+            <MyColorPicker
+              color={values.roleColor}
+              handleChange={handleChange('roleColor')}
+            />
           </MyBottomSheetModal>
           <ScrollView>
             <View style={styles.topContainer}>
@@ -250,20 +234,6 @@ const styles = StyleSheet.create({
   headerSave: {
     ...TextStyles.h3,
     color: colors.primary
-  },
-  hueContainer: {
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: colors.gray03
-  },
-  hueStyle: {
-    width: 320,
-    height: 320
-  },
-  panelStyle: {
-    width: '70%',
-    height: '70%',
-    borderRadius: 16
   },
   topContainer: {
     padding: 16,

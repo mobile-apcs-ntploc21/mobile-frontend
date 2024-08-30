@@ -37,7 +37,7 @@ const ServerInfo = () => {
         <View style={styles.serverActions}>
           <MyButtonIcon
             icon={StarIcon}
-            onPress={() => {}}
+            onPress={() => router.navigate(`/server/edit_permissions`)}
             showOutline={false}
             containerStyle={styles.actionStyle}
           />
@@ -59,12 +59,12 @@ const ServerInfo = () => {
         <MyText style={styles.activeTitle}>Active (40)</MyText>
         <View style={styles.activeMembers}>
           {userIds.slice(0, MAXUSERS).map((id) => (
-            <Avatar key={id} id={id} imgStyle={styles.activeMember} />
+            <Avatar key={id} id={id} avatarStyle={styles.activeMember} />
           ))}
           {userIds.length > MAXUSERS && (
             <MyButtonIcon
               icon={DotsIcon}
-              onPress={() => {}}
+              onPress={() => router.navigate('server-members')}
               showOutline={false}
               containerStyle={styles.activeMember}
             />
