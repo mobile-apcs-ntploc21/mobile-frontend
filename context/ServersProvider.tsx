@@ -1,5 +1,11 @@
 import { SERVER_SUBSCRIPTION } from '@/services/graphql/subscriptions';
-import { Server, ServerEvents, UserProfile, UserStatus } from '@/types';
+import {
+  ProfileStatus,
+  Server,
+  ServerEvents,
+  UserProfile,
+  UserStatus
+} from '@/types';
 import { getData } from '@/utils/api';
 import { useSubscription } from '@apollo/client';
 import { createContext, ReactNode, useEffect, useReducer, useRef } from 'react';
@@ -36,10 +42,7 @@ type ServersState = {
   servers: Server[];
   currentServerId: string | null;
   categories: Category[];
-  members: {
-    user_profile: UserProfile;
-    user_status: UserStatus;
-  }[];
+  members: ProfileStatus[];
   roles: Role[];
 };
 

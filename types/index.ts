@@ -39,6 +39,11 @@ export interface UserStatus {
   status_text?: string;
 }
 
+export interface ProfileStatus {
+  user_profile: UserProfile;
+  user_status: UserStatus;
+}
+
 export enum ServerEvents {
   userProfileChanged = 'USER_PROFILE_CHANGED',
   userStatusChanged = 'USER_STATUS_CHANGED',

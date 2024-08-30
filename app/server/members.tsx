@@ -5,7 +5,13 @@ import {
   TouchableWithoutFeedback,
   View
 } from 'react-native';
-import React, { useEffect, useLayoutEffect, useState } from 'react';
+import React, {
+  useEffect,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  useState
+} from 'react';
 import { router, useNavigation } from 'expo-router';
 import { NativeStackHeaderProps } from '@react-navigation/native-stack';
 
@@ -19,14 +25,47 @@ import MemberItem from '@/components/userManagment/MemberItem';
 import Header from '@/components/Header';
 import FilterModal from '@/components/modal/FilterModal';
 import MyHeader from '@/components/MyHeader';
-import { UserProfile } from '@/types';
+import { ProfileStatus, UserProfile } from '@/types';
 import useServers from '@/hooks/useServers';
 import { getData } from '@/utils/api';
+import TrieSearch from 'trie-search';
 
 const Members = () => {
   const navigation = useNavigation();
   const { members } = useServers();
   const [modalVisible, setModalVisible] = useState(false);
+  const [query, setQuery] = useState('');
+  const [filteredMembers, setFilteredMembers] = useState<ProfileStatus[]>([]);
+
+  const trie = useRef(new TrieSearch('name')).current;
+
+  useEffect(() => {
+    trie.reset();
+    trie.clearCache();
+    trie.addAll(
+      members.map((ps) => ({
+        name: ps.user_profile.display_name,
+        data: ps
+      }))
+    );
+    trie.addAll(
+      members.map((ps) => ({
+        name: ps.user_profile.username,
+        data: ps
+      }))
+    );
+  }, [members]);
+
+  useEffect(() => {
+    if (query === '') {
+      setFilteredMembers(members);
+      return;
+    }
+
+    const results = trie.search(query);
+    // @ts-ignore
+    setFilteredMembers(results.map((item) => item.data));
+  }, [query]);
 
   useLayoutEffect(() => {
     navigation.setOptions({
@@ -44,7 +83,7 @@ const Members = () => {
       />
       <View style={[GlobalStyles.subcontainer, styles.searchContainer]}>
         <View style={{ flex: 1 }}>
-          <SearchBar />
+          <SearchBar value={query} onChangeText={setQuery} />
         </View>
         <TouchableWithoutFeedback onPress={() => setModalVisible(true)}>
           <MaterialIcons name="filter-alt" size={24} color={colors.gray02} />
@@ -53,10 +92,14 @@ const Members = () => {
       <ScrollView style={{ flex: 1 }}>
         <View style={[GlobalStyles.subcontainer, { paddingBottom: 16 }]}>
           <ButtonListBase
-            heading={`${members.length} Members`}
-            items={members.map(({ user_profile, user_status }) => ({
+            heading={`${filteredMembers.length} Members`}
+            items={filteredMembers.map(({ user_profile, user_status }) => ({
               itemComponent: (
-                <MemberItem profile={user_profile} status={user_status} />
+                <MemberItem
+                  key={user_profile.user_id}
+                  profile={user_profile}
+                  status={user_status}
+                />
               ),
               onPress: () => router.navigate('./edit_member')
             }))}
