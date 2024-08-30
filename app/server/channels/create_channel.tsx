@@ -11,10 +11,6 @@ import { NativeStackHeaderProps } from '@react-navigation/native-stack';
 
 import MyHeader from '@/components/MyHeader';
 import GlobalStyles from '@/styles/GlobalStyles';
-import ButtonListText from '@/components/ButtonList/ButtonListText';
-import useServers from '@/hooks/useServers';
-import MyBottomSheetModal from '@/components/modal/MyBottomSheetModal';
-import { BottomSheetModal } from '@gorhom/bottom-sheet';
 import MyText from '@/components/MyText';
 import { colors, fonts } from '@/constants/theme';
 import CustomTextInput from '@/components/common/CustomTextInput';
@@ -25,7 +21,6 @@ type FormProps = {
 };
 
 const CreateChannel = () => {
-  const { categories } = useServers();
   const navigation = useNavigation();
   const formRef = useRef<FormikProps<FormProps>>(null);
 

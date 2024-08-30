@@ -13,6 +13,7 @@ import { MyButtonText } from '../MyButton';
 import CustomTextInput from '../common/CustomTextInput';
 import useServers from '@/hooks/useServers';
 import { postData } from '@/utils/api';
+import { ServersActions } from '@/context/ServersProvider';
 
 export interface CreateServerModalProps {
   visible: boolean;
@@ -20,7 +21,7 @@ export interface CreateServerModalProps {
 }
 
 const CreateServerModal = (props: CreateServerModalProps) => {
-  const { servers, setServers, selectServer } = useServers();
+  const { servers, dispatch } = useServers();
   const [serverName, setServerName] = useState('');
   const [newServerId, setNewServerId] = useState('');
 
@@ -49,14 +50,14 @@ const CreateServerModal = (props: CreateServerModalProps) => {
       }
     ];
 
-    setServers(newServers, false, true);
+    dispatch({ type: ServersActions.SET_SERVERS, payload: newServers });
     setNewServerId(response.id);
     props.onClose(true);
   };
 
   useEffect(() => {
     if (newServerId) {
-      selectServer(newServerId);
+      dispatch({ type: ServersActions.SELECT_SERVER, payload: newServerId });
       setNewServerId('');
     }
   }, [servers, newServerId]);

@@ -4,9 +4,10 @@ import { ServerListProps } from '@/types';
 import SimpleServerItem from './SimpleServerItem';
 import useServers from '@/hooks/useServers';
 import { FlatList } from 'react-native-gesture-handler';
+import { ServersActions } from '@/context/ServersProvider';
 
 const SimpleServerList = () => {
-  const { servers, currentServerId, selectServer } = useServers();
+  const { servers, currentServerId, dispatch } = useServers();
   return (
     <View style={styles.container}>
       <FlatList
@@ -23,7 +24,12 @@ const SimpleServerList = () => {
             <SimpleServerItem
               id={item.id}
               selected={item.id === currentServerId}
-              onPress={() => selectServer(item.id)}
+              onPress={() =>
+                dispatch({
+                  type: ServersActions.SELECT_SERVER,
+                  payload: item.id
+                })
+              }
             />
           </View>
         )}

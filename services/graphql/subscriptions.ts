@@ -25,3 +25,13 @@ export const USER_PROFILE_SUBSCRIPTION = gql`
     }
   }
 `;
+
+export const SERVER_SUBSCRIPTION = gql`
+  subscription OnServerUpdated($server_id: ID!) {
+    serverUpdated(server_id: $server_id) {
+      server_id
+      type
+      data
+    }
+  }
+`;
