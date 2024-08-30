@@ -75,9 +75,9 @@ export const getData = async (
       const e = await response.json();
       throw new Error(e.message);
     }
+
     return await response.json();
   } catch (err: any) {
-    console.error(err);
     throw new Error(err.message);
   }
 };
@@ -150,6 +150,48 @@ export const patchData = async (
   try {
     const response = await fetch(`${API_URL}${url}`, {
       method: 'PATCH',
+      headers: headers,
+      body: JSON.stringify(data || {})
+    });
+
+    if (!response.ok) {
+      const e = await response.json();
+      throw new Error(e.message);
+    }
+
+    return await response.json();
+  } catch (err: any) {
+    console.error(err);
+    throw new Error(err.message);
+  }
+};
+
+/**
+ * To send a PUT request to the server.
+ *
+ * @async
+ * @param {string} url - The URL to send the request.
+ * @param {*} data - The data to send to the server.
+ * @param {{}} [addHeaders={}] - Additional headers to send to the server.
+ * @returns {Promise<any>} - The response from the server.
+ */
+export const putData = async (
+  url: string,
+  data: {} = {},
+  addHeaders: {} = {}
+): Promise<any> => {
+  const headers: any = {
+    'Content-Type': 'application/json',
+    ...addHeaders
+  };
+  const idToken = await getIdToken();
+  if (idToken) {
+    headers.Authorization = `Bearer ${idToken}`;
+  }
+
+  try {
+    const response = await fetch(`${API_URL}${url}`, {
+      method: 'PUT',
       headers: headers,
       body: JSON.stringify(data || {})
     });

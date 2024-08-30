@@ -50,6 +50,7 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
     fontSize: 12,
     fontFamily: fonts.bold,
-    textAlign: 'center'
+    textAlign: 'center',
+    lineHeight: 16
   }
 });

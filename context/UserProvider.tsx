@@ -38,14 +38,20 @@ export default function UserProvider({ children }: UserProviderProps) {
   useEffect(() => {
     (async () => {
       try {
-        const response = await getData('/api/v1/profile/me');
-        setData(response);
-        setLoading(false);
+        if (user) {
+          const response = await getData(`/api/v1/profile/me`);
+
+          setData(response);
+          setLoading(false);
+        } else {
+          setData(null);
+          setLoading(true);
+        }
       } catch (e: any) {
         throw new Error(e.message);
       }
     })();
-  }, []);
+  }, [user]);
 
   useEffect(() => {
     if (dataPush) {

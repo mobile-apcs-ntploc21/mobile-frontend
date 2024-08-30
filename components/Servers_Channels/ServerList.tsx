@@ -13,12 +13,15 @@ import SimpleServerList from './SimpleServerList';
 import ExtendedServerList from './ExtendedServerList';
 import Toggle from '../Toggle';
 import useServers from '@/hooks/useServers';
+import { getData } from '@/utils/api';
 
 const ServerList = () => {
-  const { setServers } = useServers();
+  const { servers, setServers, selectServer } = useServers();
   const ref = useRef<BottomSheet>(null);
-  const snapPoints = useMemo(() => [85, '95%'], []);
+  const snapPoints = useMemo(() => [90, '95%'], []);
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [isInitialMount, setIsInitialMount] = useState(true);
+  const [isFavorite, setIsFavorite] = useState(false);
 
   const handleSheetChanges = (index: number) => {
     setCurrentIndex(index);
@@ -29,14 +32,42 @@ const ServerList = () => {
   };
 
   useEffect(() => {
-    // Fetch data (servers)
-    setServers(
-      Array.from({ length: 30 }, (_, i) => ({
-        id: i.toString(),
-        name: `Server ${i}`
-      }))
-    );
+    (async () => {
+      try {
+        const response = await getData('/api/v1/servers/list'); // return JSON array of servers
+
+        if (!response) {
+          setServers([]); // Set empty array if no servers
+          return;
+        }
+
+        const servers = Object.values(response).map(
+          (server: any, index: number) => ({
+            id: server.id,
+            name: server.name,
+            is_favorite: server.is_favorite,
+            position: server.position || index
+          })
+        );
+
+        if (Array.isArray(servers)) {
+          setServers(servers);
+        } else {
+          throw new Error('Failed to fetch servers.');
+        }
+      } catch (err: any) {
+        setServers([]); // Set empty array if error
+        throw new Error(err.message);
+      }
+    })();
   }, []);
+
+  useEffect(() => {
+    if (servers && servers.length > 0 && isInitialMount) {
+      selectServer(servers[0].id);
+      setIsInitialMount(false);
+    }
+  }, [servers]);
 
   const renderBackdrop = useCallback(
     (props: any) => (
@@ -54,16 +85,18 @@ const ServerList = () => {
     <BottomSheet
       ref={ref}
       snapPoints={snapPoints}
+      index={0}
       handleComponent={() => <View style={styles.handle} />}
       backdropComponent={renderBackdrop}
       backgroundStyle={{ backgroundColor: colors.gray03, borderRadius: 30 }}
-      enableContentPanningGesture={false}
+      enableContentPanningGesture={true}
+      enablePanDownToClose={false}
       onChange={handleSheetChanges}
     >
       {currentIndex === 0 ? (
         <SimpleServerList />
       ) : (
-        <ExtendedServerList swipeDown={swipeDown} />
+        <ExtendedServerList swipeDown={swipeDown} isFavorite={isFavorite} />
       )}
       {currentIndex === 1 && (
         <View style={styles.toggleContainer}>
@@ -92,6 +125,8 @@ const ServerList = () => {
                 Favorite Servers
               </MyText>
             )}
+            onChange={setIsFavorite}
+            value={isFavorite}
           />
         </View>
       )}
@@ -101,7 +136,7 @@ const ServerList = () => {
 
 const styles = StyleSheet.create({
   handle: {
-    marginTop: 5,
+    marginTop: 13,
     marginBottom: 13,
     width: 39,
     height: 8,

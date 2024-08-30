@@ -41,11 +41,17 @@ const Channels = () => {
     () => [
       {
         text: 'Reorder categories',
-        onPress: () => {}
+        onPress: () => {
+          handleClose();
+          router.navigate('./reorder_categories');
+        }
       },
       {
         text: 'Reorder channels',
-        onPress: () => {}
+        onPress: () => {
+          handleClose();
+          router.navigate('./reorder_channels');
+        }
       }
     ],
     []
@@ -93,13 +99,25 @@ const Channels = () => {
           <View>
             <TouchableOpacity
               style={styles.normalEdit}
-              onPress={() => console.log(`Pressed ${name}`)}
+              onPress={() =>
+                router.navigate({
+                  pathname: `./edit_category/${name}`,
+                  params: { categoryName: name }
+                })
+              }
             >
               <MyText style={styles.normalEditText}>Edit</MyText>
             </TouchableOpacity>
             <ButtonListText
               heading={name}
-              items={channels.map(({ name }) => ({ text: name }))}
+              items={channels.map(({ name }) => ({
+                text: name,
+                onPress: () =>
+                  router.navigate({
+                    pathname: `./edit_channel/${name}`,
+                    params: { channelName: name }
+                  })
+              }))}
             />
           </View>
         )}

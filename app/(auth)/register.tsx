@@ -113,6 +113,7 @@ const Register = () => {
                     errorMessage={
                       errors.email && touched.email ? errors.email : undefined
                     }
+                    keyboardType="email-address"
                   />
                   <CustomTextInput
                     title="Username"
@@ -135,6 +136,7 @@ const Register = () => {
                         ? errors.phoneNumber
                         : undefined
                     }
+                    keyboardType="phone-pad"
                   />
 
                   <CustomTextInput

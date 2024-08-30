@@ -1,5 +1,5 @@
 export const WIDTH = 64;
-export const HEIGHT = 64 + 10 + 12;
+export const HEIGHT = 64 + 8 + 16 * 2;
 export const MARGIN_X = 16;
 export const MARGIN_Y = 32;
 export const COL = 4;
