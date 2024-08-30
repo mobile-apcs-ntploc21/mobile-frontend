@@ -1,5 +1,7 @@
-import { Server } from '@/types';
+import { SERVER_SUBSCRIPTION } from '@/services/graphql/subscriptions';
+import { Server, ServerEvents, UserProfile, UserStatus } from '@/types';
 import { getData } from '@/utils/api';
+import { useSubscription } from '@apollo/client';
 import { createContext, ReactNode, useEffect, useReducer, useRef } from 'react';
 
 // Types
@@ -7,8 +9,10 @@ enum Actions {
   SELECT_SERVER = 'SELECT_SERVER',
   SET_SERVERS = 'SET_SERVERS',
   SET_CATEGORIES = 'SET_CATEGORIES',
-  SET_MEMBER_IDS = 'SET_MEMBER_IDS',
-  SET_ROLES = 'SET_ROLES'
+  SET_MEMBERS = 'SET_MEMBERS',
+  SET_ROLES = 'SET_ROLES',
+  UPDATE_STATUS = 'UPDATE_STATUS',
+  UPDATE_PROFILE = 'UPDATE_PROFILE'
 }
 
 type Channel = {
@@ -32,7 +36,10 @@ type ServersState = {
   servers: Server[];
   currentServerId: string | null;
   categories: Category[];
-  memberIds: string[];
+  members: {
+    user_profile: UserProfile;
+    user_status: UserStatus;
+  }[];
   roles: Role[];
 };
 
@@ -61,7 +68,7 @@ const initialState: ServersState = {
   servers: [],
   currentServerId: null,
   categories: [],
-  memberIds: [],
+  members: [],
   roles: []
 };
 
@@ -97,16 +104,48 @@ const handlers: Record<
       categories: payload
     };
   },
-  [Actions.SET_MEMBER_IDS]: (state, { payload }) => {
+  [Actions.SET_MEMBERS]: (state, { payload }) => {
     return {
       ...state,
-      memberIds: payload
+      members: payload
     };
   },
   [Actions.SET_ROLES]: (state, { payload }) => {
     return {
       ...state,
       roles: payload
+    };
+  },
+  [Actions.UPDATE_STATUS]: (state, { payload }) => {
+    return {
+      ...state,
+      members: state.members.map((member) =>
+        member.user_profile.user_id === payload.user_id
+          ? {
+              ...member,
+              user_status: {
+                ...member.user_status,
+                ...payload
+              }
+            }
+          : member
+      )
+    };
+  },
+  [Actions.UPDATE_PROFILE]: (state, { payload }) => {
+    return {
+      ...state,
+      members: state.members.map((member) =>
+        member.user_profile.user_id === payload.user_id
+          ? {
+              ...member,
+              user_profile: {
+                ...member.user_status,
+                ...payload
+              }
+            }
+          : member
+      )
     };
   }
 };
@@ -123,6 +162,24 @@ const reducer = (state: ServersState, action: ServerAction) => {
 // Provider
 export const ServersProvider = ({ children }: ServersProviderProps) => {
   const [state, dispatch] = useReducer(reducer, initialState);
+  const { data: subscriptionData } = useSubscription(SERVER_SUBSCRIPTION, {
+    variables: { server_id: state.currentServerId },
+    skip: !state.currentServerId
+  });
+
+  useEffect(() => {
+    if (!subscriptionData) return;
+    const { serverUpdated } = subscriptionData;
+    switch (serverUpdated.type) {
+      case ServerEvents.userStatusChanged:
+        dispatch({ type: Actions.UPDATE_STATUS, payload: serverUpdated.data });
+        break;
+      case ServerEvents.userProfileChanged:
+        dispatch({ type: Actions.UPDATE_PROFILE, payload: serverUpdated.data });
+        break;
+    }
+  }, [subscriptionData, dispatch]);
+
   const selectServer = async (id: string) => {
     try {
       // Fetch server id
@@ -139,8 +196,7 @@ export const ServersProvider = ({ children }: ServersProviderProps) => {
         }))
       }));
 
-      const memberIds = (await getData(`/api/v1/servers/${id}/members`))
-        .members;
+      const members = await getData(`/api/v1/servers/${id}/members`);
 
       const roles: Role[] = Array.from({ length: 10 }, (_, i) => ({
         id: i.toString(),
@@ -150,7 +206,7 @@ export const ServersProvider = ({ children }: ServersProviderProps) => {
         }`
       }));
       dispatch({ type: Actions.SET_CATEGORIES, payload: categories });
-      dispatch({ type: Actions.SET_MEMBER_IDS, payload: memberIds });
+      dispatch({ type: Actions.SET_MEMBERS, payload: members });
       dispatch({ type: Actions.SET_ROLES, payload: roles });
       dispatch({ type: Actions.SELECT_SERVER, payload: id });
     } catch (err: any) {

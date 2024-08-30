@@ -17,7 +17,7 @@ import { router } from 'expo-router';
 const MAXUSERS = 4;
 
 const ServerInfo = () => {
-  const { servers, currentServerId, memberIds } = useServers();
+  const { servers, currentServerId, members } = useServers();
   const [userIds, setUserIds] = useState<string[]>(
     Array.from({ length: 10 }, (_, i) => i.toString())
   );
@@ -58,15 +58,16 @@ const ServerInfo = () => {
       <View style={styles.activeMembersContainer}>
         <MyText style={styles.activeTitle}>Active (40)</MyText>
         <View style={styles.activeMembers}>
-          {memberIds
-            .slice(0, Math.min(memberIds.length, MAXUSERS))
-            .map((id) => (
+          {members
+            .slice(0, Math.min(members.length, MAXUSERS))
+            .map(({ user_profile, user_status }) => (
               <Avatar
-                key={id}
-                id={id}
+                id={user_profile.user_id}
+                profile={user_profile}
+                status={user_status}
                 avatarStyle={styles.activeMember}
                 showStatus
-                subscribeToStatus
+                // subscribeToStatus
               />
             ))}
           {userIds.length > MAXUSERS && (

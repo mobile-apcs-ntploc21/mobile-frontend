@@ -4,10 +4,11 @@ import { DefaultProfileImage } from '@/constants/images';
 import { getOnlineStatusColor } from '@/utils/user';
 import { StatusType } from '@/types/user_status';
 import { useFocusEffect } from 'expo-router';
-import { Dispatch, useCallback, useState } from 'react';
+import { Dispatch, useCallback, useEffect, useState } from 'react';
 import { useApolloClient } from '@apollo/client';
 import { getData } from '@/utils/api';
 import { USER_STATUS_SUBSCRIPTION } from '@/services/graphql/subscriptions';
+import { UserProfile, UserStatus } from '@/types';
 
 const getDefaultStatusText = (statusType: StatusType) => {
   switch (statusType) {
@@ -24,6 +25,8 @@ const getDefaultStatusText = (statusType: StatusType) => {
 
 export interface AvatarProps {
   id: string;
+  profile?: UserProfile;
+  status?: UserStatus;
   profilePic?: string;
   showStatus?: boolean;
   onlineStatus?: StatusType;
@@ -35,6 +38,8 @@ export interface AvatarProps {
 const Avatar = ({
   id,
   showStatus,
+  status,
+  profile,
   profilePic,
   onlineStatus,
   avatarStyle,
@@ -44,24 +49,34 @@ const Avatar = ({
   const wsClient = useApolloClient();
   const [isOnline, setIsOnline] = useState(false);
   const [statusType, setStatusType] = useState(StatusType.OFFLINE);
-  const [avatarUri, setAvatarUri] = useState<string | null>(null);
+  const [avatarUrl, setAvatarUri] = useState<string | undefined>(
+    profile?.avatar_url
+  );
 
   const setStatusText = (text: string) => {
     setTextProps && setTextProps(text);
   };
 
+  useEffect(() => {
+    if (profile?.avatar_url) setAvatarUri(profile.avatar_url);
+  }, [profile?.avatar_url]);
+
+  useEffect(() => {
+    if (status) {
+      setIsOnline(status.is_online);
+      setStatusType(status.type);
+      setStatusText(
+        status.status_text ||
+          getDefaultStatusText(
+            onlineStatus ??
+              (status.is_online ? status.type : StatusType.OFFLINE)
+          )
+      );
+    }
+  }, [status]);
+
   useFocusEffect(
     useCallback(() => {
-      if (profilePic) setAvatarUri(profilePic);
-      else
-        getData(`/api/v1/profile/${id}`)
-          .then((res) => {
-            if (res?.avatar_url) setAvatarUri(res.avatar_url);
-          })
-          .catch(() => {
-            setAvatarUri(null);
-          });
-
       if (!subscribeToStatus) return;
 
       getData(`/api/v1/status/${id}`)
@@ -109,7 +124,7 @@ const Avatar = ({
   return (
     <View>
       <Image
-        source={avatarUri ? { uri: avatarUri } : DefaultProfileImage}
+        source={avatarUrl ? { uri: avatarUrl } : DefaultProfileImage}
         style={combinedStyles}
       />
       {showStatus && (

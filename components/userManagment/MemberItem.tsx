@@ -8,23 +8,10 @@ import { getData } from '@/utils/api';
 import { Skeleton } from 'moti/skeleton';
 
 interface MemberItemProps {
-  id: string;
+  profile?: UserProfile;
 }
 
-const MemberItem = (props: MemberItemProps) => {
-  const [profile, setProfile] = useState<UserProfile | null>(null);
-
-  useLayoutEffect(() => {
-    (async () => {
-      try {
-        const res = await getData(`/api/v1/profile/${props.id}`);
-        setProfile(res);
-      } catch (e: any) {
-        throw new Error(e);
-      }
-    })();
-  }, []);
-
+const MemberItem = ({ profile }: MemberItemProps) => {
   return (
     <View style={styles.container}>
       <Skeleton colorMode="light" width={44} height={44} radius={'round'}>
@@ -33,7 +20,7 @@ const MemberItem = (props: MemberItemProps) => {
             id={profile.user_id}
             profilePic={profile.avatar_url}
             showStatus
-            subscribeToStatus
+            // subscribeToStatus
           />
         )}
       </Skeleton>

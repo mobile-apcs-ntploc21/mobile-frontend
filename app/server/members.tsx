@@ -25,7 +25,7 @@ import { getData } from '@/utils/api';
 
 const Members = () => {
   const navigation = useNavigation();
-  const { memberIds } = useServers();
+  const { members } = useServers();
   const [modalVisible, setModalVisible] = useState(false);
 
   useLayoutEffect(() => {
@@ -53,9 +53,9 @@ const Members = () => {
       <ScrollView style={{ flex: 1 }}>
         <View style={[GlobalStyles.subcontainer, { paddingBottom: 16 }]}>
           <ButtonListBase
-            heading={`${memberIds.length} Members`}
-            items={memberIds.map((id) => ({
-              itemComponent: <MemberItem id={id} />,
+            heading={`${members.length} Members`}
+            items={members.map(({ user_id }) => ({
+              itemComponent: <MemberItem id={user_id} />,
               onPress: () => router.navigate('./edit_member')
             }))}
           />
