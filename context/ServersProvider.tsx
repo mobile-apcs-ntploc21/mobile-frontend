@@ -1,4 +1,5 @@
 import { Server } from '@/types';
+import { getData } from '@/utils/api';
 import { createContext, ReactNode, useEffect, useReducer, useRef } from 'react';
 
 // Types
@@ -6,7 +7,7 @@ enum Actions {
   SELECT_SERVER = 'SELECT_SERVER',
   SET_SERVERS = 'SET_SERVERS',
   SET_CATEGORIES = 'SET_CATEGORIES',
-  SET_MEMBERS = 'SET_MEMBERS',
+  SET_MEMBER_IDS = 'SET_MEMBER_IDS',
   SET_ROLES = 'SET_ROLES'
 }
 
@@ -21,12 +22,6 @@ type Category = {
   channels: Channel[];
 };
 
-type Member = {
-  id: string;
-  username: string;
-  avatar?: string;
-};
-
 type Role = {
   id: string;
   name: string;
@@ -37,7 +32,7 @@ type ServersState = {
   servers: Server[];
   currentServerId: string | null;
   categories: Category[];
-  members: Member[];
+  memberIds: string[];
   roles: Role[];
 };
 
@@ -66,7 +61,7 @@ const initialState: ServersState = {
   servers: [],
   currentServerId: null,
   categories: [],
-  members: [],
+  memberIds: [],
   roles: []
 };
 
@@ -102,22 +97,16 @@ const handlers: Record<
       categories: payload
     };
   },
-  [Actions.SET_MEMBERS]: (state, { payload }) => {
+  [Actions.SET_MEMBER_IDS]: (state, { payload }) => {
     return {
       ...state,
-      members: payload
+      memberIds: payload
     };
   },
   [Actions.SET_ROLES]: (state, { payload }) => {
     return {
       ...state,
       roles: payload
-    };
-  },
-  [Actions.SET_CATEGORIES]: (state, { payload }) => {
-    return {
-      ...state,
-      categories: payload
     };
   }
 };
@@ -135,36 +124,38 @@ const reducer = (state: ServersState, action: ServerAction) => {
 export const ServersProvider = ({ children }: ServersProviderProps) => {
   const [state, dispatch] = useReducer(reducer, initialState);
   const selectServer = async (id: string) => {
-    // Fetch server id
-    if (state.servers.findIndex((server) => server.id === id) === -1) {
-      throw new Error(`Server with id ${id} not found`);
+    try {
+      // Fetch server id
+      if (state.servers.findIndex((server) => server.id === id) === -1) {
+        throw new Error(`Server with id ${id} not found`);
+      }
+      // fetch server with id provided
+      const categories: Category[] = Array.from({ length: 5 }, (_, i) => ({
+        id: i.toString(),
+        name: i ? `Category ${i}` : `Uncategorized`,
+        channels: Array.from({ length: 5 }, (_, j) => ({
+          id: j.toString(),
+          name: `Channel ${j}`
+        }))
+      }));
+
+      const memberIds = (await getData(`/api/v1/servers/${id}/members`))
+        .members;
+
+      const roles: Role[] = Array.from({ length: 10 }, (_, i) => ({
+        id: i.toString(),
+        name: `role_${i}`,
+        color: `#${
+          Math.floor(Math.random() * 16777215).toString(16) // random color
+        }`
+      }));
+      dispatch({ type: Actions.SET_CATEGORIES, payload: categories });
+      dispatch({ type: Actions.SET_MEMBER_IDS, payload: memberIds });
+      dispatch({ type: Actions.SET_ROLES, payload: roles });
+      dispatch({ type: Actions.SELECT_SERVER, payload: id });
+    } catch (err: any) {
+      throw new Error(err.message);
     }
-    // fetch server with id provided
-    const categories: Category[] = Array.from({ length: 5 }, (_, i) => ({
-      id: i.toString(),
-      name: i ? `Category ${i}` : `Uncategorized`,
-      channels: Array.from({ length: 5 }, (_, j) => ({
-        id: j.toString(),
-        name: `Channel ${j}`
-      }))
-    }));
-
-    const members: Member[] = Array.from({ length: 10 }, (_, i) => ({
-      id: i.toString(),
-      username: `user_${i}`
-    }));
-
-    const roles: Role[] = Array.from({ length: 10 }, (_, i) => ({
-      id: i.toString(),
-      name: `role_${i}`,
-      color: `#${
-        Math.floor(Math.random() * 16777215).toString(16) // random color
-      }`
-    }));
-    dispatch({ type: Actions.SET_CATEGORIES, payload: categories });
-    dispatch({ type: Actions.SET_MEMBERS, payload: members });
-    dispatch({ type: Actions.SET_ROLES, payload: roles });
-    dispatch({ type: Actions.SELECT_SERVER, payload: id });
   };
 
   const setServers = (
