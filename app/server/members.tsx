@@ -6,6 +6,7 @@ import {
   View
 } from 'react-native';
 import React, {
+  useCallback,
   useEffect,
   useLayoutEffect,
   useMemo,
@@ -29,6 +30,7 @@ import { ProfileStatus, UserProfile } from '@/types';
 import useServers from '@/hooks/useServers';
 import { getData } from '@/utils/api';
 import TrieSearch from 'trie-search';
+import debounce from '@/utils/debounce';
 
 const Members = () => {
   const navigation = useNavigation();
@@ -38,6 +40,22 @@ const Members = () => {
   const [filteredMembers, setFilteredMembers] = useState<ProfileStatus[]>([]);
 
   const trie = useRef(new TrieSearch('name')).current;
+
+  const handleSearch = useCallback(
+    (query: string) => {
+      if (query === '') {
+        setFilteredMembers(members);
+        return;
+      }
+
+      const results = trie.search(query);
+      // @ts-ignore
+      setFilteredMembers(results.map((item) => item.data));
+    },
+    [trie, members]
+  );
+
+  const debouncedSearch = useMemo(() => debounce(handleSearch), [handleSearch]);
 
   useEffect(() => {
     trie.reset();
@@ -57,14 +75,7 @@ const Members = () => {
   }, [members]);
 
   useEffect(() => {
-    if (query === '') {
-      setFilteredMembers(members);
-      return;
-    }
-
-    const results = trie.search(query);
-    // @ts-ignore
-    setFilteredMembers(results.map((item) => item.data));
+    debouncedSearch(query);
   }, [query]);
 
   useLayoutEffect(() => {
