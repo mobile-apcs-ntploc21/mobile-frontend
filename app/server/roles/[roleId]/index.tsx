@@ -85,12 +85,18 @@ const RoleEdit = () => {
     });
   }, [formRef.current?.dirty]);
 
+  const [initialValues, setInitialValues] = useState<FormProps>({
+    roleTitle: '',
+    roleColor: colors.primary,
+    allowMention: false
+  });
+
   useEffect(() => {
     (async () => {
       const response = await getData(
         `/api/v1/servers/${currentServerId}/roles/${roleId}`
       );
-      formRef.current?.setValues({
+      setInitialValues({
         roleTitle: response.name,
         roleColor: response.color,
         allowMention: response.allow_anyone_mention
@@ -192,11 +198,8 @@ const RoleEdit = () => {
   return (
     <Formik
       innerRef={formRef}
-      initialValues={{
-        roleTitle: '',
-        roleColor: colors.primary,
-        allowMention: false
-      }}
+      initialValues={initialValues}
+      enableReinitialize
       onSubmit={(values, { setFieldError }) => {
         handleSubmit(values, setFieldError);
       }}
