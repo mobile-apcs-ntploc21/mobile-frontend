@@ -10,7 +10,7 @@ import {
   useReducer
 } from 'react';
 
-enum Actions {
+export enum ServerActions {
   INIT = 'INIT',
   SET_CATEGORIES = 'SET_CATEGORIES',
   SET_MEMBERS = 'SET_MEMBERS',
@@ -36,21 +36,22 @@ type Role = {
   color: string;
 };
 
-type State = {
+type ServerState = {
+  latestAction: ServerActions | null;
   server_id: string | null;
   categories: Category[];
   members: ProfileStatus[];
   roles: Role[];
 };
 
-type Action = {
-  type: Actions;
+type ServerAction = {
+  type: ServerActions;
   payload: any;
 };
 
-interface IContext extends State {
+interface IContext extends ServerState {
   setServer: (id: string) => Promise<void>;
-  dispatch: Dispatch<Action>;
+  dispatch: Dispatch<ServerAction>;
 }
 
 interface ProviderProps {
@@ -58,68 +59,65 @@ interface ProviderProps {
   children: ReactNode;
 }
 
-const initialState: State = {
+const initialState: ServerState = {
+  latestAction: null,
   server_id: null,
   categories: [],
   members: [],
   roles: []
 };
 
-const handlers: Record<string, (state: State, action: Action) => State> = {
-  [Actions.INIT]: (_, { payload }) => payload,
-  [Actions.SET_CATEGORIES]: (state, { payload }) => {
+const handlers: Record<
+  string,
+  (state: ServerState, action: ServerAction) => ServerState
+> = {
+  [ServerActions.INIT]: (_, { payload }) => payload,
+  [ServerActions.SET_CATEGORIES]: (state, { payload }) => {
     return {
       ...state,
+      latestAction: ServerActions.SET_CATEGORIES,
       categories: payload
     };
   },
-  [Actions.SET_MEMBERS]: (state, { payload }) => {
+  [ServerActions.SET_MEMBERS]: (state, { payload }) => {
     return {
       ...state,
+      latestAction: ServerActions.SET_MEMBERS,
       members: payload
     };
   },
-  [Actions.SET_ROLES]: (state, { payload }) => {
+  [ServerActions.SET_ROLES]: (state, { payload }) => {
     return {
       ...state,
+      latestAction: ServerActions.SET_ROLES,
       roles: payload
     };
   },
-  [Actions.UPDATE_STATUS]: (state, { payload }) => {
+  [ServerActions.UPDATE_STATUS]: (state, { payload }) => {
     return {
       ...state,
+      latestAction: ServerActions.UPDATE_STATUS,
       members: state.members.map((member) =>
         member.user_profile.user_id === payload.user_id
-          ? {
-              ...member,
-              user_status: {
-                ...member.user_status,
-                ...payload
-              }
-            }
+          ? JSON.parse(JSON.stringify({ ...member, user_status: payload }))
           : member
       )
     };
   },
-  [Actions.UPDATE_PROFILE]: (state, { payload }) => {
+  [ServerActions.UPDATE_PROFILE]: (state, { payload }) => {
     return {
       ...state,
+      latestAction: ServerActions.UPDATE_PROFILE,
       members: state.members.map((member) =>
         member.user_profile.user_id === payload.user_id
-          ? {
-              ...member,
-              user_profile: {
-                ...member.user_status,
-                ...payload
-              }
-            }
+          ? JSON.parse(JSON.stringify({ ...member, user_profile: payload }))
           : member
       )
     };
   }
 };
 
-const reducer = (state: State, action: Action) => {
+const reducer = (state: ServerState, action: ServerAction) => {
   const handler = handlers[action.type];
   if (!handler) {
     throw new Error(`Invalid action type: ${action.type}`);
@@ -145,10 +143,16 @@ export const ServerProvider = (props: ProviderProps) => {
     const { serverUpdated } = subscriptionData;
     switch (serverUpdated.type) {
       case ServerEvents.userStatusChanged:
-        dispatch({ type: Actions.UPDATE_STATUS, payload: serverUpdated.data });
+        dispatch({
+          type: ServerActions.UPDATE_STATUS,
+          payload: serverUpdated.data
+        });
         break;
       case ServerEvents.userProfileChanged:
-        dispatch({ type: Actions.UPDATE_PROFILE, payload: serverUpdated.data });
+        dispatch({
+          type: ServerActions.UPDATE_PROFILE,
+          payload: serverUpdated.data
+        });
         break;
     }
   }, [subscriptionData, dispatch]);
@@ -176,7 +180,7 @@ export const ServerProvider = (props: ProviderProps) => {
       }));
 
       dispatch({
-        type: Actions.INIT,
+        type: ServerActions.INIT,
         payload: {
           server_id: id,
           categories,

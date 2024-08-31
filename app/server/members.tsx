@@ -28,10 +28,11 @@ import { ProfileStatus, UserProfile } from '@/types';
 import TrieSearch from 'trie-search';
 import debounce from '@/utils/debounce';
 import useServer from '@/hooks/useServer';
+import { ServerActions } from '@/context/ServerProvider';
 
 const Members = () => {
   const navigation = useNavigation();
-  const { members } = useServer();
+  const { members, latestAction } = useServer();
   const [modalVisible, setModalVisible] = useState(false);
   const [query, setQuery] = useState('');
   const [filteredMembers, setFilteredMembers] = useState<ProfileStatus[]>([]);
@@ -45,9 +46,9 @@ const Members = () => {
         return;
       }
 
-      const results = trie.search(query);
       // @ts-ignore
-      setFilteredMembers(results.map((item) => item.data));
+      const results = trie.search(query).map((item) => item.data);
+      setFilteredMembers(results);
     },
     [trie, members]
   );
@@ -55,20 +56,35 @@ const Members = () => {
   const debouncedSearch = useMemo(() => debounce(handleSearch), [handleSearch]);
 
   useEffect(() => {
-    trie.reset();
-    trie.clearCache();
-    trie.addAll(
-      members.map((ps) => ({
-        name: ps.user_profile.display_name,
-        data: ps
-      }))
-    );
-    trie.addAll(
-      members.map((ps) => ({
-        name: ps.user_profile.username,
-        data: ps
-      }))
-    );
+    switch (latestAction) {
+      case ServerActions.SET_MEMBERS:
+        trie.reset();
+        trie.clearCache();
+        trie.addAll(
+          members.map((ps) => ({
+            name: ps.user_profile.display_name,
+            data: ps
+          }))
+        );
+        trie.addAll(
+          members.map((ps) => ({
+            name: ps.user_profile.username,
+            data: ps
+          }))
+        );
+        break;
+      case ServerActions.UPDATE_STATUS:
+      case ServerActions.UPDATE_PROFILE:
+        setFilteredMembers(
+          filteredMembers.map((ps) => {
+            const member = members.find(
+              (m) => m.user_profile.user_id === ps.user_profile.user_id
+            );
+            return member || ps;
+          })
+        );
+        break;
+    }
   }, [members]);
 
   useEffect(() => {

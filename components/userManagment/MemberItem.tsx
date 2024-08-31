@@ -12,31 +12,29 @@ interface MemberItemProps {
   status?: UserStatus;
 }
 
-const MemberItem = ({ profile, status }: MemberItemProps) => {
-  return (
-    <View style={styles.container}>
-      <Skeleton colorMode="light" width={44} height={44} radius={'round'}>
+const MemberItem = ({ profile, status }: MemberItemProps) => (
+  <View style={styles.container}>
+    <Skeleton colorMode="light" width={44} height={44} radius={'round'}>
+      {profile && (
+        <Avatar id={profile.user_id} {...{ profile, status }} showStatus />
+      )}
+    </Skeleton>
+    <View style={styles.info}>
+      <Skeleton colorMode="light" width={'50%'} height={16}>
         {profile && (
-          <Avatar id={profile.user_id} {...{ profile, status }} showStatus />
+          <MyText style={styles.nickname}>{profile.display_name}</MyText>
         )}
       </Skeleton>
-      <View style={styles.info}>
-        <Skeleton colorMode="light" width={'50%'} height={16}>
+      <View>
+        <Skeleton colorMode="light" width={'100%'} height={16}>
           {profile && (
-            <MyText style={styles.nickname}>{profile.display_name}</MyText>
+            <MyText style={styles.username}>@{profile.username}</MyText>
           )}
         </Skeleton>
-        <View>
-          <Skeleton colorMode="light" width={'100%'} height={16}>
-            {profile && (
-              <MyText style={styles.username}>@{profile.username}</MyText>
-            )}
-          </Skeleton>
-        </View>
       </View>
     </View>
-  );
-};
+  </View>
+);
 
 export default MemberItem;
 
