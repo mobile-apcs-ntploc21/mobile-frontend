@@ -1,6 +1,12 @@
 import { Alert, StyleSheet, Text, View } from 'react-native';
-import React, { useLayoutEffect, useMemo, useRef, useState } from 'react';
-import { router, useNavigation } from 'expo-router';
+import React, {
+  useEffect,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  useState
+} from 'react';
+import { router, useLocalSearchParams, useNavigation } from 'expo-router';
 import { Formik, FormikProps } from 'formik';
 import { NativeStackHeaderProps } from '@react-navigation/native-stack';
 import MyHeader from '@/components/MyHeader';
@@ -26,6 +32,8 @@ import BasicModal from '@/components/modal/BasicModal';
 import ButtonListToggle from '@/components/ButtonList/ButtonListToggle';
 import SearchBar from '@/components/SearchBar';
 import { frequencyMatch } from '@/utils/search';
+import { getData, patchData } from '@/utils/api';
+import useServers from '@/hooks/useServers';
 
 type FormProps = {
   permissions: {
@@ -33,24 +41,11 @@ type FormProps = {
   };
 };
 
-// Mock permissions
-const permissions = {
-  PERM_1: 'ALLOW',
-  PERM_2: 'DENY',
-  PERM_3: 'ALLOW',
-  PERM_4: 'DENY',
-  PERM_5: 'ALLOW',
-  PERM_6: 'DENY',
-  PERM_7: 'ALLOW',
-  PERM_8: 'DENY',
-  PERM_9: 'ALLOW',
-  PERM_10: 'DENY',
-  PERM_11: 'ALLOW'
-};
-
 const Permissions = () => {
   const navigation = useNavigation();
   const formRef = useRef<FormikProps<FormProps>>(null);
+  const { roleId } = useLocalSearchParams<{ roleId: string }>();
+  const { currentServerId } = useServers();
 
   useLayoutEffect(() => {
     navigation.setOptions({
@@ -95,105 +90,127 @@ const Permissions = () => {
     });
   }, [formRef.current?.dirty]);
 
-  const handleSubmit = (
+  const handleSubmit = async (
     values: FormProps,
     setErrors: (field: string, message: string | undefined) => void
   ) => {
-    console.log(values);
     try {
-      // handle create here
+      const permissions = Object.entries(values.permissions)
+        .filter(([key, value]) => key !== 'ADMINISTRATOR')
+        .map(([key, value]) => [key, value ? 'ALLOWED' : 'DENIED'])
+        .reduce((acc, [key, value]) => {
+          acc[key] = value;
+          return acc;
+        }, {} as { [key: string]: string });
+      const permissionsResponse = await patchData(
+        `/api/v1/servers/${currentServerId}/roles/${roleId}/permissions`,
+        permissions
+      );
+      const isAdminResponse = await patchData(
+        `/api/v1/servers/${currentServerId}/roles/${roleId}`,
+        {
+          is_admin: values.permissions.ADMINISTRATOR ? true : false
+        }
+      );
+      router.back();
     } catch (e) {}
   };
 
-  const [searchText, setSearchText] = useState('');
+  const [permissions, setPermissions] = useState<{
+    [key: string]: 'ALLOWED' | 'DENIED';
+  }>({});
+  useEffect(() => {
+    (async () => {
+      try {
+        console.log(
+          `/api/v1/servers/${currentServerId}/roles/${roleId}/permissions`
+        );
+        const response = await getData(
+          `/api/v1/servers/${currentServerId}/roles/${roleId}/permissions`
+        );
+        setPermissions(response);
+      } catch (e: any) {
+        console.error(e.message);
+      }
+    })();
+  }, []);
+
+  const [isAdmin, setIsAdmin] = useState(false);
+  useEffect(() => {
+    (async () => {
+      try {
+        const response = await getData(
+          `/api/v1/servers/${currentServerId}/roles/${roleId}`
+        );
+        setIsAdmin(response.is_admin);
+      } catch (e: any) {
+        console.error(e.message);
+      }
+    })();
+  }, []);
 
   // Need change to real permissions, edit only inside the permissions array
-  const permissionsList = useMemo(
-    () => [
+  const permissionsList = useMemo(() => {
+    const permissionItem = (value: string, label: string) => ({
+      value,
+      label,
+      isOn: permissions[value] === 'ALLOWED'
+    });
+
+    return [
       {
         title: 'General Permissions',
         permissions: [
-          {
-            value: 'PERM_1',
-            label: 'Permission 1',
-            isOn: permissions['PERM_1'] === 'ALLOW'
-          },
-          {
-            value: 'PERM_2',
-            label: 'Permission 2',
-            isOn: permissions['PERM_2'] === 'ALLOW'
-          }
+          permissionItem('VIEW_CHANNEL', 'View Channels'),
+          permissionItem('MANAGE_CHANNEL', 'Manage Channels'),
+          permissionItem('CREATE_EXPRESSION', 'Create Expressions'),
+          permissionItem('MANAGE_EXPRESSION', 'Manage Expressions'),
+          permissionItem('MANAGE_SERVER', 'Manage Server')
         ]
       },
       {
         title: 'Membership Permissions',
         permissions: [
-          {
-            value: 'PERM_3',
-            label: 'Permission 3',
-            isOn: permissions['PERM_3'] === 'ALLOW'
-          },
-          {
-            value: 'PERM_4',
-            label: 'Permission 4',
-            isOn: permissions['PERM_4'] === 'ALLOW'
-          }
+          permissionItem('MANAGE_INVITE', 'Manage Invite'),
+          permissionItem('KICK_MEMBER', 'Kick Members'),
+          permissionItem('BAN_MEMBER', 'Ban Members')
         ]
       },
       {
         title: 'Text Chat Permissions',
         permissions: [
-          {
-            value: 'PERM_5',
-            label: 'Permission 5',
-            isOn: permissions['PERM_5'] === 'ALLOW'
-          },
-          {
-            value: 'PERM_6',
-            label: 'Permission 6',
-            isOn: permissions['PERM_6'] === 'ALLOW'
-          }
+          permissionItem('SEND_MESSAGE', 'Send Messages'),
+          permissionItem('ATTACH_FILE', 'Attach Files'),
+          permissionItem('ADD_REACTION', 'Add Reactions'),
+          permissionItem('USE_EXTERNAL_EMOJI', 'Use External Emoji'),
+          permissionItem('MENTION_ALL', 'Mention @everyone and Roles'),
+          permissionItem('MANAGE_MESSAGE', 'Manage Messages')
         ]
       },
       {
         title: 'Voice Channel Permissions',
         permissions: [
-          {
-            value: 'PERM_7',
-            label: 'Permission 7',
-            isOn: permissions['PERM_7'] === 'ALLOW'
-          },
-          {
-            value: 'PERM_8',
-            label: 'Permission 8',
-            isOn: permissions['PERM_8'] === 'ALLOW'
-          },
-          {
-            value: 'PERM_9',
-            label: 'Permission 9',
-            isOn: permissions['PERM_9'] === 'ALLOW'
-          },
-          {
-            value: 'PERM_10',
-            label: 'Permission 10',
-            isOn: permissions['PERM_10'] === 'ALLOW'
-          }
+          permissionItem('VOICE_CONNECT', 'Connect'),
+          permissionItem('VOICE_SPEAK', 'Speak'),
+          permissionItem('VOICE_VIDEO', 'Video'),
+          permissionItem('VOICE_MUTE_MEMBER', 'Mute Members'),
+          permissionItem('VOICE_DEAFEN_MEMBER', 'Deafen Members')
         ]
       },
       {
         title: 'Advanced Permissions',
         permissions: [
           {
-            value: 'PERM_11',
-            label: 'Permission 11',
-            isOn: permissions['PERM_11'] === 'ALLOW'
+            value: 'ADMINISTRATOR',
+            label: 'Administrator',
+            isOn: isAdmin
           }
         ]
       }
-    ],
-    [permissions]
-  );
+    ];
+  }, [permissions, isAdmin]);
 
+  const [searchText, setSearchText] = useState('');
   const filteredPermissionsList = useMemo(() => {
     if (!searchText) return permissionsList;
     const result = permissionsList.map((group) => ({
@@ -209,12 +226,15 @@ const Permissions = () => {
     <Formik
       innerRef={formRef}
       initialValues={{
-        permissions: Object.fromEntries(
-          Object.entries(permissions).map(([key, value]) => [
-            key,
-            value === 'ALLOW'
-          ])
-        )
+        permissions: {
+          ...Object.fromEntries(
+            Object.entries(permissions).map(([key, value]) => [
+              key,
+              value === 'ALLOWED'
+            ])
+          ),
+          ADMINISTRATOR: isAdmin
+        }
       }}
       enableReinitialize
       onSubmit={(values, { setFieldError }) => {
@@ -244,7 +264,13 @@ const Permissions = () => {
                     setFieldValue('permissions', {
                       ...values.permissions,
                       [permission.value]: isOn
-                    })
+                    }),
+                  labelStyle: {
+                    color:
+                      permission.value === 'ADMINISTRATOR'
+                        ? colors.semantic_red
+                        : undefined
+                  }
                 }))}
               />
             ))}

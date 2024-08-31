@@ -1,4 +1,4 @@
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text, TextStyle, View } from 'react-native';
 import React, { useCallback, useEffect, useState } from 'react';
 import ButtonListBase, { ButtonListBaseProps } from './ButtonListBase';
 import MyText from '../MyText';
@@ -13,6 +13,7 @@ interface ButtonListToggleItem {
   label?: string;
   isOn?: boolean;
   onChange?: (isOn: boolean) => void;
+  labelStyle?: TextStyle;
 }
 
 interface ButtonListToggleProps extends Omit<ButtonListBaseProps, 'items'> {
@@ -29,7 +30,7 @@ const ToggleItem = ({
   const [isOn, setIsOn] = useState(item.isOn ?? false);
   return (
     <View style={styles.radioContainer} key={index}>
-      <MyText style={styles.label}>{item.label}</MyText>
+      <MyText style={[styles.label, item.labelStyle]}>{item.label}</MyText>
       <ToggleSwitch
         isOn={item.isOn ?? isOn}
         onColor={colors.primary}

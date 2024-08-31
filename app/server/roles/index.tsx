@@ -67,7 +67,18 @@ const Roles = () => {
           items={[
             {
               text: 'Default Permissions',
-              onPress: () => {}
+              onPress: async () => {
+                const response = await getData(
+                  `/api/v1/servers/${currentServerId}/roles`
+                );
+                const defaultRoleId = response.roles.find(
+                  (role: any) => role.default === true
+                ).id;
+                console.log(defaultRoleId);
+                if (defaultRoleId) {
+                  router.navigate(`./${defaultRoleId}/permissions`);
+                }
+              }
             }
           ]}
         />
