@@ -48,7 +48,10 @@ const DeleteServerModal = (props: DeleteServerModalProps) => {
       }
 
       props.onClose(true);
-      router.navigate('/servers');
+      // Go back to home screen
+      while (router.canGoBack()) {
+        router.back();
+      }
     } catch (err: any) {
       showAlert(err.message);
     }
