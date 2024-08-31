@@ -71,7 +71,12 @@ const handlers: Record<
   string,
   (state: ServerState, action: ServerAction) => ServerState
 > = {
-  [ServerActions.INIT]: (_, { payload }) => payload,
+  [ServerActions.INIT]: (_, { payload }) => {
+    return {
+      ...payload,
+      latestAction: ServerActions.INIT
+    };
+  },
   [ServerActions.SET_CATEGORIES]: (state, { payload }) => {
     return {
       ...state,

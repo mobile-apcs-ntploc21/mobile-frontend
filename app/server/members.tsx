@@ -25,7 +25,6 @@ import MemberItem from '@/components/userManagment/MemberItem';
 import FilterModal from '@/components/modal/FilterModal';
 import MyHeader from '@/components/MyHeader';
 import { ProfileStatus, UserProfile } from '@/types';
-import TrieSearch from 'trie-search';
 import debounce from '@/utils/debounce';
 import useServer from '@/hooks/useServer';
 import { ServerActions } from '@/context/ServerProvider';
@@ -37,54 +36,37 @@ const Members = () => {
   const [query, setQuery] = useState('');
   const [filteredMembers, setFilteredMembers] = useState<ProfileStatus[]>([]);
 
-  const trie = useRef(new TrieSearch('name')).current;
-
   const handleSearch = useCallback(
     (query: string) => {
+      query = query.trim().toLowerCase();
+
       if (query === '') {
         setFilteredMembers(members);
         return;
       }
 
+      const results = members.filter(
+        (member) =>
+          member.user_profile.display_name.toLowerCase().startsWith(query) ||
+          member.user_profile.username.toLowerCase().startsWith(query)
+      );
       // @ts-ignore
-      const results = trie.search(query).map((item) => item.data);
       setFilteredMembers(results);
     },
-    [trie, members]
+    [members]
   );
 
   const debouncedSearch = useMemo(() => debounce(handleSearch), [handleSearch]);
 
   useEffect(() => {
-    switch (latestAction) {
-      case ServerActions.SET_MEMBERS:
-        trie.reset();
-        trie.clearCache();
-        trie.addAll(
-          members.map((ps) => ({
-            name: ps.user_profile.display_name,
-            data: ps
-          }))
+    setFilteredMembers(
+      filteredMembers.map((ps) => {
+        const member = members.find(
+          (m) => m.user_profile.user_id === ps.user_profile.user_id
         );
-        trie.addAll(
-          members.map((ps) => ({
-            name: ps.user_profile.username,
-            data: ps
-          }))
-        );
-        break;
-      case ServerActions.UPDATE_STATUS:
-      case ServerActions.UPDATE_PROFILE:
-        setFilteredMembers(
-          filteredMembers.map((ps) => {
-            const member = members.find(
-              (m) => m.user_profile.user_id === ps.user_profile.user_id
-            );
-            return member || ps;
-          })
-        );
-        break;
-    }
+        return member || ps;
+      })
+    );
   }, [members]);
 
   useEffect(() => {
