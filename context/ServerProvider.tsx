@@ -6,6 +6,7 @@ import {
   createContext,
   Dispatch,
   ReactNode,
+  useCallback,
   useEffect,
   useReducer
 } from 'react';
@@ -143,6 +144,16 @@ export const ServerProvider = (props: ProviderProps) => {
     skip: !state.server_id
   });
 
+  const getProfileAndStatus = useCallback(async (id: string) => {
+    try {
+      const user_profile = await getData(`/api/v1/profile/${id}`);
+      const user_status = await getData(`/api/v1/status/${id}`);
+      return { user_profile, user_status };
+    } catch (e: any) {
+      throw new Error(e.message);
+    }
+  }, []);
+
   useEffect(() => {
     if (!subscriptionData) return;
     const { serverUpdated } = subscriptionData;
@@ -157,6 +168,47 @@ export const ServerProvider = (props: ProviderProps) => {
         dispatch({
           type: ServerActions.UPDATE_PROFILE,
           payload: serverUpdated.data
+        });
+      case ServerEvents.memberJoined:
+        (async () => {
+          const profileAndStatus = await getProfileAndStatus(
+            serverUpdated.data
+          );
+          dispatch({
+            type: ServerActions.SET_MEMBERS,
+            payload: [...state.members, profileAndStatus]
+          });
+        })();
+        break;
+      case ServerEvents.memberLeft:
+        dispatch({
+          type: ServerActions.SET_MEMBERS,
+          payload: state.members.filter(
+            (member) =>
+              member.user_profile.user_id !== serverUpdated.data.user_id
+          )
+        });
+        break;
+      case ServerEvents.memberAdded:
+        (async () => {
+          const profileAndStatus = await Promise.all(
+            // @ts-ignore
+            serverUpdated.data.map((user_id) => getProfileAndStatus(user_id))
+          );
+          dispatch({
+            type: ServerActions.SET_MEMBERS,
+            payload: [...state.members, ...profileAndStatus]
+          });
+        })();
+        break;
+      case ServerEvents.memberRemoved:
+        // @ts-ignore
+        dispatch({
+          type: ServerActions.SET_MEMBERS,
+          payload: state.members.filter(
+            (member) =>
+              !serverUpdated.data.includes(member.user_profile.user_id)
+          )
         });
         break;
     }

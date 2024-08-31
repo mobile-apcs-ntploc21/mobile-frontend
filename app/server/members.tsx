@@ -31,7 +31,7 @@ import { ServerActions } from '@/context/ServerProvider';
 
 const Members = () => {
   const navigation = useNavigation();
-  const { members, latestAction } = useServer();
+  const { members } = useServer();
   const [modalVisible, setModalVisible] = useState(false);
   const [query, setQuery] = useState('');
   const [filteredMembers, setFilteredMembers] = useState<ProfileStatus[]>([]);
@@ -59,14 +59,18 @@ const Members = () => {
   const debouncedSearch = useMemo(() => debounce(handleSearch), [handleSearch]);
 
   useEffect(() => {
-    setFilteredMembers(
-      filteredMembers.map((ps) => {
-        const member = members.find(
-          (m) => m.user_profile.user_id === ps.user_profile.user_id
-        );
-        return member || ps;
-      })
-    );
+    if (query === '') setFilteredMembers(members);
+    else
+      setFilteredMembers(
+        filteredMembers
+          .map((ps) => {
+            const member = members.find(
+              (m) => m.user_profile.user_id === ps.user_profile.user_id
+            );
+            return member || null;
+          })
+          .filter((m) => m !== null)
+      );
   }, [members]);
 
   useEffect(() => {
