@@ -107,7 +107,6 @@ const ServerInfo = (props: ServerInfoProps) => {
       <Animated.ScrollView
         style={styles.newsContainer}
         onContentSizeChange={(width, height) => {
-          console.log('Content height:', height);
           if (!hasLoggedHeight || height < 700) {
             setPaddingBottom(paddingBottom + (700 - height));
             setHasLoggedHeight(true);
