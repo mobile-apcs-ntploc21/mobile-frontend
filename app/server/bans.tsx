@@ -17,26 +17,41 @@ import MyHeader from '@/components/MyHeader';
 import UserBanItem from '@/components/userManagment/UserBanItem';
 import MyBottomSheetModal from '@/components/modal/MyBottomSheetModal';
 import ButtonListText from '@/components/ButtonList/ButtonListText';
-import { getData } from '@/utils/api';
+import { deleteData, getData } from '@/utils/api';
 import useServers from '@/hooks/useServers';
+import { showAlert } from '@/services/alert';
 
-type userBanItem = {
-  id: number;
+interface userBanItem {
+  id: string;
   username: string;
   avatar_url: string;
-};
+}
 
 const Bans = () => {
   const navigation = useNavigation();
   const bottomSheetModalRef = useRef<BottomSheetModal>(null);
   const [bannedUsers, setBannedUsers] = useState<userBanItem[]>([]);
   const { currentServerId } = useServers();
+  let currentUser: userBanItem = {
+    id: '',
+    username: '',
+    avatar_url: ''
+  }; // Current user to unban
 
-  const handleOpenBottomSheet = useCallback(() => {
-    bottomSheetModalRef.current?.present();
-  }, [bottomSheetModalRef]);
+  const handleOpenBottomSheet = useCallback(
+    (user: userBanItem) => {
+      currentUser = user;
+      bottomSheetModalRef.current?.present();
+    },
+    [bottomSheetModalRef]
+  );
 
-  const handleCloseBottomSheet = useCallback(() => {
+  const handleCloseBottomSheet = useCallback(async () => {
+    const result = await handleUnban();
+    console.log(result);
+    if (result) {
+      setBannedUsers(bannedUsers.filter((user) => user.id !== currentUser.id));
+    }
     bottomSheetModalRef.current?.dismiss();
   }, [bottomSheetModalRef]);
 
@@ -54,14 +69,14 @@ const Bans = () => {
       const serverId = currentServerId; // TODO: Replace with actual server ID
       try {
         // Fetch the list of banned users
-        const response = await getData(`/api/v1/servers/{serverId}/bans`);
+        const response = await getData(`/api/v1/servers/${serverId}/bans`);
 
         if (!response) {
           return;
         }
 
-        const userList = Object.values(response).map((user: any) => ({
-          id: user.id,
+        const userList = Object.values(await response).map((user: any) => ({
+          id: user.user_id,
           username: user.username,
           avatar_url: user.avatar_url
         }));
@@ -73,11 +88,27 @@ const Bans = () => {
     })();
   }, []);
 
+  const handleUnban = async () => {
+    console.log(currentUser);
+
+    const serverId = currentServerId;
+    const userId = currentUser.id;
+
+    try {
+      await deleteData(`/api/v1/servers/${serverId}/bans/${userId}`);
+
+      return true;
+    } catch (error) {
+      showAlert('Cannot unban user, please try again later.');
+      return false;
+    }
+  };
+
   return (
     <View style={{ flex: 1 }}>
       <MyBottomSheetModal
         ref={bottomSheetModalRef}
-        heading="username"
+        heading={`Unban ${currentUser.username}`}
         onClose={() => {
           console.log('Close bottom modal');
         }}
@@ -93,12 +124,6 @@ const Bans = () => {
       </View>
       <ScrollView style={{ flex: 1 }}>
         <View style={[GlobalStyles.subcontainer, { paddingBottom: 16 }]}>
-          {/* <ButtonListBase
-            items={Array.from({ length: 20 }, (_, index) => ({
-              itemComponent: <UserBanItem />,
-              onPress: handleOpenBottomSheet
-            }))}
-          /> */}
           {
             <ButtonListBase
               items={bannedUsers.map((user) => ({
@@ -108,7 +133,7 @@ const Bans = () => {
                     avatarUri={user.avatar_url}
                   />
                 ),
-                onPress: handleOpenBottomSheet
+                onPress: () => handleOpenBottomSheet(user)
               }))}
             />
           }
