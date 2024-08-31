@@ -1,30 +1,30 @@
+import { MyButtonText } from '@/components/MyButton';
+import MyHeader from '@/components/MyHeader';
+import MyText from '@/components/MyText';
+import CustomTextInput from '@/components/common/CustomTextInput';
+import DeleteServerModal from '@/components/modal/DeleteServerModal';
+import { DefaultCoverImage } from '@/constants/images';
+import { colors } from '@/constants/theme';
+import { useUserContext } from '@/context/UserProvider';
+import useServers from '@/hooks/useServers';
+import { showAlert } from '@/services/alert';
+import GlobalStyles from '@/styles/GlobalStyles';
+import { TextStyles } from '@/styles/TextStyles';
+import { deleteData, patchData } from '@/utils/api';
+import { MaterialIcons } from '@expo/vector-icons';
+import { NativeStackHeaderProps } from '@react-navigation/native-stack';
+import * as FileSystem from 'expo-file-system';
+import { Image } from 'expo-image';
+import * as ImagePicker from 'expo-image-picker';
+import { router, useNavigation } from 'expo-router';
+import { useFormik } from 'formik';
+import React, { useLayoutEffect, useMemo } from 'react';
 import {
   GestureResponderEvent,
   StyleSheet,
-  Text,
   TouchableOpacity,
   View
 } from 'react-native';
-import { Image } from 'expo-image';
-import React, { useLayoutEffect, useMemo } from 'react';
-import { router, useNavigation } from 'expo-router';
-import { NativeStackHeaderProps } from '@react-navigation/native-stack';
-import MyHeader from '@/components/MyHeader';
-import { useFormik } from 'formik';
-import MyText from '@/components/MyText';
-import { TextStyles } from '@/styles/TextStyles';
-import { colors } from '@/constants/theme';
-import * as ImagePicker from 'expo-image-picker';
-import * as FileSystem from 'expo-file-system';
-import GlobalStyles from '@/styles/GlobalStyles';
-import { DefaultCoverImage, DefaultProfileImage } from '@/constants/images';
-import { MaterialIcons } from '@expo/vector-icons';
-import CustomTextInput from '@/components/common/CustomTextInput';
-import { MyButtonText } from '@/components/MyButton';
-import { deleteData, patchData, postData } from '@/utils/api';
-import useServers from '@/hooks/useServers';
-import { useUserContext } from '@/context/UserProvider';
-import { showAlert } from '@/services/alert';
 
 const uriToBase64WithPrefix = async (uri: string) => {
   const base64 = await FileSystem.readAsStringAsync(uri, {
@@ -37,8 +37,10 @@ const uriToBase64WithPrefix = async (uri: string) => {
 const Overview = () => {
   const navigation = useNavigation();
   const [isSubmitting, setIsSubmitting] = React.useState(false);
+  const [showDeleteModal, setShowDeleteModal] = React.useState(false);
   const { servers, currentServerId, setServers, selectServer } = useServers();
   const { data } = useUserContext();
+
   const thisServer = useMemo(
     () => servers.find((server) => server.id === currentServerId),
     [servers, currentServerId]
@@ -139,34 +141,13 @@ const Overview = () => {
     await pickImageAsync('bannerImageUri');
   };
 
-  // This only use after a modal of confirmation
-  const handleDeleteServer = async () => {
-    try {
-      const response = await deleteData(`/api/v1/servers/${thisServer?.id}`);
-
-      console.log(response);
-
-      if (response) {
-        // Remove server from servers list
-        const newServers = servers.filter(
-          (server) => server.id !== thisServer?.id
-        );
-        console.log(newServers);
-
-        setServers(newServers, false);
-        if (newServers.length) {
-          selectServer(newServers[0].id);
-        }
-      }
-
-      router.navigate('/servers');
-    } catch (err: any) {
-      showAlert(err.message);
-    }
-  };
-
   return (
     <View style={GlobalStyles.screen}>
+      <DeleteServerModal
+        currentServer={thisServer}
+        visible={showDeleteModal}
+        onClose={() => setShowDeleteModal(false)}
+      />
       <View style={styles.contentContainer}>
         <View style={styles.editContainer}>
           <TouchableOpacity onPress={handlePickBannerImage}>
@@ -217,12 +198,13 @@ const Overview = () => {
             </View>
           </View>
         </View>
-        {thisServer?.owner_id === data?.id && (
+        {thisServer?.owner_id === data?.user_id && (
           <View style={styles.deleteButtonContainer}>
             <MyButtonText
               title="Delete Server"
               onPress={() => {
-                handleDeleteServer();
+                setShowDeleteModal(true);
+                console.log('delete server');
               }}
               backgroundColor={colors.semantic_red}
               textColor={colors.white}
