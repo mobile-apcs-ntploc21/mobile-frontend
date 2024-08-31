@@ -1,5 +1,5 @@
-import { Alert, StyleSheet, Text, View } from 'react-native';
-import React, { useLayoutEffect, useRef, useState } from 'react';
+import { ActivityIndicator, Alert, StyleSheet, Text, View } from 'react-native';
+import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { router, useLocalSearchParams, useNavigation } from 'expo-router';
 import { Formik, FormikProps } from 'formik';
 import { NativeStackHeaderProps } from '@react-navigation/native-stack';
@@ -20,6 +20,10 @@ import Avatar from '@/components/Avatar';
 import BasicModal from '@/components/modal/BasicModal';
 import ButtonListToggle from '@/components/ButtonList/ButtonListToggle';
 import MyColorPicker from '@/components/MyColorPicker';
+import { deleteData, getData, patchData, postData } from '@/utils/api';
+import useServers from '@/hooks/useServers';
+import { Actions, Member, responseToRoles } from '@/context/ServersProvider';
+import { showAlert } from '@/services/alert';
 
 type FormProps = {
   roleTitle: string;
@@ -28,13 +32,15 @@ type FormProps = {
 };
 
 const RoleEdit = () => {
+  const { currentServerId, roles, dispatch } = useServers();
   const navigation = useNavigation();
   const formRef = useRef<FormikProps<FormProps>>(null);
-
   const { roleId, roleTitle } = useLocalSearchParams<{
     roleId: string;
     roleTitle?: string;
   }>();
+  const [loading, setLoading] = useState(true);
+  const [members, setMembers] = useState<Member[]>([]);
 
   useLayoutEffect(() => {
     navigation.setOptions({
@@ -79,27 +85,107 @@ const RoleEdit = () => {
     });
   }, [formRef.current?.dirty]);
 
+  useEffect(() => {
+    (async () => {
+      const response = await getData(
+        `/api/v1/servers/${currentServerId}/roles/${roleId}`
+      );
+      formRef.current?.setValues({
+        roleTitle: response.name,
+        roleColor: response.color,
+        allowMention: response.allow_anyone_mention
+      });
+      const reponseMembers = await getData(
+        `/api/v1/servers/${currentServerId}/roles/${roleId}/members`
+      );
+      setMembers(
+        reponseMembers.members.map(
+          (member: any): Member => ({
+            id: member.id,
+            username: member.username,
+            display_name: member.display_name,
+            avatar: member.avatar
+          })
+        )
+      );
+      setLoading(false);
+    })();
+  }, []);
+
   const [deleteModalVisible, setDeleteModalVisible] = useState(false);
 
-  const bottomSheetRef = useRef<BottomSheetModal>(null);
+  const colorPickerRef = useRef<BottomSheetModal>(null);
 
-  const handleOpenBottomSheet = () => {
-    bottomSheetRef.current?.present();
+  const handleOpenColorPicker = () => {
+    colorPickerRef.current?.present();
   };
 
-  const handleCloseBottomSheet = () => {
-    bottomSheetRef.current?.dismiss();
+  const handleCloseColorPicker = () => {
+    colorPickerRef.current?.dismiss();
   };
 
-  const handleSubmit = (
+  const [removeMemberId, setRemoveMemberId] = useState<string | null>(null);
+  const [removeMemberUsername, setRemoveMemberUsername] = useState<
+    string | null
+  >(null);
+  const removeMemberRef = useRef<BottomSheetModal>(null);
+
+  const handleOpenRemoveMember = () => {
+    removeMemberRef.current?.present();
+  };
+
+  const handleCloseRemoveMember = () => {
+    removeMemberRef.current?.dismiss();
+  };
+
+  const handleSubmit = async (
     values: FormProps,
     setErrors: (field: string, message: string | undefined) => void
   ) => {
-    console.log(values);
     try {
-      // handle create here
+      const response = await patchData(
+        `/api/v1/servers/${currentServerId}/roles/${roleId}`,
+        {
+          name: values.roleTitle,
+          color: values.roleColor,
+          allow_anyone_mention: values.allowMention
+        }
+      );
+      const newRole = {
+        id: response.id,
+        name: response.name,
+        color: response.color,
+        allowMention: response.allow_anyone_mention,
+        memberCount: members.length
+      };
+      dispatch({
+        type: Actions.SET_ROLES,
+        payload: roles.map((role) => {
+          if (role.id === roleId) {
+            return newRole;
+          }
+          return role;
+        })
+      });
+      router.back();
     } catch (e) {
-      setErrors('roleTitle', 'Invalid role name');
+      showAlert('Error');
+    }
+  };
+
+  const handleDelete = async () => {
+    try {
+      const response = await deleteData(
+        `/api/v1/servers/${currentServerId}/roles/${roleId}`
+      );
+      const newRoles = roles.filter((role) => role.id !== roleId);
+      dispatch({
+        type: Actions.SET_ROLES,
+        payload: newRoles
+      });
+      router.back();
+    } catch (e) {
+      showAlert('Error');
     }
   };
 
@@ -126,15 +212,13 @@ const RoleEdit = () => {
             visible={deleteModalVisible}
             onClose={() => setDeleteModalVisible(false)}
             title="Delete Role"
-            onConfirm={() => {
-              // deleteData();
-            }}
+            onConfirm={handleDelete}
           >
             <MyText>{`Are you sure you want to delete this role?`}</MyText>
           </BasicModal>
           <MyBottomSheetModal
-            ref={bottomSheetRef}
-            onClose={handleCloseBottomSheet}
+            ref={colorPickerRef}
+            onClose={handleCloseColorPicker}
             heading="Pick a Color"
           >
             <MyColorPicker
@@ -142,86 +226,182 @@ const RoleEdit = () => {
               handleChange={handleChange('roleColor')}
             />
           </MyBottomSheetModal>
-          <ScrollView>
-            <View style={styles.topContainer}>
-              <TouchableOpacity
-                style={styles.roleIcon}
-                onPress={handleOpenBottomSheet}
-              >
-                <View style={styles.iconWrapper}>
-                  <RoleIcon color={values.roleColor} />
-                </View>
-                <IconWithSize
-                  icon={ColorizeIcon}
-                  size={24}
-                  color={colors.gray02}
-                />
-              </TouchableOpacity>
-              <View style={{ flex: 1 }}>
-                <CustomTextInput
-                  title="Role title"
-                  placeholder="Add a title"
-                  value={values.roleTitle}
-                  onChangeText={handleChange('roleTitle')}
-                  errorMessage={
-                    errors.roleTitle && touched.roleTitle
-                      ? errors.roleTitle
-                      : undefined
+          <MyBottomSheetModal
+            ref={removeMemberRef}
+            onClose={handleCloseRemoveMember}
+            heading={`Remove ${removeMemberUsername}`}
+          >
+            <ButtonListText
+              items={[
+                {
+                  text: 'Remove',
+                  style: {
+                    color: colors.semantic_red
+                  },
+                  onPress: async () => {
+                    try {
+                      const response = await deleteData(
+                        `/api/v1/servers/${currentServerId}/roles/${roleId}/members/${removeMemberId}`
+                      );
+                      setMembers(
+                        members.filter((member) => member.id !== removeMemberId)
+                      );
+                      dispatch({
+                        type: Actions.SET_ROLES,
+                        payload: roles.map((role) => {
+                          if (role.id === roleId) {
+                            return {
+                              ...role,
+                              memberCount: response.members.length
+                            };
+                          }
+                          return role;
+                        })
+                      });
+                    } catch (e) {
+                      showAlert('Error');
+                    }
+                    handleCloseRemoveMember();
                   }
+                }
+              ]}
+            />
+          </MyBottomSheetModal>
+          {loading ? (
+            <ActivityIndicator />
+          ) : (
+            <ScrollView>
+              <View style={styles.topContainer}>
+                <TouchableOpacity
+                  style={styles.roleIcon}
+                  onPress={handleOpenColorPicker}
+                >
+                  <View style={styles.iconWrapper}>
+                    <RoleIcon color={values.roleColor} />
+                  </View>
+                  <IconWithSize
+                    icon={ColorizeIcon}
+                    size={24}
+                    color={colors.gray02}
+                  />
+                </TouchableOpacity>
+                <View style={{ flex: 1 }}>
+                  <CustomTextInput
+                    title="Role title"
+                    placeholder="Add a title"
+                    value={values.roleTitle}
+                    onChangeText={handleChange('roleTitle')}
+                    errorMessage={
+                      errors.roleTitle && touched.roleTitle
+                        ? errors.roleTitle
+                        : undefined
+                    }
+                  />
+                </View>
+              </View>
+              <View style={styles.botContainer}>
+                <ButtonListText
+                  items={[
+                    {
+                      text: 'Permissions',
+                      onPress: () => router.navigate('./permissions')
+                    }
+                  ]}
+                />
+                <ButtonListToggle
+                  items={[
+                    {
+                      value: 'mention',
+                      label: 'Allow role mentions',
+                      isOn: values.allowMention,
+                      onChange: (isOn) => setFieldValue('allowMention', isOn)
+                    }
+                  ]}
+                />
+                <ButtonListText
+                  items={[
+                    {
+                      text: 'Add members',
+                      onPress: () => {
+                        dispatch({
+                          type: Actions.SET_CALLBACK,
+                          payload: (memberIds: string[]) => {
+                            (async () => {
+                              memberIds.forEach(async (memberId) => {
+                                const response = await postData(
+                                  `/api/v1/servers/${currentServerId}/roles/${roleId}/members/${memberId}`
+                                );
+                                setMembers(
+                                  response.members.map(
+                                    (member: any): Member => ({
+                                      id: member.id,
+                                      username: member.username,
+                                      display_name: member.display_name,
+                                      avatar: member.avatar
+                                    })
+                                  )
+                                );
+                                dispatch({
+                                  type: Actions.SET_ROLES,
+                                  payload: roles.map((role) => {
+                                    if (role.id === roleId) {
+                                      return {
+                                        ...role,
+                                        memberCount: response.members.length
+                                      };
+                                    }
+                                    return role;
+                                  })
+                                });
+                              });
+                            })();
+                          }
+                        });
+                        router.navigate({
+                          pathname: '/server/add_members',
+                          params: {
+                            excluded: members.map((member) => member.id)
+                          }
+                        });
+                      }
+                    }
+                  ]}
+                />
+                <Accordion heading={`(${members.length}) Members`} defaultOpen>
+                  {members.map((member, index) => (
+                    <TouchableOpacity
+                      key={index}
+                      style={styles.memberItem}
+                      onPress={() => {
+                        setRemoveMemberId(member.id);
+                        setRemoveMemberUsername(member.username);
+                        handleOpenRemoveMember();
+                      }}
+                    >
+                      <Avatar id={member.id} profilePic={member.avatar} />
+                      <View style={styles.memberInfo}>
+                        <Text style={styles.name}>{member.display_name}</Text>
+                        <Text
+                          style={styles.username}
+                        >{`@${member.username}`}</Text>
+                      </View>
+                    </TouchableOpacity>
+                  ))}
+                </Accordion>
+                <ButtonListText
+                  items={[
+                    {
+                      text: 'Delete role',
+                      style: {
+                        color: colors.semantic_red
+                      },
+                      onPress: () => setDeleteModalVisible(true)
+                    }
+                  ]}
                 />
               </View>
-            </View>
-            <View style={styles.botContainer}>
-              <ButtonListText
-                items={[
-                  {
-                    text: 'Permissions',
-                    onPress: () => router.navigate('./permissions')
-                  }
-                ]}
-              />
-              <ButtonListToggle
-                items={[
-                  {
-                    value: 'mention',
-                    label: 'Allow role mentions',
-                    isOn: values.allowMention,
-                    onChange: (isOn) => setFieldValue('allowMention', isOn)
-                  }
-                ]}
-              />
-              <ButtonListText
-                items={[
-                  {
-                    text: 'Add members',
-                    onPress: () => {}
-                  }
-                ]}
-              />
-              <Accordion heading={`(10) Members`} defaultOpen>
-                {Array.from({ length: 10 }, (_, index) => (
-                  <View key={index} style={styles.memberItem}>
-                    <Avatar id={index.toString()} />
-                    <View style={styles.memberInfo}>
-                      <Text style={styles.name}>John Doe</Text>
-                      <Text style={styles.username}>{`@${'johndoe'}`}</Text>
-                    </View>
-                  </View>
-                ))}
-              </Accordion>
-              <ButtonListText
-                items={[
-                  {
-                    text: 'Delete role',
-                    style: {
-                      color: colors.semantic_red
-                    },
-                    onPress: () => setDeleteModalVisible(true)
-                  }
-                ]}
-              />
-            </View>
-          </ScrollView>
+            </ScrollView>
+          )}
         </View>
       )}
     </Formik>

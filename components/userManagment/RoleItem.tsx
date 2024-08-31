@@ -1,9 +1,11 @@
 import { StyleSheet, Text, View } from 'react-native';
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Role } from '@/context/ServersProvider';
 import RoleIcon from '@/assets/icons/RoleIcon';
 import { TextStyles } from '@/styles/TextStyles';
 import { colors } from '@/constants/theme';
+import { getData } from '@/utils/api';
+import useServers from '@/hooks/useServers';
 
 const RoleItem = ({ role }: { role: Role }) => {
   return (
@@ -12,7 +14,7 @@ const RoleItem = ({ role }: { role: Role }) => {
         <View style={styles.iconWrapper}>
           <RoleIcon color={role.color} />
         </View>
-        <Text style={styles.memberCount}>10</Text>
+        <Text style={styles.memberCount}>{role.memberCount}</Text>
       </View>
       <Text style={styles.roleTitle}>{role.name}</Text>
     </View>

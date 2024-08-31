@@ -1,5 +1,5 @@
 import { Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import React, { useLayoutEffect } from 'react';
+import React, { useEffect, useLayoutEffect, useMemo, useState } from 'react';
 import { router, useNavigation } from 'expo-router';
 import MyHeader from '@/components/MyHeader';
 import MyText from '@/components/MyText';
@@ -14,8 +14,13 @@ import ButtonListBase from '@/components/ButtonList/ButtonListBase';
 import IconWithSize from '@/components/IconWithSize';
 import RoleIcon from '@/assets/icons/RoleIcon';
 import RoleItem from '@/components/userManagment/RoleItem';
+import useServers from '@/hooks/useServers';
+import { Actions, responseToRoles, Role } from '@/context/ServersProvider';
+import { frequencyMatch } from '@/utils/search';
+import { getData } from '@/utils/api';
 
 const Roles = () => {
+  const { roles, currentServerId, dispatch } = useServers();
   const navigation = useNavigation();
   useLayoutEffect(() => {
     navigation.setOptions({
@@ -32,6 +37,29 @@ const Roles = () => {
       )
     });
   }, []);
+
+  useEffect(() => {
+    (async () => {
+      try {
+        const response = await getData(
+          `/api/v1/servers/${currentServerId}/roles`
+        );
+        dispatch({
+          type: Actions.SET_ROLES,
+          payload: responseToRoles(response)
+        });
+      } catch (e: any) {
+        console.error(e.message);
+      }
+    })();
+  }, []);
+
+  const [searchText, setSearchText] = useState('');
+
+  const filteredRoles = useMemo(() => {
+    return roles.filter((role) => frequencyMatch(role.name, searchText));
+  }, [roles, searchText]);
+
   return (
     <View style={{ flex: 1, backgroundColor: colors.gray04 }}>
       <View style={styles.headerContainer}>
@@ -43,26 +71,18 @@ const Roles = () => {
             }
           ]}
         />
-        <SearchBar />
+        <SearchBar value={searchText} onChangeText={setSearchText} />
       </View>
       <ScrollView contentContainerStyle={styles.scrollView}>
         <ButtonListBase
-          heading={`(10) Roles`}
-          items={Array.from({ length: 10 }, (_, index) => ({
-            itemComponent: (
-              <RoleItem
-                role={{
-                  id: `role-${index}`,
-                  name: `Role ${index + 1}`,
-                  color: colors.primary
-                }}
-              />
-            ),
+          heading={`(${filteredRoles.length}) Roles`}
+          items={filteredRoles.map((role, index) => ({
+            itemComponent: <RoleItem role={role} />,
             onPress: () =>
               router.navigate({
-                pathname: `./${index}`,
+                pathname: `./${role.id}`,
                 params: {
-                  roleTitle: `Role ${index + 1}`
+                  roleTitle: role.name
                 }
               })
           }))}

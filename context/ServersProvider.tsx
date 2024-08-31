@@ -1,4 +1,5 @@
 import { Server } from '@/types';
+import { getData } from '@/utils/api';
 import { createContext, ReactNode, useEffect, useReducer, useRef } from 'react';
 
 // Types
@@ -33,6 +34,21 @@ export type Role = {
   id: string;
   name: string;
   color: string;
+  allowMention?: boolean;
+  memberCount?: number;
+};
+
+export const responseToRoles = (response: any): Role[] => {
+  if (!response.roles) return [];
+  return response.roles
+    .filter((role: any) => role.default === false)
+    .map((role: any) => ({
+      id: role.id,
+      name: role.name,
+      color: role.color,
+      allowMention: role.allow_anyone_mention,
+      memberCount: role.number_of_users
+    }));
 };
 
 type ServersState = {
@@ -135,9 +151,49 @@ const reducer = (state: ServersState, action: ServerAction) => {
   return handler(state, action);
 };
 
+const MockMembers: Member[] = [
+  {
+    id: '6690983e2a505b6209cc1c21',
+    display_name: 'Bin',
+    username: 'nhanbin',
+    avatar:
+      'https://cdn.ntploc21.xyz/avatars/a03efd8d-f71f-4123-848a-8f69fba80ab3.png", "banner_url": "https://cdn.ntploc21.xyz/banners/d37860c8-862b-4d93-b618-77612cfa41fe.png'
+  },
+  {
+    id: '668fd2737d14368c57eabd02',
+    display_name: 'abcdef',
+    username: 'abcdef',
+    avatar: ''
+  },
+  {
+    id: '668ffb9d5bafe5c8fa6cec9b',
+    display_name: 'ntploc21',
+    username: 'ntploc21',
+    avatar: ''
+  },
+  {
+    id: '66928e2d1dea7597b1847ba1',
+    display_name: 'nhphuc',
+    username: 'nhphuc',
+    avatar:
+      'https://cdn.ntploc21.xyz/avatars/8d984bf3-4566-4b0f-893a-f17675fc5f8a.png'
+  }
+];
+
 // Provider
 export const ServersProvider = ({ children }: ServersProviderProps) => {
   const [state, dispatch] = useReducer(reducer, initialState);
+
+  const fetchRoles = async (serverId: string) => {
+    try {
+      const response = await getData(`/api/v1/servers/${serverId}/roles`);
+      return response;
+    } catch (e: any) {
+      console.error(e.message);
+      return [];
+    }
+  };
+
   const selectServer = async (id: string) => {
     // Fetch server id
     if (state.servers.findIndex((server) => server.id === id) === -1) {
@@ -153,19 +209,12 @@ export const ServersProvider = ({ children }: ServersProviderProps) => {
       }))
     }));
 
-    const members: Member[] = Array.from({ length: 10 }, (_, i) => ({
-      id: i.toString(),
-      username: `user_${i}`,
-      display_name: `User ${i}`
-    }));
+    const members = MockMembers;
 
-    const roles: Role[] = Array.from({ length: 10 }, (_, i) => ({
-      id: i.toString(),
-      name: `role_${i}`,
-      color: `#${Array.from({ length: 6 }, () =>
-        Math.floor(Math.random() * 16).toString(16)
-      ).join('')}`
-    }));
+    const roles = responseToRoles(await fetchRoles(id));
+
+    console.log(roles);
+
     dispatch({ type: Actions.SET_CATEGORIES, payload: categories });
     dispatch({ type: Actions.SET_MEMBERS, payload: members });
     dispatch({ type: Actions.SET_ROLES, payload: roles });
