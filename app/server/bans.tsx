@@ -24,6 +24,7 @@ import { showAlert } from '@/services/alert';
 interface userBanItem {
   id: string;
   username: string;
+  display_name: string;
   avatar_url: string;
 }
 
@@ -31,10 +32,12 @@ const Bans = () => {
   const navigation = useNavigation();
   const bottomSheetModalRef = useRef<BottomSheetModal>(null);
   const [bannedUsers, setBannedUsers] = useState<userBanItem[]>([]);
+  const [filteredUsers, setFilteredUsers] = useState<userBanItem[]>([]);
   const { currentServerId } = useServers();
   let currentUser: userBanItem = {
     id: '',
     username: '',
+    display_name: '',
     avatar_url: ''
   }; // Current user to unban
 
@@ -78,10 +81,12 @@ const Bans = () => {
         const userList = Object.values(await response).map((user: any) => ({
           id: user.user_id,
           username: user.username,
+          display_name: user?.display_name ?? user.username,
           avatar_url: user.avatar_url
         }));
 
         setBannedUsers(userList);
+        setFilteredUsers(userList);
       } catch (error) {
         console.log('Error fetching banned users:', error);
       }
@@ -119,17 +124,28 @@ const Bans = () => {
       </MyBottomSheetModal>
       <View style={[GlobalStyles.subcontainer, styles.searchContainer]}>
         <View style={{ flex: 1 }}>
-          <SearchBar />
+          <SearchBar
+            onChangeText={(text) => {
+              setFilteredUsers(
+                bannedUsers.filter(
+                  (user) =>
+                    user.username.toLowerCase().includes(text.toLowerCase()) ||
+                    user.display_name.toLowerCase().includes(text.toLowerCase())
+                )
+              );
+            }}
+          />
         </View>
       </View>
       <ScrollView style={{ flex: 1 }}>
         <View style={[GlobalStyles.subcontainer, { paddingBottom: 16 }]}>
           {
             <ButtonListBase
-              items={bannedUsers.map((user) => ({
+              items={filteredUsers.map((user) => ({
                 itemComponent: (
                   <UserBanItem
                     username={user.username}
+                    display_name={user.display_name}
                     avatarUri={user.avatar_url}
                   />
                 ),

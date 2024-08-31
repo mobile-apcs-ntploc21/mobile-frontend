@@ -6,6 +6,7 @@ import { colors, fonts } from '@/constants/theme';
 
 interface UserBanItemProps {
   username?: string;
+  display_name?: string;
   avatarUri?: string;
 }
 
@@ -17,9 +18,14 @@ const UserBanItem = (props: UserBanItemProps) => {
       ) : (
         <View style={styles.avatar} />
       )}
-      <MyText style={styles.username}>
-        {props.username ? props.username : 'username placeholder'}
-      </MyText>
+      <View>
+        <MyText style={styles.displayName}>
+          {props.display_name ? props.display_name : 'display_name'}
+        </MyText>
+        <MyText style={styles.username}>
+          {props.username ? `@${props.username}` : 'username'}
+        </MyText>
+      </View>
     </View>
   );
 };
@@ -38,8 +44,12 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     backgroundColor: colors.gray03
   },
-  username: {
-    fontSize: 14,
+  displayName: {
+    fontSize: 16,
     fontFamily: fonts.bold
+  },
+  username: {
+    fontSize: 10,
+    fontFamily: fonts.regular
   }
 });
