@@ -1,13 +1,25 @@
 import { StyleSheet, Text, View } from 'react-native';
+import { Image } from 'expo-image';
 import React from 'react';
 import MyText from '../MyText';
 import { colors, fonts } from '@/constants/theme';
 
-const UserBanItem = () => {
+interface UserBanItemProps {
+  username?: string;
+  avatarUri?: string;
+}
+
+const UserBanItem = (props: UserBanItemProps) => {
   return (
     <View style={styles.container}>
-      <View style={styles.avatar}></View>
-      <MyText style={styles.username}>username</MyText>
+      {props.avatarUri ? (
+        <Image source={{ uri: props.avatarUri }} style={styles.avatar} />
+      ) : (
+        <View style={styles.avatar} />
+      )}
+      <MyText style={styles.username}>
+        {props.username ? props.username : 'username placeholder'}
+      </MyText>
     </View>
   );
 };
