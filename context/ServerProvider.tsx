@@ -189,6 +189,10 @@ export const ServerProvider = (props: ProviderProps) => {
     }
   };
 
+  useEffect(() => {
+    if (props.server_id) setServer(props.server_id);
+  }, [props.server_id]);
+
   return (
     <ServerContext.Provider
       value={{

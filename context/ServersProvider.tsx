@@ -10,7 +10,7 @@ import {
 import { ServerProvider } from './ServerProvider';
 
 // Types
-enum Actions {
+export enum ServersActions {
   SELECT_SERVER = 'SELECT_SERVER',
   SET_SERVERS = 'SET_SERVERS',
   SET_CATEGORIES = 'SET_CATEGORIES',
@@ -55,13 +55,13 @@ const handlers: Record<
   string,
   (state: ServersState, action: ServerAction) => ServersState
 > = {
-  [Actions.SELECT_SERVER]: (state, { payload }) => {
+  [ServersActions.SELECT_SERVER]: (state, { payload }) => {
     return {
       ...state,
       currentServerId: payload
     };
   },
-  [Actions.SET_SERVERS]: (state, { payload }) => {
+  [ServersActions.SET_SERVERS]: (state, { payload }) => {
     return {
       ...state,
       servers: payload

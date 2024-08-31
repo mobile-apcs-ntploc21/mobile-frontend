@@ -13,11 +13,13 @@ import { colors, fonts } from '@/constants/theme';
 import useServers from '@/hooks/useServers';
 import Accordion from '@/components/Accordion';
 import { router } from 'expo-router';
+import useServer from '@/hooks/useServer';
 
 const MAXUSERS = 4;
 
 const ServerInfo = () => {
-  const { servers, currentServerId, members } = useServers();
+  const { servers, currentServerId } = useServers();
+  const { members } = useServer();
   const [userIds, setUserIds] = useState<string[]>(
     Array.from({ length: 10 }, (_, i) => i.toString())
   );

@@ -20,6 +20,7 @@ import { BottomSheetScrollView } from '@gorhom/bottom-sheet';
 import { COL, HEIGHT, MARGIN_X, MARGIN_Y, WIDTH } from '@/utils/dragging';
 import CreateServerModal from '../modal/CreateServerModal';
 import { putData } from '@/utils/api';
+import { ServersActions } from '@/context/ServersProvider';
 
 interface ExtendedServerListProps {
   swipeDown: () => void;
@@ -30,7 +31,7 @@ const ExtendedServerList = ({
   swipeDown,
   isFavorite
 }: ExtendedServerListProps) => {
-  const { servers, selectServer, setServers } = useServers();
+  const { servers, dispatch } = useServers();
   const [showModal, setShowModal] = useState(false);
   const positions = useSharedValue<number[]>([]);
   const serverRef = useRef(servers);
@@ -55,7 +56,7 @@ const ExtendedServerList = ({
       }
     });
 
-    setServers(newServers, true);
+    dispatch({ type: ServersActions.SET_SERVERS, payload: newServers });
   }, [isFavorite]);
 
   useEffect(() => {
@@ -78,7 +79,7 @@ const ExtendedServerList = ({
         }
       });
 
-      setServers(newServers, true);
+      dispatch({ type: ServersActions.SET_SERVERS, payload: newServers });
 
       const serverPositions = newServers.map((server) => ({
         server_id: server.id,
@@ -122,7 +123,7 @@ const ExtendedServerList = ({
         <ExtendedServerItem
           {...item}
           onPress={() => {
-            selectServer(item.id);
+            dispatch({ type: ServersActions.SELECT_SERVER, payload: item.id });
             swipeDown();
           }}
         />

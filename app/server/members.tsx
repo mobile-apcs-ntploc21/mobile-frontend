@@ -21,20 +21,17 @@ import GlobalStyles from '@/styles/GlobalStyles';
 import { MaterialIcons } from '@expo/vector-icons';
 import { colors } from '@/constants/theme';
 import ButtonListBase from '@/components/ButtonList/ButtonListBase';
-import MyText from '@/components/MyText';
 import MemberItem from '@/components/userManagment/MemberItem';
-import Header from '@/components/Header';
 import FilterModal from '@/components/modal/FilterModal';
 import MyHeader from '@/components/MyHeader';
 import { ProfileStatus, UserProfile } from '@/types';
-import useServers from '@/hooks/useServers';
-import { getData } from '@/utils/api';
 import TrieSearch from 'trie-search';
 import debounce from '@/utils/debounce';
+import useServer from '@/hooks/useServer';
 
 const Members = () => {
   const navigation = useNavigation();
-  const { members } = useServers();
+  const { members } = useServer();
   const [modalVisible, setModalVisible] = useState(false);
   const [query, setQuery] = useState('');
   const [filteredMembers, setFilteredMembers] = useState<ProfileStatus[]>([]);
