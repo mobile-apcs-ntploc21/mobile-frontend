@@ -13,7 +13,6 @@ interface MemberItemProps {
 }
 
 const MemberListItem = ({ profile }: MemberItemProps) => {
-  console.log(profile);
   return (
     <View style={styles.container}>
       <Skeleton colorMode="light" width={44} height={44} radius={'round'}>

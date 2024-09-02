@@ -32,7 +32,10 @@ const ServerMembers = () => {
     const onlineMembers: ServerProfile[] = [];
     const offlineMembers: ServerProfile[] = [];
     members.forEach((member) => {
-      if (member.status.is_online) {
+      if (
+        member.status.is_online &&
+        ![StatusType.INVISIBLE, StatusType.OFFLINE].includes(member.status.type)
+      ) {
         onlineMembers.push(member);
       } else {
         offlineMembers.push(member);
@@ -40,7 +43,7 @@ const ServerMembers = () => {
     });
     setOM(onlineMembers);
     setOFM(offlineMembers);
-  }, members);
+  }, [members]);
 
   useLayoutEffect(() => {
     navigation.setOptions({

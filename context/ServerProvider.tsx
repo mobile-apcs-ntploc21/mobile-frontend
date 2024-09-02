@@ -105,19 +105,20 @@ const handlers: Record<
       latestAction: ServerActions.UPDATE_STATUS,
       members: state.members.map((member) =>
         member.user_id === payload.user_id
-          ? JSON.parse(JSON.stringify({ ...member, status: payload }))
+          ? { ...member, status: payload }
           : member
       )
     };
   },
-  [ServerActions.UPDATE_PROFILE]: (state, { payload }) => {
+  [ServerActions.UPDATE_PROFILE]: (
+    state,
+    { payload: { status, ...profile } }
+  ) => {
     return {
       ...state,
       latestAction: ServerActions.UPDATE_PROFILE,
       members: state.members.map((member) =>
-        member.user_id === payload.user_id
-          ? JSON.parse(JSON.stringify({ ...member, ...payload }))
-          : member
+        member.user_id === profile.user_id ? { ...member, ...profile } : member
       )
     };
   }
