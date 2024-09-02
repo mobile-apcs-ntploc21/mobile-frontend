@@ -7,7 +7,13 @@ import {
   View
 } from 'react-native';
 import { Image } from 'expo-image';
-import { useMemo, useState } from 'react';
+import {
+  SetStateAction,
+  useCallback,
+  useEffect,
+  useMemo,
+  useState
+} from 'react';
 
 import ChannelItem from '@/components/Servers_Channels/ChannelItem';
 import MyButtonIcon from '@/components/MyButton/MyButtonIcon';
@@ -31,9 +37,6 @@ interface ServerInfoProps {
 
 const ServerInfo = (props: ServerInfoProps) => {
   const { servers, currentServerId } = useServers();
-  const [hasLoggedHeight, setHasLoggedHeight] = useState(false);
-  const [paddingBottom, setPaddingBottom] = useState(90 + 16);
-
   const thisServer = useMemo(
     () => servers.find((server) => server.id === currentServerId),
     [servers, currentServerId]
@@ -43,8 +46,25 @@ const ServerInfo = (props: ServerInfoProps) => {
     Array.from({ length: 10 }, (_, i) => i.toString())
   );
 
-  return (
-    <View style={styles.container}>
+  // =============== UI ===============
+
+  const paddingTopInterpolate = props.scrollY.interpolate({
+    inputRange: [0, 70],
+    outputRange: [0, 136 / 2 + 16],
+    extrapolate: 'clamp'
+  });
+
+  const handleScroll = (event: any) => {
+    const { y } = event.nativeEvent.contentOffset;
+    Animated.timing(props.scrollY, {
+      toValue: y,
+      duration: 0,
+      useNativeDriver: false
+    }).start();
+  };
+
+  const ServerInfo = () => (
+    <View>
       <View style={styles.serverInfoContainer}>
         <View style={styles.serverContainer}>
           {thisServer?.avatar ? (
@@ -103,36 +123,43 @@ const ServerInfo = (props: ServerInfoProps) => {
           )}
         </View>
       </View>
+    </View>
+  );
+
+  return (
+    <View style={styles.container}>
+      <ServerInfo />
       <View style={styles.separator} />
       <Animated.ScrollView
-        style={styles.newsContainer}
-        onContentSizeChange={(width, height) => {
-          if (!hasLoggedHeight || height < 700) {
-            setPaddingBottom(paddingBottom + (700 - height));
-            setHasLoggedHeight(true);
-          }
+        style={{
+          ...styles.newsContainer,
+          paddingTop: paddingTopInterpolate
         }}
         contentContainerStyle={{
           rowGap: 16,
           paddingTop: 16,
-          paddingBottom: paddingBottom
+          paddingBottom: 136 / 2 + 90 + 16,
+          minHeight: 700
         }}
         scrollEventThrottle={16}
-        onScroll={Animated.event(
-          [{ nativeEvent: { contentOffset: { y: props.scrollY } } }],
-          { useNativeDriver: false }
-        )}
+        onScroll={handleScroll}
       >
         {/* Uncategorized channels */}
         <View style={styles.newsWrapper}>
+          <ChannelItem />
           <ChannelItem unreadCount={3} />
         </View>
         {/* Categorized channels */}
         <Accordion heading={'General'} defaultOpen>
+          <ChannelItem />
+          <ChannelItem />
           <ChannelItem unreadCount={3} />
         </Accordion>
         <Accordion heading={'Project'} defaultOpen>
-          <ChannelItem />
+          <ChannelItem unreadCount={3} />
+        </Accordion>
+
+        <Accordion heading={'NSFW'} defaultOpen>
           <ChannelItem unreadCount={3} />
         </Accordion>
       </Animated.ScrollView>
@@ -202,7 +229,6 @@ const styles = StyleSheet.create({
   },
   newsContainer: {
     flex: 1,
-    flexGrow: 1,
     paddingHorizontal: 16
   },
   newsWrapper: {

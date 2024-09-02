@@ -17,39 +17,40 @@ export default function Servers() {
 
   const topInterpolate = scrollY.interpolate({
     inputRange: [0, 70],
-    outputRange: [136, 0],
+    outputRange: [0, -136],
     extrapolate: 'clamp'
   });
 
-  const radiusInterpolate = scrollY.interpolate({
+  const borderRadiusInterpolate = scrollY.interpolate({
     inputRange: [0, 70],
     outputRange: [30, 0],
     extrapolate: 'clamp'
   });
 
+  const ServerBanner = () => {
+    return (
+      <Animated.Image
+        source={
+          thisServer?.banner ? { uri: thisServer.banner } : DefaultCoverImage
+        }
+        style={styles.coverimg}
+      />
+    );
+  };
+
   const handleServerScreen = () => {
     if (servers && servers.length > 0 && thisServer) {
       return (
         <View style={{ flex: 1 }}>
-          <Animated.Image
-            source={
-              thisServer?.banner
-                ? { uri: thisServer.banner }
-                : DefaultCoverImage
-            }
-            style={{
-              ...styles.coverimg
-            }}
-          />
+          <ServerBanner />
           <Animated.View
-            style={[
-              styles.container,
-              {
-                top: topInterpolate,
-                borderTopLeftRadius: radiusInterpolate,
-                borderTopRightRadius: radiusInterpolate
-              }
-            ]}
+            style={{
+              ...styles.container,
+              height: '100%',
+              borderTopLeftRadius: borderRadiusInterpolate,
+              borderTopRightRadius: borderRadiusInterpolate,
+              transform: [{ translateY: topInterpolate }]
+            }}
           >
             <ServerInfo scrollY={scrollY} />
           </Animated.View>
