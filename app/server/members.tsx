@@ -5,7 +5,14 @@ import {
   TouchableWithoutFeedback,
   View
 } from 'react-native';
-import React, { useLayoutEffect, useState } from 'react';
+import React, {
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  useState
+} from 'react';
 import { router, useNavigation } from 'expo-router';
 import { NativeStackHeaderProps } from '@react-navigation/native-stack';
 
@@ -14,15 +21,59 @@ import GlobalStyles from '@/styles/GlobalStyles';
 import { MaterialIcons } from '@expo/vector-icons';
 import { colors } from '@/constants/theme';
 import ButtonListBase from '@/components/ButtonList/ButtonListBase';
-import MyText from '@/components/MyText';
 import MemberItem from '@/components/userManagment/MemberItem';
-import Header from '@/components/Header';
 import FilterModal from '@/components/modal/FilterModal';
 import MyHeader from '@/components/MyHeader';
+import { ServerProfile, UserProfile } from '@/types';
+import debounce from '@/utils/debounce';
+import useServer from '@/hooks/useServer';
+import { ServerActions } from '@/context/ServerProvider';
 
 const Members = () => {
   const navigation = useNavigation();
+  const { members } = useServer();
   const [modalVisible, setModalVisible] = useState(false);
+  const [query, setQuery] = useState('');
+  const [filteredMembers, setFilteredMembers] = useState<ServerProfile[]>([]);
+
+  const handleSearch = useCallback(
+    (query: string) => {
+      query = query.trim().toLowerCase();
+
+      if (query === '') {
+        setFilteredMembers(members);
+        return;
+      }
+
+      const results = members.filter(
+        (member) =>
+          member.display_name.toLowerCase().startsWith(query) ||
+          member.username.toLowerCase().startsWith(query)
+      );
+      // @ts-ignore
+      setFilteredMembers(results);
+    },
+    [members]
+  );
+
+  const debouncedSearch = useMemo(() => debounce(handleSearch), [handleSearch]);
+
+  useEffect(() => {
+    if (query === '') setFilteredMembers(members);
+    else
+      setFilteredMembers(
+        filteredMembers
+          .map((ps) => {
+            const member = members.find((m) => m.user_id === ps.user_id);
+            return member || null;
+          })
+          .filter((m) => m !== null)
+      );
+  }, [members]);
+
+  useEffect(() => {
+    debouncedSearch(query);
+  }, [query]);
 
   useLayoutEffect(() => {
     navigation.setOptions({
@@ -40,7 +91,7 @@ const Members = () => {
       />
       <View style={[GlobalStyles.subcontainer, styles.searchContainer]}>
         <View style={{ flex: 1 }}>
-          <SearchBar />
+          <SearchBar value={query} onChangeText={setQuery} />
         </View>
         <TouchableWithoutFeedback onPress={() => setModalVisible(true)}>
           <MaterialIcons name="filter-alt" size={24} color={colors.gray02} />
@@ -49,9 +100,11 @@ const Members = () => {
       <ScrollView style={{ flex: 1 }}>
         <View style={[GlobalStyles.subcontainer, { paddingBottom: 16 }]}>
           <ButtonListBase
-            heading="4 Members"
-            items={Array.from({ length: 10 }, (_, index) => ({
-              itemComponent: <MemberItem />,
+            heading={`${filteredMembers.length} Members`}
+            items={filteredMembers.map((member) => ({
+              itemComponent: (
+                <MemberItem key={member.user_id} profile={member} />
+              ),
               onPress: () => router.navigate('./edit_member')
             }))}
           />

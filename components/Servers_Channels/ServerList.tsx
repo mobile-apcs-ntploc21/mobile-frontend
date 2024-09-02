@@ -14,9 +14,10 @@ import ExtendedServerList from './ExtendedServerList';
 import Toggle from '../Toggle';
 import useServers from '@/hooks/useServers';
 import { getData } from '@/utils/api';
+import { ServersActions } from '@/context/ServersProvider';
 
 const ServerList = () => {
-  const { servers, setServers, selectServer } = useServers();
+  const { servers, dispatch } = useServers();
   const ref = useRef<BottomSheet>(null);
   const snapPoints = useMemo(() => [90, '95%'], []);
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -37,7 +38,7 @@ const ServerList = () => {
         const response = await getData('/api/v1/servers/list'); // return JSON array of servers
 
         if (!response) {
-          setServers([]); // Set empty array if no servers
+          dispatch({ type: ServersActions.SET_SERVERS, payload: [] }); // Set empty array if no servers
           return;
         }
 
@@ -51,12 +52,12 @@ const ServerList = () => {
         );
 
         if (Array.isArray(servers)) {
-          setServers(servers);
+          dispatch({ type: ServersActions.SET_SERVERS, payload: servers });
         } else {
           throw new Error('Failed to fetch servers.');
         }
       } catch (err: any) {
-        setServers([]); // Set empty array if error
+        dispatch({ type: ServersActions.SET_SERVERS, payload: [] }); // Set empty array if error
         throw new Error(err.message);
       }
     })();
@@ -64,7 +65,7 @@ const ServerList = () => {
 
   useEffect(() => {
     if (servers && servers.length > 0 && isInitialMount) {
-      selectServer(servers[0].id);
+      dispatch({ type: ServersActions.SELECT_SERVER, payload: servers[0].id });
       setIsInitialMount(false);
     }
   }, [servers]);

@@ -13,11 +13,13 @@ import { colors, fonts } from '@/constants/theme';
 import useServers from '@/hooks/useServers';
 import Accordion from '@/components/Accordion';
 import { router } from 'expo-router';
+import useServer from '@/hooks/useServer';
 
 const MAXUSERS = 4;
 
 const ServerInfo = () => {
   const { servers, currentServerId } = useServers();
+  const { members } = useServer();
   const [userIds, setUserIds] = useState<string[]>(
     Array.from({ length: 10 }, (_, i) => i.toString())
   );
@@ -58,9 +60,18 @@ const ServerInfo = () => {
       <View style={styles.activeMembersContainer}>
         <MyText style={styles.activeTitle}>Active (40)</MyText>
         <View style={styles.activeMembers}>
-          {userIds.slice(0, MAXUSERS).map((id) => (
-            <Avatar key={id} id={id} avatarStyle={styles.activeMember} />
-          ))}
+          {members
+            .slice(0, Math.min(members.length, MAXUSERS))
+            .map((member) => (
+              <Avatar
+                key={member.user_id}
+                id={member.user_id}
+                profile={member}
+                avatarStyle={styles.activeMember}
+                showStatus
+                // subscribeToStatus
+              />
+            ))}
           {userIds.length > MAXUSERS && (
             <MyButtonIcon
               icon={DotsIcon}

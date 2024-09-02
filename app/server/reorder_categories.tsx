@@ -16,17 +16,14 @@ import React, {
 import { router, useNavigation } from 'expo-router';
 import { NativeStackHeaderProps } from '@react-navigation/native-stack';
 
-import MyText from '@/components/MyText';
-import MyHeader from '@/components/MyHeader';
-import useServers from '@/hooks/useServers';
 import ReorderList from '@/components/reordering/ReorderList';
-import { colors, fonts } from '@/constants/theme';
-import MyAlert from '@/utils/alert';
 import MyHeaderRight from '@/components/MyHeaderRight';
+import useServer from '@/hooks/useServer';
+import { ServerActions } from '@/context/ServerProvider';
 
 const ReorderCategories = () => {
   const navigation = useNavigation();
-  const { categories, setCategories } = useServers();
+  const { categories, dispatch } = useServer();
 
   const [currentCat, setCurrentCat] = useState<typeof categories>(
     categories.slice(1)
@@ -34,7 +31,7 @@ const ReorderCategories = () => {
 
   const handleSave = useCallback(() => {
     currentCat.unshift(categories[0]);
-    setCategories(currentCat);
+    dispatch({ type: ServerActions.SET_CATEGORIES, payload: currentCat });
     router.canGoBack() && router.back();
   }, [currentCat]);
 

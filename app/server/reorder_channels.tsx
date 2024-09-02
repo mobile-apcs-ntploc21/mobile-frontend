@@ -16,22 +16,19 @@ import React, {
 import { router, useNavigation } from 'expo-router';
 import { NativeStackHeaderProps } from '@react-navigation/native-stack';
 
-import MyText from '@/components/MyText';
-import MyHeader from '@/components/MyHeader';
-import useServers from '@/hooks/useServers';
 import ReorderList from '@/components/reordering/ReorderList';
-import { colors, fonts } from '@/constants/theme';
-import MyAlert from '@/utils/alert';
 import MyHeaderRight from '@/components/MyHeaderRight';
+import useServer from '@/hooks/useServer';
+import { ServerActions } from '@/context/ServerProvider';
 
 const ReorderChannels = () => {
   const navigation = useNavigation();
-  const { categories, setCategories } = useServers();
+  const { categories, dispatch } = useServer();
 
   const [currentCat, setCurrentCat] = useState<typeof categories>(categories);
 
   const handleSave = useCallback(() => {
-    setCategories(currentCat);
+    dispatch({ type: ServerActions.SET_CATEGORIES, payload: currentCat });
     router.canGoBack() && router.back();
   }, [currentCat]);
 

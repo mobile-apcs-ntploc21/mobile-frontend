@@ -1,5 +1,11 @@
 import { FlatList, StyleSheet, Text, View } from 'react-native';
-import React, { useCallback, useLayoutEffect, useRef } from 'react';
+import React, {
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState
+} from 'react';
 import { router, useNavigation } from 'expo-router';
 import MyHeader from '@/components/MyHeader';
 import { NativeStackHeaderProps } from '@react-navigation/native-stack';
@@ -12,27 +18,32 @@ import { BottomSheetModal, BottomSheetScrollView } from '@gorhom/bottom-sheet';
 import MyBottomSheetModal from '@/components/modal/MyBottomSheetModal';
 import ButtonListText from '@/components/ButtonList/ButtonListText';
 import { ScrollView } from 'react-native-gesture-handler';
-
-const Item = (props: { user: any }) => {
-  const [statusText, setStatusText] = React.useState('');
-  return (
-    <View style={styles.item}>
-      <Avatar
-        id={props.user.id}
-        showStatus
-        setStatusText={setStatusText}
-        // subscribeToStatus
-      />
-      <View style={styles.userInfo}>
-        <Text style={styles.username}>User {props.user.id}</Text>
-        <Text style={styles.status}>{statusText}</Text>
-      </View>
-    </View>
-  );
-};
+import MemberListItem from '@/components/userManagment/MemberListItem';
+import useServer from '@/hooks/useServer';
+import { ServerProfile } from '@/types';
 
 const ServerMembers = () => {
   const navigation = useNavigation();
+  const { members } = useServer();
+  const [onlineMembers, setOM] = useState<ServerProfile[]>([]);
+  const [offlineMembers, setOFM] = useState<ServerProfile[]>([]);
+
+  useEffect(() => {
+    const onlineMembers: ServerProfile[] = [];
+    const offlineMembers: ServerProfile[] = [];
+    members.forEach((member) => {
+      if (
+        member.status.is_online &&
+        ![StatusType.INVISIBLE, StatusType.OFFLINE].includes(member.status.type)
+      ) {
+        onlineMembers.push(member);
+      } else {
+        offlineMembers.push(member);
+      }
+    });
+    setOM(onlineMembers);
+    setOFM(offlineMembers);
+  }, [members]);
 
   useLayoutEffect(() => {
     navigation.setOptions({
@@ -103,30 +114,30 @@ const ServerMembers = () => {
       </MyBottomSheetModal>
       <ScrollView contentContainerStyle={{ padding: 16, gap: 16 }}>
         <ButtonListBase
-          heading={'(5) Online'}
-          items={Array.from({ length: 5 }, (_, i) => ({
+          heading={`(${onlineMembers.length}) Online`}
+          items={onlineMembers.map((member) => ({
             itemComponent: (
-              <Item user={{ id: i.toString(), username: 'User ' + i }} />
+              <MemberListItem key={member.user_id} profile={member} />
             ),
             onPress: () => {
               setModalUser({
-                id: i.toString(),
-                username: 'User ' + i
+                id: member.user_id,
+                username: member.username
               });
               handleOpenBottomSheet();
             }
           }))}
         />
         <ButtonListBase
-          heading={'(5) Offline'}
-          items={Array.from({ length: 5 }, (_, i) => ({
+          heading={`(${offlineMembers.length}) Offline`}
+          items={offlineMembers.map((member) => ({
             itemComponent: (
-              <Item user={{ id: i.toString(), username: 'User ' + i }} />
+              <MemberListItem key={member.user_id} profile={member} />
             ),
             onPress: () => {
               setModalUser({
-                id: i.toString(),
-                username: 'User ' + i
+                id: member.user_id,
+                username: member.username
               });
               handleOpenBottomSheet();
             }
