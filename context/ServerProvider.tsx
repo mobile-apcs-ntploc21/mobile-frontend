@@ -182,11 +182,15 @@ export const ServerProvider = (props: ProviderProps) => {
           type: ServerActions.UPDATE_PROFILE,
           payload: serverUpdated.data
         });
+        break;
       case ServerEvents.memberJoined:
         (async () => {
-          let profileAndStatus = await getServerProfile(serverUpdated.data);
+          let profileAndStatus = await getServerProfile(
+            serverUpdated.data,
+            true
+          );
           if (!profileAndStatus)
-            profileAndStatus = await getServerProfile(serverUpdated.data, true);
+            profileAndStatus = await getServerProfile(serverUpdated.data);
           dispatch({
             type: ServerActions.SET_MEMBERS,
             payload: [...state.members, profileAndStatus]
@@ -206,8 +210,8 @@ export const ServerProvider = (props: ProviderProps) => {
           const profileAndStatus = await Promise.all(
             // @ts-ignore
             serverUpdated.data.map((user_id) =>
-              getServerProfile(user_id).catch(() =>
-                getServerProfile(user_id, true)
+              getServerProfile(user_id, true).catch(() =>
+                getServerProfile(user_id)
               )
             )
           );
