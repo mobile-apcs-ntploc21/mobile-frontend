@@ -16,6 +16,7 @@ import CustomTextInput from '../common/CustomTextInput';
 import { Server } from '@/types';
 import { router } from 'expo-router';
 import { showAlert } from '@/services/alert';
+import { ServersActions } from '@/context/ServersProvider';
 
 interface DeleteServerModalProps {
   currentServer?: Server;
@@ -24,7 +25,7 @@ interface DeleteServerModalProps {
 }
 
 const DeleteServerModal = (props: DeleteServerModalProps) => {
-  const { servers, setServers, selectServer } = useServers();
+  const { servers, dispatch } = useServers();
   const [serverName, setServerName] = useState('');
 
   const handleConfirm = async () => {
@@ -41,9 +42,12 @@ const DeleteServerModal = (props: DeleteServerModalProps) => {
           (server) => server.id !== props.currentServer?.id
         );
 
-        setServers(newServers, false);
+        dispatch({ type: ServersActions.SET_SERVERS, payload: newServers });
         if (newServers.length) {
-          selectServer(newServers[0].id);
+          dispatch({
+            type: ServersActions.SELECT_SERVER,
+            payload: newServers[0].id
+          });
         }
       }
 

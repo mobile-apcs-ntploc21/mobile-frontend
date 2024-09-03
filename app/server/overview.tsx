@@ -5,12 +5,12 @@ import CustomTextInput from '@/components/common/CustomTextInput';
 import DeleteServerModal from '@/components/modal/DeleteServerModal';
 import { DefaultCoverImage } from '@/constants/images';
 import { colors } from '@/constants/theme';
+import { ServersActions } from '@/context/ServersProvider';
 import { useUserContext } from '@/context/UserProvider';
 import useServers from '@/hooks/useServers';
-import { showAlert } from '@/services/alert';
 import GlobalStyles from '@/styles/GlobalStyles';
 import { TextStyles } from '@/styles/TextStyles';
-import { deleteData, patchData } from '@/utils/api';
+import { patchData } from '@/utils/api';
 import { MaterialIcons } from '@expo/vector-icons';
 import { NativeStackHeaderProps } from '@react-navigation/native-stack';
 import * as FileSystem from 'expo-file-system';
@@ -38,7 +38,7 @@ const Overview = () => {
   const navigation = useNavigation();
   const [isSubmitting, setIsSubmitting] = React.useState(false);
   const [showDeleteModal, setShowDeleteModal] = React.useState(false);
-  const { servers, currentServerId, setServers, selectServer } = useServers();
+  const { servers, currentServerId, dispatch } = useServers();
   const { data } = useUserContext();
 
   const thisServer = useMemo(
@@ -86,7 +86,7 @@ const Overview = () => {
         avatar: values.avatarImageUri,
         banner: values.bannerImageUri
       };
-      setServers(newServers, true);
+      dispatch({ type: ServersActions.SET_SERVERS, payload: newServers });
 
       setIsSubmitting(false);
       router.back();
