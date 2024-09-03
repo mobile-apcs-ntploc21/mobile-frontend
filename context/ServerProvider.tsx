@@ -1,5 +1,6 @@
 import { SERVER_SUBSCRIPTION } from '@/services/graphql/subscriptions';
 import { ServerEvents, ServerProfile } from '@/types';
+import { Category, Role } from '@/types/server';
 import { getData } from '@/utils/api';
 import { useSubscription } from '@apollo/client';
 import {
@@ -19,23 +20,6 @@ export enum ServerActions {
   UPDATE_STATUS = 'UPDATE_STATUS',
   UPDATE_PROFILE = 'UPDATE_PROFILE'
 }
-
-type Channel = {
-  id: string;
-  name: string;
-};
-
-type Category = {
-  id: string;
-  name: string;
-  channels: Channel[];
-};
-
-type Role = {
-  id: string;
-  name: string;
-  color: string;
-};
 
 type ServerState = {
   latestAction: ServerActions | null;

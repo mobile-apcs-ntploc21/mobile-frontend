@@ -106,6 +106,7 @@ const ServerMembers = () => {
                 text: 'Edit Member',
                 onPress: () => {
                   handleCloseBottomSheet();
+                  router.navigate(`/server/edit-member/${modalUser.id}`);
                 }
               }
             ]}
