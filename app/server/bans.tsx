@@ -54,6 +54,9 @@ const Bans = () => {
     console.log(result);
     if (result) {
       setBannedUsers(bannedUsers.filter((user) => user.id !== currentUser.id));
+      setFilteredUsers(
+        filteredUsers.filter((user) => user.id !== currentUser.id)
+      );
     }
     bottomSheetModalRef.current?.dismiss();
   }, [bottomSheetModalRef]);
@@ -75,6 +78,8 @@ const Bans = () => {
         const response = await getData(`/api/v1/servers/${serverId}/bans`);
 
         if (!response) {
+          setBannedUsers([]);
+          setFilteredUsers([]);
           return;
         }
 
@@ -98,9 +103,10 @@ const Bans = () => {
 
     const serverId = currentServerId;
     const userId = currentUser.id;
-
     try {
-      await deleteData(`/api/v1/servers/${serverId}/bans/${userId}`);
+      const response = await deleteData(
+        `/api/v1/servers/${serverId}/bans/${userId}`
+      );
 
       return true;
     } catch (error) {
