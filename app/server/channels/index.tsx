@@ -6,14 +6,14 @@ import { NativeStackHeaderProps } from '@react-navigation/native-stack';
 import MyHeader from '@/components/MyHeader';
 import GlobalStyles from '@/styles/GlobalStyles';
 import ButtonListText from '@/components/ButtonList/ButtonListText';
-import useServers from '@/hooks/useServers';
 import MyBottomSheetModal from '@/components/modal/MyBottomSheetModal';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
 import MyText from '@/components/MyText';
 import { colors, fonts } from '@/constants/theme';
+import useServer from '@/hooks/useServer';
 
 const Channels = () => {
-  const { categories } = useServers();
+  const { categories } = useServer();
   const navigation = useNavigation();
   const bottomSheetModalRef = useRef<BottomSheetModal>(null);
 

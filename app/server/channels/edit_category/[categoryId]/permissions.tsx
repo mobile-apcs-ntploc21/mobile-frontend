@@ -11,12 +11,14 @@ import useServers from '@/hooks/useServers';
 import { ScrollView } from 'react-native-gesture-handler';
 import RoleIcon from '@/assets/icons/RoleIcon';
 import { TextStyles } from '@/styles/TextStyles';
-import { Actions } from '@/context/ServersProvider';
 import RoleItem from '@/components/userManagment/RoleItem';
+import { useGlobalContext } from '@/context/GlobalProvider';
+import useServer from '@/hooks/useServer';
 
 const Permissions = () => {
   const navigation = useNavigation();
-  const { members, roles, dispatch } = useServers();
+  const { members, roles, dispatch } = useServer();
+  const { setCallback } = useGlobalContext();
 
   useLayoutEffect(() => {
     navigation.setOptions({
@@ -33,12 +35,9 @@ const Permissions = () => {
             {
               text: 'Add members',
               onPress: () => {
-                dispatch({
-                  type: Actions.SET_CALLBACK,
-                  payload: (memberIds: string[]) => {
-                    // add members to the server
-                    console.log('Adding members:', memberIds);
-                  }
+                setCallback(() => (memberIds: string[]) => {
+                  // add members to the server
+                  console.log('Adding members:', memberIds);
                 });
                 router.navigate('/server/add_members');
               }
@@ -46,12 +45,9 @@ const Permissions = () => {
             {
               text: 'Add roles',
               onPress: () => {
-                dispatch({
-                  type: Actions.SET_CALLBACK,
-                  payload: (roleIds: string[]) => {
-                    // add roles to the server
-                    console.log('Adding roles:', roleIds);
-                  }
+                setCallback(() => (roleIds: string[]) => {
+                  // add roles to the server
+                  console.log('Adding roles:', roleIds);
                 });
                 router.navigate('/server/add_roles');
               }
@@ -62,7 +58,7 @@ const Permissions = () => {
           <ButtonListBase
             heading="Members"
             items={members.map((member) => ({
-              itemComponent: <MemberItem member={member} />,
+              itemComponent: <MemberItem profile={member} />,
               onPress: () => {}
             }))}
           />

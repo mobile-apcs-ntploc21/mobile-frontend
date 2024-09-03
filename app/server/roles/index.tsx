@@ -15,12 +15,15 @@ import IconWithSize from '@/components/IconWithSize';
 import RoleIcon from '@/assets/icons/RoleIcon';
 import RoleItem from '@/components/userManagment/RoleItem';
 import useServers from '@/hooks/useServers';
-import { Actions, responseToRoles, Role } from '@/context/ServersProvider';
 import { frequencyMatch } from '@/utils/search';
 import { getData } from '@/utils/api';
+import useServer from '@/hooks/useServer';
+import { ServerActions } from '@/context/ServerProvider';
+import { responseToRoles } from '@/utils/response_handler';
 
 const Roles = () => {
-  const { roles, currentServerId, dispatch } = useServers();
+  const { currentServerId } = useServers();
+  const { roles, dispatch } = useServer();
   const navigation = useNavigation();
   useLayoutEffect(() => {
     navigation.setOptions({
@@ -44,8 +47,10 @@ const Roles = () => {
         const response = await getData(
           `/api/v1/servers/${currentServerId}/roles`
         );
+        // console.log(response);
+        // console.log(responseToRoles(response));
         dispatch({
-          type: Actions.SET_ROLES,
+          type: ServerActions.SET_ROLES,
           payload: responseToRoles(response)
         });
       } catch (e: any) {

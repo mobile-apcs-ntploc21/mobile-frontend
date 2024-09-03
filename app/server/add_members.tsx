@@ -20,6 +20,9 @@ import { frequencyMatch } from '@/utils/search';
 import Checkbox from '@/components/Checkbox';
 import MemberItem from '@/components/userManagment/MemberItem';
 import SearchBar from '@/components/SearchBar';
+import useServer from '@/hooks/useServer';
+import { useGlobalContext } from '@/context/GlobalProvider';
+import BasicMemberItem from '@/components/userManagment/BasicMemberItem';
 
 type FormProps = {
   memberIds: string[];
@@ -32,22 +35,18 @@ type FormProps = {
  * - Use router to navigate to the AddMember screen, and pass the `excluded` param to exclude some members from the list
  * Example:
  * ```ts
- * dispatch({
-    type: Actions.SET_CALLBACK,
-    payload: (memberIds: string[]) => {
-      console.log('Adding members:', memberIds);
-    }
-  });
-  router.navigate({
-    pathname: '/server/add_members',
-    params: {
-      excluded: members.map((member) => member.id)
-    }
-  });
+setCallback(() => (memberIds: string[]) => {
+  // add members to the server
+  console.log('Adding members:', memberIds);
+});
+router.navigate('/server/add_members', {
+  excluded: ['memberId1', 'memberId2']
+});
  * ```
  */
 const AddMember = () => {
-  const { callback, members } = useServers();
+  const { members } = useServer();
+  const { callback } = useGlobalContext();
   const navigation = useNavigation();
   const formRef = useRef<FormikProps<FormProps>>(null);
   const { excluded } = useLocalSearchParams<{
@@ -113,7 +112,7 @@ const AddMember = () => {
       (member) =>
         (frequencyMatch(member.username, searchText) ||
           frequencyMatch(member.display_name, searchText)) &&
-        !excluded?.split(',').includes(member.id)
+        !excluded?.split(',').includes(member.user_id)
     );
   }, [members, searchText]);
 
@@ -147,14 +146,21 @@ const AddMember = () => {
               items={filteredMemberList.map((item, index) => ({
                 itemComponent: (
                   <View style={styles.radioContainer} key={index}>
-                    <MemberItem member={item} />
+                    <BasicMemberItem
+                      member={{
+                        id: item.user_id,
+                        username: item.username,
+                        display_name: item.display_name,
+                        avatar: item.avatar_url
+                      }}
+                    />
                     <Checkbox
-                      value={values.memberIds.includes(item.id)}
-                      onChange={() => handleCheckboxPress(item.id)}
+                      value={values.memberIds.includes(item.user_id)}
+                      onChange={() => handleCheckboxPress(item.user_id)}
                     />
                   </View>
                 ),
-                onPress: () => handleCheckboxPress(item.id)
+                onPress: () => handleCheckboxPress(item.user_id)
               }))}
             />
           </ScrollView>

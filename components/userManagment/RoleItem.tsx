@@ -1,11 +1,11 @@
 import { StyleSheet, Text, View } from 'react-native';
 import React, { useEffect, useState } from 'react';
-import { Role } from '@/context/ServersProvider';
 import RoleIcon from '@/assets/icons/RoleIcon';
 import { TextStyles } from '@/styles/TextStyles';
 import { colors } from '@/constants/theme';
 import { getData } from '@/utils/api';
 import useServers from '@/hooks/useServers';
+import { Role } from '@/context/ServerProvider';
 
 const RoleItem = ({ role }: { role: Role }) => {
   return (

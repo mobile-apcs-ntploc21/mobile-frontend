@@ -1,4 +1,11 @@
-import { ActivityIndicator, Alert, StyleSheet, Text, View } from 'react-native';
+import {
+  ActivityIndicator,
+  Alert,
+  Image,
+  StyleSheet,
+  Text,
+  View
+} from 'react-native';
 import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { router, useLocalSearchParams, useNavigation } from 'expo-router';
 import { Formik, FormikProps } from 'formik';
@@ -22,8 +29,12 @@ import ButtonListToggle from '@/components/ButtonList/ButtonListToggle';
 import MyColorPicker from '@/components/MyColorPicker';
 import { deleteData, getData, patchData, postData } from '@/utils/api';
 import useServers from '@/hooks/useServers';
-import { Actions, Member, responseToRoles } from '@/context/ServersProvider';
 import { showAlert } from '@/services/alert';
+import useServer from '@/hooks/useServer';
+import { Member, ServerActions } from '@/context/ServerProvider';
+import { ServerProfile } from '@/types';
+import { useGlobalContext } from '@/context/GlobalProvider';
+import { DefaultProfileImage } from '@/constants/images';
 
 type FormProps = {
   roleTitle: string;
@@ -32,7 +43,9 @@ type FormProps = {
 };
 
 const RoleEdit = () => {
-  const { currentServerId, roles, dispatch } = useServers();
+  const { currentServerId } = useServers();
+  const { roles, dispatch } = useServer();
+  const { setCallback } = useGlobalContext();
   const navigation = useNavigation();
   const formRef = useRef<FormikProps<FormProps>>(null);
   const { roleId, roleTitle } = useLocalSearchParams<{
@@ -101,16 +114,16 @@ const RoleEdit = () => {
         roleColor: response.color,
         allowMention: response.allow_anyone_mention
       });
-      const reponseMembers = await getData(
+      const responseMembers = await getData(
         `/api/v1/servers/${currentServerId}/roles/${roleId}/members`
       );
       setMembers(
-        reponseMembers.members.map(
+        responseMembers.members.map(
           (member: any): Member => ({
             id: member.id,
             username: member.username,
             display_name: member.display_name,
-            avatar: member.avatar
+            avatar: member.avatar_url
           })
         )
       );
@@ -165,7 +178,7 @@ const RoleEdit = () => {
         memberCount: members.length
       };
       dispatch({
-        type: Actions.SET_ROLES,
+        type: ServerActions.SET_ROLES,
         payload: roles.map((role) => {
           if (role.id === roleId) {
             return newRole;
@@ -186,7 +199,7 @@ const RoleEdit = () => {
       );
       const newRoles = roles.filter((role) => role.id !== roleId);
       dispatch({
-        type: Actions.SET_ROLES,
+        type: ServerActions.SET_ROLES,
         payload: newRoles
       });
       router.back();
@@ -250,7 +263,7 @@ const RoleEdit = () => {
                         members.filter((member) => member.id !== removeMemberId)
                       );
                       dispatch({
-                        type: Actions.SET_ROLES,
+                        type: ServerActions.SET_ROLES,
                         payload: roles.map((role) => {
                           if (role.id === roleId) {
                             return {
@@ -326,40 +339,36 @@ const RoleEdit = () => {
                     {
                       text: 'Add members',
                       onPress: () => {
-                        dispatch({
-                          type: Actions.SET_CALLBACK,
-                          payload: (memberIds: string[]) => {
-                            (async () => {
-                              memberIds.forEach(async (memberId) => {
-                                const response = await postData(
-                                  `/api/v1/servers/${currentServerId}/roles/${roleId}/members/${memberId}`
-                                );
-                                setMembers(
-                                  response.members.map(
-                                    (member: any): Member => ({
-                                      id: member.id,
-                                      username: member.username,
-                                      display_name: member.display_name,
-                                      avatar: member.avatar
-                                    })
-                                  )
-                                );
-                                dispatch({
-                                  type: Actions.SET_ROLES,
-                                  payload: roles.map((role) => {
-                                    if (role.id === roleId) {
-                                      return {
-                                        ...role,
-                                        memberCount: response.members.length
-                                      };
-                                    }
-                                    return role;
-                                  })
-                                });
+                        setCallback(() => (memberIds: string[]) => {
+                          (async () => {
+                            memberIds.forEach(async (memberId) => {
+                              const response = await postData(
+                                `/api/v1/servers/${currentServerId}/roles/${roleId}/members/${memberId}`
+                              );
+                              setMembers(
+                                response.members.map((member: any) => ({
+                                  id: member.id,
+                                  username: member.username,
+                                  display_name: member.display_name,
+                                  avatar: member.avatar_url
+                                }))
+                              );
+                              dispatch({
+                                type: ServerActions.SET_ROLES,
+                                payload: roles.map((role) => {
+                                  if (role.id === roleId) {
+                                    return {
+                                      ...role,
+                                      memberCount: response.members.length
+                                    };
+                                  }
+                                  return role;
+                                })
                               });
-                            })();
-                          }
+                            });
+                          })();
                         });
+                        console.log(members);
                         router.navigate({
                           pathname: '/server/add_members',
                           params: {
@@ -379,9 +388,17 @@ const RoleEdit = () => {
                         setRemoveMemberId(member.id);
                         setRemoveMemberUsername(member.username);
                         handleOpenRemoveMember();
+                        console.log(member);
                       }}
                     >
-                      <Avatar id={member.id} profilePic={member.avatar} />
+                      <Image
+                        source={
+                          member.avatar
+                            ? { uri: member.avatar }
+                            : DefaultProfileImage
+                        }
+                        style={styles.avatar}
+                      />
                       <View style={styles.memberInfo}>
                         <Text style={styles.name}>{member.display_name}</Text>
                         <Text
@@ -461,5 +478,10 @@ const styles = StyleSheet.create({
   username: {
     ...TextStyles.bodyS,
     color: colors.gray02
+  },
+  avatar: {
+    width: 44,
+    height: 44,
+    borderRadius: 22
   }
 });

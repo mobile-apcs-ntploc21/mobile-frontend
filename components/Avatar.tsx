@@ -4,10 +4,11 @@ import { DefaultProfileImage } from '@/constants/images';
 import { getOnlineStatusColor } from '@/utils/user';
 import { StatusType } from '@/types/user_status';
 import { useFocusEffect } from 'expo-router';
-import { Dispatch, useCallback, useState } from 'react';
+import { Dispatch, useCallback, useEffect, useState } from 'react';
 import { useApolloClient } from '@apollo/client';
 import { getData } from '@/utils/api';
 import { USER_STATUS_SUBSCRIPTION } from '@/services/graphql/subscriptions';
+import { ServerProfile, UserProfile, UserStatus } from '@/types';
 
 const getDefaultStatusText = (statusType: StatusType) => {
   switch (statusType) {
@@ -24,6 +25,7 @@ const getDefaultStatusText = (statusType: StatusType) => {
 
 export interface AvatarProps {
   id: string;
+  profile?: ServerProfile;
   profilePic?: string;
   showStatus?: boolean;
   onlineStatus?: StatusType;
@@ -34,8 +36,9 @@ export interface AvatarProps {
 
 const Avatar = ({
   id,
-  profilePic,
   showStatus,
+  profile,
+  profilePic,
   onlineStatus,
   avatarStyle,
   subscribeToStatus,
@@ -44,10 +47,33 @@ const Avatar = ({
   const wsClient = useApolloClient();
   const [isOnline, setIsOnline] = useState(false);
   const [statusType, setStatusType] = useState(StatusType.OFFLINE);
+  const [avatarUrl, setAvatarUri] = useState<string | undefined>(
+    profile?.avatar_url
+  );
 
   const setStatusText = (text: string) => {
     setTextProps && setTextProps(text);
   };
+
+  useEffect(() => {
+    if (profile?.avatar_url) setAvatarUri(profile.avatar_url);
+  }, [profile?.avatar_url]);
+
+  useEffect(() => {
+    if (profile?.status) {
+      setIsOnline(profile.status.is_online);
+      setStatusType(profile.status.type);
+      setStatusText(
+        profile.status.status_text ||
+          getDefaultStatusText(
+            onlineStatus ??
+              (profile.status.is_online
+                ? profile.status.type
+                : StatusType.OFFLINE)
+          )
+      );
+    }
+  }, [profile?.status]);
 
   useFocusEffect(
     useCallback(() => {
@@ -91,14 +117,14 @@ const Avatar = ({
         }
       });
       return () => cleanup.unsubscribe();
-    }, [subscribeToStatus])
+    }, [profilePic, subscribeToStatus])
   );
 
   const combinedStyles = StyleSheet.flatten([styles.profilePic, avatarStyle]);
   return (
     <View>
       <Image
-        source={profilePic ? { uri: profilePic } : DefaultProfileImage}
+        source={avatarUrl ? { uri: avatarUrl } : DefaultProfileImage}
         style={combinedStyles}
       />
       {showStatus && (

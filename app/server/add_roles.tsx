@@ -21,6 +21,8 @@ import Checkbox from '@/components/Checkbox';
 import MemberItem from '@/components/userManagment/MemberItem';
 import SearchBar from '@/components/SearchBar';
 import RoleItem from '@/components/userManagment/RoleItem';
+import useServer from '@/hooks/useServer';
+import { useGlobalContext } from '@/context/GlobalProvider';
 
 type FormProps = {
   roleIds: string[];
@@ -33,22 +35,18 @@ type FormProps = {
  * - Use router to navigate to the AddRole screen, and pass the `excluded` param to exclude some roles from the list
  * Example:
  * ```ts
- * dispatch({
- *  type: Actions.SET_CALLBACK,
- *  payload: (roleIds: string[]) => {
- *   console.log('Adding roles:', roleIds);
- *  }
- * });
- * router.navigate({
- *  pathname: '/server/add_roles',
- *  params: {
- *   excluded: roles.map((role) => role.id)
- *  }
- * });
+setCallback(() => (roleIds: string[]) => {
+  // add roles to the server
+  console.log('Adding roles:', roleIds);
+}
+router.navigate('/server/add_roles', {
+  excluded: 'roleId1,roleId2'
+});
  * ```
  */
 const AddRole = () => {
-  const { callback, roles } = useServers();
+  const { roles } = useServer();
+  const { callback } = useGlobalContext();
   const navigation = useNavigation();
   const formRef = useRef<FormikProps<FormProps>>(null);
   const { excluded } = useLocalSearchParams<{

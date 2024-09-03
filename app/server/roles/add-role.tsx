@@ -16,8 +16,9 @@ import MyBottomSheetModal from '@/components/modal/MyBottomSheetModal';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
 import MyColorPicker from '@/components/MyColorPicker';
 import useServers from '@/hooks/useServers';
-import { Actions } from '@/context/ServersProvider';
 import { postData } from '@/utils/api';
+import useServer from '@/hooks/useServer';
+import { ServerActions } from '@/context/ServerProvider';
 
 type FormProps = {
   roleTitle: string;
@@ -25,7 +26,8 @@ type FormProps = {
 };
 
 const AddRole = () => {
-  const { roles, dispatch, currentServerId } = useServers();
+  const { currentServerId } = useServers();
+  const { roles, dispatch } = useServer();
   const navigation = useNavigation();
   const formRef = useRef<FormikProps<FormProps>>(null);
 
@@ -95,7 +97,7 @@ const AddRole = () => {
         }
       );
       dispatch({
-        type: Actions.SET_ROLES,
+        type: ServerActions.SET_ROLES,
         payload: [
           ...roles,
           {
