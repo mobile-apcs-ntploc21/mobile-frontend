@@ -26,7 +26,7 @@ type ServerState = {
   server_id: string | null;
   categories: Category[];
   members: ServerProfile[];
-  roles: Role[];
+  roles: Map<string, Role>;
 };
 
 type ServerAction = {
@@ -49,7 +49,7 @@ const initialState: ServerState = {
   server_id: null,
   categories: [],
   members: [],
-  roles: []
+  roles: new Map()
 };
 
 const handlers: Record<
@@ -214,6 +214,8 @@ export const ServerProvider = (props: ProviderProps) => {
           )
         });
         break;
+      default:
+        console.warn(`Unknown event type ${serverUpdated.type}`);
     }
   }, [subscriptionData, dispatch]);
 
@@ -229,15 +231,16 @@ export const ServerProvider = (props: ProviderProps) => {
         }))
       }));
 
-      const members = await getData(`/api/v1/servers/${id}/members`);
-
-      const roles: Role[] = Array.from({ length: 10 }, (_, i) => ({
-        id: i.toString(),
-        name: `role_${i}`,
-        color: `#${
-          Math.floor(Math.random() * 16777215).toString(16) // random color
-        }`
+      const members: ServerProfile[] = (
+        await getData(`/api/v1/servers/${id}/members`)
+      ).map((member: ServerProfile) => ({
+        ...member,
+        roleIds: new Set(member.roleIds)
       }));
+
+      let roles: any = (await getData(`/api/v1/servers/${id}/roles`)).roles;
+
+      roles = new Map(roles.map((role: Role) => [role.id, role]));
 
       dispatch({
         type: ServerActions.INIT,

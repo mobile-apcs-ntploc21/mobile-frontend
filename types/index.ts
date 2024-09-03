@@ -1,3 +1,4 @@
+import { Role } from './server';
 import { StatusType } from './user_status';
 
 export interface IconProps {
@@ -49,6 +50,7 @@ export interface ServerProfile extends UserProfile {
     type: StatusType;
     status_text?: string;
   };
+  roleIds: Set<string>;
 }
 
 export enum ServerEvents {
@@ -67,5 +69,8 @@ export enum ServerEvents {
   serverDeleted = 'SERVER_DELETED',
 
   memberAdded = 'MEMBER_ADDED',
-  memberRemoved = 'MEMBER_REMOVED'
+  memberRemoved = 'MEMBER_REMOVED',
+
+  userRoleAdded = 'ADD_USER_TO_ROLE',
+  userRoleDeleted = 'REMOVE_USER_FROM_ROLE'
 }

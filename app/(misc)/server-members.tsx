@@ -21,12 +21,27 @@ import { ScrollView } from 'react-native-gesture-handler';
 import MemberListItem from '@/components/userManagment/MemberListItem';
 import useServer from '@/hooks/useServer';
 import { ServerProfile } from '@/types';
+import MyText from '@/components/MyText';
+import { Role } from '@/types/server';
 
 const ServerMembers = () => {
   const navigation = useNavigation();
-  const { members } = useServer();
+  const { members, roles } = useServer();
   const [onlineMembers, setOM] = useState<ServerProfile[]>([]);
   const [offlineMembers, setOFM] = useState<ServerProfile[]>([]);
+  const [modalUser, setModalUser] = useState<ServerProfile | null>(null);
+  const [modalUserRoles, setModalUserRoles] = useState<Role[]>([]);
+
+  useEffect(() => {
+    if (modalUser) {
+      const userRoles: Role[] = [];
+      modalUser.roleIds.forEach((roleId) => {
+        const role = roles.get(roleId)!;
+        if (!role.default) userRoles.push(role);
+      });
+      setModalUserRoles(userRoles);
+    }
+  }, [modalUser, roles]);
 
   useEffect(() => {
     const onlineMembers: ServerProfile[] = [];
@@ -63,8 +78,6 @@ const ServerMembers = () => {
     bottomSheetModalRef.current?.dismiss();
   }, [bottomSheetModalRef]);
 
-  const [modalUser, setModalUser] = React.useState<any>(null);
-
   return (
     <View style={GlobalStyles.screenGray}>
       <MyBottomSheetModal
@@ -75,23 +88,27 @@ const ServerMembers = () => {
         <View style={styles.bottomSheetContainer}>
           <View style={styles.rolesContainer}>
             <Text style={styles.rolesText}>Roles</Text>
-            <ScrollView
-              horizontal
-              contentContainerStyle={styles.roles}
-              showsHorizontalScrollIndicator={false}
-            >
-              {Array.from({ length: 10 }, (_, i) => (
-                <View key={i} style={styles.roleItem}>
+            <FlatList
+              data={modalUserRoles}
+              keyExtractor={(role) => role.id}
+              renderItem={({ item }) => (
+                <View style={styles.roleItem}>
                   <View
                     style={{
                       ...styles.roleDot,
-                      backgroundColor: i % 2 === 0 ? 'red' : 'blue'
+                      backgroundColor: item.color
                     }}
                   />
-                  <Text style={styles.roleTitle}>Role {i}</Text>
+                  <MyText style={styles.roleTitle}>{item.name}</MyText>
                 </View>
-              ))}
-            </ScrollView>
+              )}
+              horizontal
+              contentContainerStyle={styles.roles}
+              showsHorizontalScrollIndicator={false}
+              ListEmptyComponent={
+                <MyText>There is no role assigned to this member.</MyText>
+              }
+            />
           </View>
           <ButtonListText
             items={[
@@ -99,14 +116,14 @@ const ServerMembers = () => {
                 text: 'View Profile',
                 onPress: () => {
                   handleCloseBottomSheet();
-                  router.navigate(`/user/${modalUser.id}`);
+                  router.navigate(`/user/${modalUser?.user_id}`);
                 }
               },
               {
                 text: 'Edit Member',
                 onPress: () => {
                   handleCloseBottomSheet();
-                  router.navigate(`/server/edit-member/${modalUser.id}`);
+                  router.navigate(`/server/edit-member/${modalUser?.user_id}`);
                 }
               }
             ]}
@@ -121,10 +138,7 @@ const ServerMembers = () => {
               <MemberListItem key={member.user_id} profile={member} />
             ),
             onPress: () => {
-              setModalUser({
-                id: member.user_id,
-                username: member.username
-              });
+              setModalUser(member);
               handleOpenBottomSheet();
             }
           }))}
@@ -136,10 +150,7 @@ const ServerMembers = () => {
               <MemberListItem key={member.user_id} profile={member} />
             ),
             onPress: () => {
-              setModalUser({
-                id: member.user_id,
-                username: member.username
-              });
+              setModalUser(member);
               handleOpenBottomSheet();
             }
           }))}
@@ -183,6 +194,7 @@ const styles = StyleSheet.create({
   },
   roles: {
     gap: 8,
+    paddingHorizontal: 8,
     flexDirection: 'row'
   },
   rolesText: {
