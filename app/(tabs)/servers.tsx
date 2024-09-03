@@ -29,7 +29,7 @@ export default function Servers() {
 
   const ServerBanner = () => {
     return (
-      <Animated.Image
+      <Image
         source={
           thisServer?.banner ? { uri: thisServer.banner } : DefaultCoverImage
         }
