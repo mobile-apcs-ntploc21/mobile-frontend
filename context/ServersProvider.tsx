@@ -17,11 +17,8 @@ export enum ServersActions {
 
 type ServersState = {
   servers: Server[];
-  currentServerId: string | null;
   serverMap: Record<string, Server | null>;
-  categories: Category[];
-  members: Member[];
-  roles: Role[];
+  currentServerId: string | null;
 };
 
 type ServerAction = {
@@ -40,11 +37,8 @@ interface ServersProviderProps {
 // Initial state
 const initialState: ServersState = {
   servers: [],
-  currentServerId: null,
   serverMap: {},
-  categories: [],
-  members: [],
-  roles: []
+  currentServerId: null
 };
 
 // Context
@@ -67,28 +61,9 @@ const handlers: Record<
   [ServersActions.SET_SERVERS]: (state, { payload }) => {
     return {
       ...state,
-      servers: newServers
+      servers: payload
     };
-  },
-  [Actions.SET_CATEGORIES]: (state, { payload }) => {
-    return {
-      ...state,
-      categories: payload
-    };
-  },
-  [Actions.SET_MEMBERS]: (state, { payload }) => {
-    return {
-      ...state,
-      members: payload
-    };
-  },
-  [Actions.SET_ROLES]: (state, { payload }) => {
-    return {
-      ...state,
-      roles: payload
-    };
-  },
-  default: (state) => state
+  }
 };
 
 // Reducer
@@ -103,58 +78,6 @@ const reducer = (state: ServersState, action: ServerAction) => {
 // Provider
 export const ServersProvider = ({ children }: ServersProviderProps) => {
   const [state, dispatch] = useReducer(reducer, initialState);
-
-  const selectServer = async (id: string) => {
-    // Fetch server id
-    if (state.servers.findIndex((server) => server.id === id) === -1) {
-      throw new Error(`Server with id ${id} not found`);
-    }
-
-    // fetch server with id provided
-    const categories: Category[] = Array.from({ length: 5 }, (_, i) => ({
-      id: i.toString(),
-      name: i ? `Category ${i}` : `Uncategorized`,
-      channels: Array.from({ length: 5 }, (_, j) => ({
-        id: j.toString(),
-        name: `Channel ${j}`
-      }))
-    }));
-
-    const members: Member[] = Array.from({ length: 10 }, (_, i) => ({
-      id: i.toString(),
-      username: `user_${i}`
-    }));
-
-    const roles: Role[] = Array.from({ length: 10 }, (_, i) => ({
-      id: i.toString(),
-      name: `role_${i}`,
-      color: `#${
-        Math.floor(Math.random() * 16777215).toString(16) // random color
-      }`
-    }));
-
-    dispatch({ type: Actions.SET_CATEGORIES, payload: categories });
-    dispatch({ type: Actions.SET_MEMBERS, payload: members });
-    dispatch({ type: Actions.SET_ROLES, payload: roles });
-    dispatch({ type: Actions.SELECT_SERVER, payload: id });
-  };
-
-  const setServers = (
-    newServers: Server[],
-    isForPositions?: boolean,
-    isNewServer?: boolean
-  ) => {
-    if (!isForPositions || state.servers.length === newServers.length) {
-      dispatch({
-        type: Actions.SET_SERVERS,
-        payload: { newServers, isNewServer }
-      });
-    }
-  };
-
-  const setCategories = (categories: Category[]) => {
-    dispatch({ type: Actions.SET_CATEGORIES, payload: categories });
-  };
 
   // Set server map for quick access using its id
   state.serverMap = state.servers.reduce(

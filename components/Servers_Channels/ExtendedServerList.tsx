@@ -79,8 +79,7 @@ const ExtendedServerList = ({
         }
       });
 
-      // Save the new server positions to ServerProvider
-      setServers(newServers, true);
+      dispatch({ type: ServersActions.SET_SERVERS, payload: newServers });
 
       const serverPositions = newServers.map((server) => ({
         server_id: server.id,

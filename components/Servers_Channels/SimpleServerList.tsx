@@ -7,7 +7,7 @@ import { FlatList } from 'react-native-gesture-handler';
 import { ServersActions } from '@/context/ServersProvider';
 
 const SimpleServerList = () => {
-  const { servers, currentServerId, selectServer } = useServers();
+  const { servers, currentServerId, dispatch } = useServers();
 
   return (
     <View style={styles.container}>
