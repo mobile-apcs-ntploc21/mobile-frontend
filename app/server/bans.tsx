@@ -99,8 +99,6 @@ const Bans = () => {
   }, []);
 
   const handleUnban = async () => {
-    console.log(currentUser);
-
     const serverId = currentServerId;
     const userId = currentUser.id;
     try {
