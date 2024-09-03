@@ -1,35 +1,23 @@
-import {
-  Animated,
-  Dimensions,
-  ScrollView,
-  StyleSheet,
-  Text,
-  View
-} from 'react-native';
 import { Image } from 'expo-image';
-import {
-  SetStateAction,
-  useCallback,
-  useEffect,
-  useMemo,
-  useState
-} from 'react';
+import { useMemo, useState } from 'react';
+import { Animated, Dimensions, StyleSheet, View } from 'react-native';
 
-import ChannelItem from '@/components/Servers_Channels/ChannelItem';
-import MyButtonIcon from '@/components/MyButton/MyButtonIcon';
-import StarIcon from '@/assets/icons/StarIcon';
 import AddFriendIcon from '@/assets/icons/AddFriendIcon';
-import SettingIcon from '@/assets/icons/SettingIcon';
-import MyText from '@/components/MyText';
-import Avatar from '@/components/Avatar';
 import DotsIcon from '@/assets/icons/DotsIcon';
-import { colors, fonts } from '@/constants/theme';
-import useServers from '@/hooks/useServers';
+import SettingIcon from '@/assets/icons/SettingIcon';
+import StarIcon from '@/assets/icons/StarIcon';
 import Accordion from '@/components/Accordion';
-import { router } from 'expo-router';
+import Avatar from '@/components/Avatar';
+import MyButtonIcon from '@/components/MyButton/MyButtonIcon';
+import MyText from '@/components/MyText';
+import ChannelItem from '@/components/Servers_Channels/ChannelItem';
+import { colors, fonts } from '@/constants/theme';
 import useServer from '@/hooks/useServer';
+import useServers from '@/hooks/useServers';
+import { router } from 'expo-router';
 
 const MAXUSERS = 4;
+const SCREEN_HEIGHT = Dimensions.get('window').height;
 
 interface ServerInfoProps {
   scrollY: Animated.Value;
@@ -49,18 +37,12 @@ const ServerInfo = (props: ServerInfoProps) => {
 
   // =============== UI ===============
 
-  const paddingTopInterpolate = props.scrollY.interpolate({
-    inputRange: [0, 70],
-    outputRange: [0, 136 / 2 + 16],
-    extrapolate: 'clamp'
-  });
-
   const handleScroll = (event: any) => {
     const { y } = event.nativeEvent.contentOffset;
     Animated.timing(props.scrollY, {
       toValue: y,
       duration: 0,
-      useNativeDriver: false
+      useNativeDriver: true
     }).start();
   };
 
@@ -132,15 +114,12 @@ const ServerInfo = (props: ServerInfoProps) => {
       <ServerInfo />
       <View style={styles.separator} />
       <Animated.ScrollView
-        style={{
-          ...styles.newsContainer,
-          paddingTop: paddingTopInterpolate
-        }}
+        style={styles.newsContainer}
         contentContainerStyle={{
           rowGap: 16,
           paddingTop: 16,
           paddingBottom: 136 / 2 + 90 + 16,
-          minHeight: 700
+          minHeight: SCREEN_HEIGHT
         }}
         scrollEventThrottle={16}
         onScroll={handleScroll}

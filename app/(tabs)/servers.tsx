@@ -16,13 +16,13 @@ export default function Servers() {
   );
 
   const topInterpolate = scrollY.interpolate({
-    inputRange: [0, 70],
+    inputRange: [0, 136 * 2],
     outputRange: [0, -136],
     extrapolate: 'clamp'
   });
 
   const borderRadiusInterpolate = scrollY.interpolate({
-    inputRange: [0, 70],
+    inputRange: [0, 136 * 2],
     outputRange: [30, 0],
     extrapolate: 'clamp'
   });
