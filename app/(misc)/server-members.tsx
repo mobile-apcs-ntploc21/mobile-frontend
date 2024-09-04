@@ -26,6 +26,7 @@ import { Role } from '@/types/server';
 import { useAuth } from '@/context/AuthProvider';
 import useServers from '@/hooks/useServers';
 import { isAdmin } from '@/utils/user';
+import { checkOnline } from '@/utils/status';
 
 const ServerMembers = () => {
   const navigation = useNavigation();
@@ -40,10 +41,7 @@ const ServerMembers = () => {
     const onlineMembers: ServerProfile[] = [];
     const offlineMembers: ServerProfile[] = [];
     members.forEach((member) => {
-      if (
-        member.status.is_online &&
-        ![StatusType.INVISIBLE, StatusType.OFFLINE].includes(member.status.type)
-      ) {
+      if (checkOnline(member.status.is_online, member.status.type)) {
         onlineMembers.push(member);
       } else {
         offlineMembers.push(member);

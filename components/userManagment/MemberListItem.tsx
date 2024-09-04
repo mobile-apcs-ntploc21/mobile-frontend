@@ -6,7 +6,7 @@ import { ServerProfile, UserProfile, UserStatus } from '@/types';
 import Avatar from '../Avatar';
 import { getData } from '@/utils/api';
 import { Skeleton } from 'moti/skeleton';
-import getStatusText from '@/utils/status';
+import { getStatusText } from '@/utils/status';
 
 interface MemberItemProps {
   profile?: ServerProfile;

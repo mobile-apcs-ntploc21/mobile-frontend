@@ -174,9 +174,7 @@ export const ServerProvider = (props: ProviderProps) => {
           let profileAndStatus = await getServerProfile(
             serverUpdated.data,
             true
-          );
-          if (!profileAndStatus)
-            profileAndStatus = await getServerProfile(serverUpdated.data);
+          ).catch(() => getServerProfile(serverUpdated.data));
           dispatch({
             type: ServerActions.SET_MEMBERS,
             payload: [...state.members, profileAndStatus]

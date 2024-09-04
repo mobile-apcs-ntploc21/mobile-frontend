@@ -15,6 +15,7 @@ import { colors, fonts } from '@/constants/theme';
 import useServer from '@/hooks/useServer';
 import useServers from '@/hooks/useServers';
 import { router } from 'expo-router';
+import { checkOnline } from '@/utils/status';
 
 const MAXUSERS = 4;
 const SCREEN_HEIGHT = Dimensions.get('window').height;
@@ -26,6 +27,14 @@ interface ServerInfoProps {
 const ServerInfo = (props: ServerInfoProps) => {
   const { servers, currentServerId } = useServers();
   const { members } = useServer();
+
+  const nbOnline = useMemo(
+    () =>
+      members.filter(({ status }) => checkOnline(status.is_online, status.type))
+        .length,
+    [members]
+  );
+
   const thisServer = useMemo(
     () => servers.find((server) => server.id === currentServerId),
     [servers, currentServerId]
@@ -82,7 +91,7 @@ const ServerInfo = (props: ServerInfoProps) => {
         </View>
       </View>
       <View style={styles.activeMembersContainer}>
-        <MyText style={styles.activeTitle}>Active (40)</MyText>
+        <MyText style={styles.activeTitle}>Active ({nbOnline})</MyText>
         <View style={styles.activeMembers}>
           {members
             .slice(0, Math.min(members.length, MAXUSERS))
@@ -96,14 +105,14 @@ const ServerInfo = (props: ServerInfoProps) => {
                 // subscribeToStatus
               />
             ))}
-          {userIds.length > MAXUSERS && (
-            <MyButtonIcon
-              icon={DotsIcon}
-              onPress={() => router.navigate('server-members')}
-              showOutline={false}
-              containerStyle={styles.activeMember}
-            />
-          )}
+          {/* {members.length > MAXUSERS && ( */}
+          <MyButtonIcon
+            icon={DotsIcon}
+            onPress={() => router.navigate('server-members')}
+            showOutline={false}
+            containerStyle={styles.activeMember}
+          />
+          {/* )} */}
         </View>
       </View>
     </View>
@@ -118,7 +127,7 @@ const ServerInfo = (props: ServerInfoProps) => {
         contentContainerStyle={{
           rowGap: 16,
           paddingTop: 16,
-          paddingBottom:  90 + 16,
+          paddingBottom: 90 + 16,
           minHeight: SCREEN_HEIGHT + 16
         }}
         scrollEventThrottle={16}
