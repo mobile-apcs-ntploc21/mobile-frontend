@@ -26,7 +26,7 @@ type ServerState = {
   server_id: string | null;
   categories: Category[];
   members: ServerProfile[];
-  defaultRoles: Role[];
+  defaultRole: Role | null;
   customRoles: Role[];
 };
 
@@ -50,7 +50,7 @@ const initialState: ServerState = {
   server_id: null,
   categories: [],
   members: [],
-  defaultRoles: [],
+  defaultRole: null,
   customRoles: []
 };
 
@@ -266,11 +266,11 @@ export const ServerProvider = (props: ProviderProps) => {
 
       const roles: Role[] = (await getData(`/api/v1/servers/${id}/roles`))
         .roles;
-      const defaultRoles: Role[] = [];
+      let defaultRole: Role | null = null;
       const customRoles: Role[] = [];
       roles.forEach((role: Role) => {
         if (role.default) {
-          defaultRoles.push(role);
+          defaultRole = role;
         } else {
           customRoles.push(role);
         }
@@ -293,7 +293,7 @@ export const ServerProvider = (props: ProviderProps) => {
           server_id: id,
           categories,
           members,
-          defaultRoles,
+          defaultRole,
           customRoles
         }
       });
