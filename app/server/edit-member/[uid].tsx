@@ -1,5 +1,5 @@
-import { useNavigation } from 'expo-router';
-import { useLayoutEffect, useMemo, useRef, useState } from 'react';
+import { useLocalSearchParams, useNavigation } from 'expo-router';
+import { useCallback, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import {
   Alert,
   Pressable,
@@ -19,47 +19,58 @@ import MyText from '@/components/MyText';
 import ButtonListText from '@/components/ButtonList/ButtonListText';
 import { Role } from '@/types/server';
 import ButtonListCheckbox from '@/components/ButtonList/ButtonListCheckbox';
+import useServer from '@/hooks/useServer';
+import { deleteData, postData, putData } from '@/utils/api';
+import useServers from '@/hooks/useServers';
 
 const EditMember = () => {
+  const { uid } = useLocalSearchParams();
+  const { currentServerId } = useServers();
+  const { members, customRoles } = useServer();
+
   const navigation = useNavigation();
   const formikRef = useRef<FormikProps<any>>(null);
   const [editState, setEditState] = useState(false);
 
-  const roles: Role[] = useMemo(
-    () => [
-      {
-        id: '1',
-        name: 'Admin',
-        color: '#FF0000'
-      },
-      {
-        id: '2',
-        name: 'Moderator',
-        color: '#00FF00'
-      },
-      {
-        id: '3',
-        name: 'Member',
-        color: '#0000FF'
-      },
-      {
-        id: '4',
-        name: 'Guest',
-        color: '#FFFF00'
+  const handleSubmit = useCallback((newRoles: Role[]) => {
+    // remove roles
+    currentRoles.forEach((role) => {
+      if (!newRoles.find((newRole) => newRole.id === role.id)) {
+        deleteData(
+          `/api/v1/servers/${currentServerId}/roles/${role.id}/members/${uid}`
+        );
       }
-    ],
-    []
+    });
+    // add roles
+    newRoles.forEach((role) => {
+      if (!currentRoles.find((currentRole) => currentRole.id === role.id)) {
+        postData(
+          `/api/v1/servers/${currentServerId}/roles/${role.id}/members/${uid}`
+        );
+      }
+    });
+  }, []);
+
+  const currentRoles = useMemo(
+    () => members.find((member) => member.user_id === uid)!.roles,
+    [members, uid]
   );
 
   const actions = useMemo(
     () => [
       {
         text: 'Kick',
-        onPress: () => {}
+        onPress: () => {
+          putData(`/api/v1/servers/${currentServerId}/kick/${uid}`);
+          navigation.canGoBack() && navigation.goBack();
+        }
       },
       {
         text: 'Ban',
-        onPress: () => {}
+        onPress: () => {
+          putData(`/api/v1/servers/${currentServerId}/bans/${uid}`);
+          navigation.canGoBack() && navigation.goBack();
+        }
       }
     ],
     []
@@ -69,7 +80,11 @@ const EditMember = () => {
     () => [
       {
         text: 'Transfer ownership',
-        onPress: () => {}
+        onPress: () => {
+          postData(`/api/v1/servers/${currentServerId}/transfer-ownership/`, {
+            user_id: uid
+          });
+        }
       }
     ],
     []
@@ -116,11 +131,10 @@ const EditMember = () => {
       <Formik
         innerRef={formikRef}
         initialValues={{
-          nickname: '',
-          roles: roles
+          roles: currentRoles
         }}
         onSubmit={(values) => {
-          console.log(values);
+          handleSubmit(values.roles);
           navigation.goBack();
         }}
       >
@@ -137,11 +151,12 @@ const EditMember = () => {
             {editState ? (
               <ButtonListCheckbox
                 heading="Roles"
-                items={roles.map((role) => ({
-                  value: role.id,
-                  label: role.name
-                }))}
+                data={customRoles}
                 values={values.roles}
+                keyExtractor={(role: Role) => role.id}
+                labelExtractor={(role: Role) => role.name}
+                valueExtractor={(role: Role) => role}
+                compareValues={(a: Role, b: Role) => a.id === b.id}
                 onAdd={(value) =>
                   handleChange({
                     target: {
@@ -154,7 +169,9 @@ const EditMember = () => {
                   handleChange({
                     target: {
                       name: 'roles',
-                      value: values.roles.filter((role) => role.id !== value)
+                      value: values.roles.filter(
+                        (role: Role) => role.id !== value.id
+                      )
                     }
                   })
                 }
@@ -162,7 +179,7 @@ const EditMember = () => {
             ) : (
               <ButtonListText
                 heading="Roles"
-                items={values.roles.map((role) => ({
+                items={values.roles.map((role: Role) => ({
                   text: role.name
                 }))}
               />

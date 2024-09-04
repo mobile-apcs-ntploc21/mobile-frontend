@@ -50,7 +50,7 @@ export interface ServerProfile extends UserProfile {
     type: StatusType;
     status_text?: string;
   };
-  roleIds: Set<string>;
+  roles: Role[];
 }
 
 export enum ServerEvents {

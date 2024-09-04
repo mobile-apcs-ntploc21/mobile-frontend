@@ -26,22 +26,10 @@ import { Role } from '@/types/server';
 
 const ServerMembers = () => {
   const navigation = useNavigation();
-  const { members, roles } = useServer();
+  const { members } = useServer();
   const [onlineMembers, setOM] = useState<ServerProfile[]>([]);
   const [offlineMembers, setOFM] = useState<ServerProfile[]>([]);
   const [modalUser, setModalUser] = useState<ServerProfile | null>(null);
-  const [modalUserRoles, setModalUserRoles] = useState<Role[]>([]);
-
-  useEffect(() => {
-    if (modalUser) {
-      const userRoles: Role[] = [];
-      modalUser.roleIds.forEach((roleId) => {
-        const role = roles.get(roleId)!;
-        if (!role.default) userRoles.push(role);
-      });
-      setModalUserRoles(userRoles);
-    }
-  }, [modalUser, roles]);
 
   useEffect(() => {
     const onlineMembers: ServerProfile[] = [];
@@ -89,7 +77,7 @@ const ServerMembers = () => {
           <View style={styles.rolesContainer}>
             <Text style={styles.rolesText}>Roles</Text>
             <FlatList
-              data={modalUserRoles}
+              data={modalUser?.roles}
               keyExtractor={(role) => role.id}
               renderItem={({ item }) => (
                 <View style={styles.roleItem}>

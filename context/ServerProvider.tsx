@@ -26,7 +26,8 @@ type ServerState = {
   server_id: string | null;
   categories: Category[];
   members: ServerProfile[];
-  roles: Map<string, Role>;
+  defaultRoles: Role[];
+  customRoles: Role[];
 };
 
 type ServerAction = {
@@ -49,7 +50,8 @@ const initialState: ServerState = {
   server_id: null,
   categories: [],
   members: [],
-  roles: new Map()
+  defaultRoles: [],
+  customRoles: []
 };
 
 const handlers: Record<
@@ -231,16 +233,28 @@ export const ServerProvider = (props: ProviderProps) => {
         }))
       }));
 
-      const members: ServerProfile[] = (
-        await getData(`/api/v1/servers/${id}/members`)
-      ).map((member: ServerProfile) => ({
-        ...member,
-        roleIds: new Set(member.roleIds)
-      }));
+      const roles: Role[] = (await getData(`/api/v1/servers/${id}/roles`))
+        .roles;
+      const defaultRoles: Role[] = [];
+      const customRoles: Role[] = [];
+      roles.forEach((role: Role) => {
+        if (role.default) {
+          defaultRoles.push(role);
+        } else {
+          customRoles.push(role);
+        }
+      });
 
-      let roles: any = (await getData(`/api/v1/servers/${id}/roles`)).roles;
-
-      roles = new Map(roles.map((role: Role) => [role.id, role]));
+      const members = (await getData(`/api/v1/servers/${id}/members`)).map(
+        (member: any) => ({
+          ...member,
+          roles: member.roleIds
+            .map((roleId: string) =>
+              customRoles.find((role: Role) => role.id === roleId)
+            )
+            .filter((role: any) => role)
+        })
+      );
 
       dispatch({
         type: ServerActions.INIT,
@@ -248,7 +262,8 @@ export const ServerProvider = (props: ProviderProps) => {
           server_id: id,
           categories,
           members,
-          roles
+          defaultRoles,
+          customRoles
         }
       });
     } catch (err: any) {
