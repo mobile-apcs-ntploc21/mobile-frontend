@@ -1,4 +1,4 @@
-import { FlatList, StyleSheet, Text, View } from 'react-native';
+import { Alert, FlatList, StyleSheet, Text, View } from 'react-native';
 import React, {
   useCallback,
   useEffect,
@@ -23,10 +23,15 @@ import useServer from '@/hooks/useServer';
 import { ServerProfile } from '@/types';
 import MyText from '@/components/MyText';
 import { Role } from '@/types/server';
+import { useAuth } from '@/context/AuthProvider';
+import useServers from '@/hooks/useServers';
+import { isAdmin } from '@/utils/user';
 
 const ServerMembers = () => {
   const navigation = useNavigation();
   const { members } = useServer();
+  const { servers, currentServerId } = useServers();
+  const { user: thisUser } = useAuth();
   const [onlineMembers, setOM] = useState<ServerProfile[]>([]);
   const [offlineMembers, setOFM] = useState<ServerProfile[]>([]);
   const [modalUser, setModalUser] = useState<ServerProfile | null>(null);
@@ -110,8 +115,25 @@ const ServerMembers = () => {
               {
                 text: 'Edit Member',
                 onPress: () => {
-                  handleCloseBottomSheet();
-                  router.navigate(`/server/edit-member/${modalUser?.user_id}`);
+                  if (
+                    currentServerId &&
+                    (servers.find((server) => server.id === currentServerId)!
+                      .owner_id === thisUser.id ||
+                      isAdmin(
+                        members.find(
+                          (member) => member.user_id === thisUser.id
+                        )!
+                      ))
+                  ) {
+                    handleCloseBottomSheet();
+                    router.navigate(
+                      `/server/edit-member/${modalUser?.user_id}`
+                    );
+                  } else
+                    Alert.alert(
+                      'Not allowed',
+                      'You are not the owner or admin to edit this member.'
+                    );
                 }
               }
             ]}
