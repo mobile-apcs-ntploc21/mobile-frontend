@@ -216,6 +216,39 @@ export const ServerProvider = (props: ProviderProps) => {
           )
         });
         break;
+      case ServerEvents.userRoleAdded:
+        {
+          const members = [...state.members];
+          members.forEach(
+            (member) =>
+              member.user_id === serverUpdated.data.user_id &&
+              member.roles.push(
+                state.customRoles.find(
+                  (role) => role.id === serverUpdated.data.role_id
+                )!
+              )
+          );
+          dispatch({
+            type: ServerActions.SET_MEMBERS,
+            payload: members
+          });
+        }
+        break;
+      case ServerEvents.userRoleDeleted:
+        {
+          const members = [...state.members];
+          members.forEach((member) => {
+            if (member.user_id === serverUpdated.data.user_id)
+              member.roles = member.roles.filter(
+                (role) => role.id !== serverUpdated.data.role_id
+              );
+          });
+          dispatch({
+            type: ServerActions.SET_MEMBERS,
+            payload: members
+          });
+        }
+        break;
       default:
         console.warn(`Unknown event type ${serverUpdated.type}`);
     }
