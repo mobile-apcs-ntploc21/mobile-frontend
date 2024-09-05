@@ -33,7 +33,11 @@ const MyBottomSheetModal = forwardRef<Ref, MyBottomSheetModalProps>(
         enableDynamicSizing={true}
         backdropComponent={renderBackdrop}
         // contentStyle={{ backgroundColor: colors.gray03 }}
-        backgroundStyle={{ backgroundColor: colors.gray03 }}
+        backgroundStyle={{
+          backgroundColor: colors.gray03,
+          borderTopLeftRadius: 30,
+          borderTopRightRadius: 30
+        }}
       >
         <BottomSheetView style={styles.container}>
           {props.heading && <Text style={TextStyles.h4}>{props.heading}</Text>}
