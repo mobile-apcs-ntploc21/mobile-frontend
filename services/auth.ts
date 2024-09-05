@@ -1,8 +1,8 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { jwtDecode } from 'jwt-decode';
+import config from '@/utils/config';
 
-const API_URL = process.env.EXPO_PUBLIC_API_URL || 'http://fbi.com:4001';
-// const API_URL = 'http://fbi.com:4001';
+const API_URL = config.API_URL;
 const now = () => Math.floor(Date.now() / 1000);
 
 /**
