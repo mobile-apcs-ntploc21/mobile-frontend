@@ -48,7 +48,7 @@ const ServerInfo = (props: ServerInfoProps) => {
         return (
           <View key={category.id} style={styles.newsWrapper}>
             {category.channels.map((channel) => (
-              <ChannelItem key={channel.id} />
+              <ChannelItem key={channel.id} name={channel.name} />
             ))}
           </View>
         );
@@ -56,7 +56,7 @@ const ServerInfo = (props: ServerInfoProps) => {
       return (
         <Accordion key={category.id} heading={category.name} defaultOpen>
           {category.channels.map((channel) => (
-            <ChannelItem key={channel.id} />
+            <ChannelItem key={channel.id} name={channel.name} />
           ))}
         </Accordion>
       );
