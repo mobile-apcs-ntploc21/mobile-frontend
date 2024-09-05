@@ -25,29 +25,48 @@ interface ServerInfoProps {
 
 const ServerInfo = (props: ServerInfoProps) => {
   const { servers, currentServerId } = useServers();
-  const { members } = useServer();
+  const { latestAction, categories, members } = useServer();
+  const [userIds, setUserIds] = useState<string[]>(
+    Array.from({ length: 10 }, (_, i) => i.toString())
+  );
+
   const thisServer = useMemo(
     () => servers.find((server) => server.id === currentServerId),
     [servers, currentServerId]
   );
 
-  const [userIds, setUserIds] = useState<string[]>(
-    Array.from({ length: 10 }, (_, i) => i.toString())
-  );
+  const HandleCategoriesView = () => {
+    if (!categories) {
+      return (
+        <View style={styles.newsWrapper}>
+          <Text>Loading...</Text>
+        </View>
+      );
+    }
 
-  // =============== UI ===============
-
-  const handleScroll = (event: any) => {
-    const { y } = event.nativeEvent.contentOffset;
-    Animated.timing(props.scrollY, {
-      toValue: y,
-      duration: 0,
-      useNativeDriver: true
-    }).start();
+    return categories.map((category) => {
+      // Uncategorized channels
+      if (category.id === null)
+        return (
+          <View key={category.id} style={styles.newsWrapper}>
+            {category.channels.map((channel) => (
+              <ChannelItem key={channel.id} />
+            ))}
+          </View>
+        );
+      // Categorized channels
+      return (
+        <Accordion key={category.id} heading={category.name} defaultOpen>
+          {category.channels.map((channel) => (
+            <ChannelItem key={channel.id} />
+          ))}
+        </Accordion>
+      );
+    });
   };
 
-  const ServerInfo = () => (
-    <View>
+  return (
+    <View style={styles.container}>
       <View style={styles.serverInfoContainer}>
         <View style={styles.serverContainer}>
           {thisServer?.avatar ? (
@@ -124,25 +143,8 @@ const ServerInfo = (props: ServerInfoProps) => {
         scrollEventThrottle={16}
         onScroll={handleScroll}
       >
-        {/* Uncategorized channels */}
-        <View style={styles.newsWrapper}>
-          <ChannelItem />
-          <ChannelItem unreadCount={3} />
-        </View>
-        {/* Categorized channels */}
-        <Accordion heading={'General'} defaultOpen>
-          <ChannelItem />
-          <ChannelItem />
-          <ChannelItem unreadCount={3} />
-        </Accordion>
-        <Accordion heading={'Project'} defaultOpen>
-          <ChannelItem unreadCount={3} />
-        </Accordion>
-
-        <Accordion heading={'NSFW'} defaultOpen>
-          <ChannelItem unreadCount={3} />
-        </Accordion>
-      </Animated.ScrollView>
+        <HandleCategoriesView />
+      </ScrollView>
     </View>
   );
 };
