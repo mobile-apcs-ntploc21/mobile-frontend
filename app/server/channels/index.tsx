@@ -94,7 +94,7 @@ const Channels = () => {
       </MyBottomSheetModal>
       <FlatList
         data={categories}
-        keyExtractor={(item) => item.id}
+        keyExtractor={(item) => item.id ?? ''}
         renderItem={({ item: { name, channels } }) => (
           <View>
             <TouchableOpacity
@@ -106,7 +106,9 @@ const Channels = () => {
                 })
               }
             >
-              <MyText style={styles.normalEditText}>Edit</MyText>
+              {name !== 'Uncategorized' && (
+                <MyText style={styles.normalEditText}>Edit</MyText>
+              )}
             </TouchableOpacity>
             <ButtonListText
               heading={name}
