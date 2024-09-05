@@ -7,6 +7,7 @@ import {
 } from '@gorhom/bottom-sheet';
 import { TextStyles } from '@/styles/TextStyles';
 import { colors } from '@/constants/theme';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 interface MyBottomSheetModalProps {
   onClose: () => void;
@@ -17,6 +18,8 @@ type Ref = BottomSheetModal;
 
 const MyBottomSheetModal = forwardRef<Ref, MyBottomSheetModalProps>(
   (props, ref) => {
+    const insets = useSafeAreaInsets();
+
     const renderBackdrop = useCallback(
       (props: any) => (
         <BottomSheetBackdrop
@@ -39,7 +42,9 @@ const MyBottomSheetModal = forwardRef<Ref, MyBottomSheetModalProps>(
           borderTopRightRadius: 30
         }}
       >
-        <BottomSheetView style={styles.container}>
+        <BottomSheetView
+          style={[styles.container, { paddingBottom: insets.bottom }]}
+        >
           {props.heading && <Text style={TextStyles.h4}>{props.heading}</Text>}
           {props.children}
         </BottomSheetView>
