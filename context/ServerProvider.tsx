@@ -148,9 +148,10 @@ export const ServerContext = createContext<IContext>({
 export const ServerProvider = (props: ProviderProps) => {
   const [servers, setServers] = useState<Record<string, ServerState>>({});
   const [state, dispatch] = useReducer(reducer, initialState);
+  const fetchedServerIds = Object.keys(servers);
   const { data: subscriptionData } = useSubscription(SERVER_SUBSCRIPTION, {
-    variables: { server_id: state.server_id },
-    skip: !state.server_id
+    variables: { server_id: fetchedServerIds },
+    skip: fetchedServerIds.length === 0
   });
 
   const getServerProfile = useCallback(
