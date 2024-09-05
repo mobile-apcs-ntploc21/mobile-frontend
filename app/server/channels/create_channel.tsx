@@ -1,20 +1,18 @@
-import {
-  FlatList,
-  StyleSheet,
-  View,
-  TouchableOpacity,
-  Alert
-} from 'react-native';
-import React, { useCallback, useLayoutEffect, useMemo, useRef } from 'react';
-import { router, useNavigation } from 'expo-router';
 import { NativeStackHeaderProps } from '@react-navigation/native-stack';
+import { router, useNavigation } from 'expo-router';
+import { useLayoutEffect, useRef } from 'react';
+import { Alert, StyleSheet, TouchableOpacity, View } from 'react-native';
 
 import MyHeader from '@/components/MyHeader';
-import GlobalStyles from '@/styles/GlobalStyles';
 import MyText from '@/components/MyText';
-import { colors, fonts } from '@/constants/theme';
 import CustomTextInput from '@/components/common/CustomTextInput';
+import { colors, fonts } from '@/constants/theme';
+import GlobalStyles from '@/styles/GlobalStyles';
 import { Formik, FormikProps } from 'formik';
+import useServers from '@/hooks/useServers';
+import useServer from '@/hooks/useServer';
+import { postData } from '@/utils/api';
+import { ServerActions } from '@/context/ServerProvider';
 
 type FormProps = {
   channelName: string;
@@ -24,13 +22,44 @@ const CreateChannel = () => {
   const navigation = useNavigation();
   const formRef = useRef<FormikProps<FormProps>>(null);
 
-  const handleSubmit = (
+  const { currentServerId } = useServers();
+  const { categories, dispatch } = useServer();
+
+  const handleSubmit = async (
     values: FormProps,
     setErrors: (field: string, message: string | undefined) => void
   ) => {
-    console.log(values);
+    if (!values.channelName) {
+      setErrors('channelName', 'Channel name is required');
+      return;
+    }
+
     try {
-      // handle create here
+      const requestBody = {
+        name: values.channelName
+      };
+      const response = await postData(
+        `/api/v1/servers/${currentServerId}/channels`,
+        requestBody
+      );
+      if (!response) {
+        throw new Error();
+      }
+
+      // Add the new channel to the list of channels
+      dispatch({
+        type: ServerActions.CREATE_CHANNEL,
+        payload: {
+          category_id: null,
+          id: response.id,
+          name: response.name,
+          description: response.description,
+          position: categories[0].channels.length
+        }
+      });
+
+      // Go back to the previous screen
+      router.back();
     } catch (e) {
       setErrors('channelName', 'Invalid channel name');
     }
