@@ -14,7 +14,8 @@ const API_URL = process.env.EXPO_PUBLIC_API_URL || 'http://fbi.com:4001';
 export const postData = async (
   url: string,
   data: {} = {},
-  addHeaders: {} = {}
+  addHeaders: {} = {},
+  params: {} = {}
 ): Promise<any> => {
   const headers: any = {
     'Content-Type': 'application/json',
@@ -25,8 +26,13 @@ export const postData = async (
     headers.Authorization = `Bearer ${idToken}`;
   }
 
+  const queryString = new URLSearchParams(params).toString();
+  const URL = queryString
+    ? `${API_URL}${url}?${queryString}`
+    : `${API_URL}${url}`;
+
   try {
-    const response = await fetch(`${API_URL}${url}`, {
+    const response = await fetch(URL, {
       method: 'POST',
       headers: headers,
       body: JSON.stringify(data || {})
@@ -92,11 +98,13 @@ export const patchData = async (
  * @async
  * @param {string} url - The URL to send the request.
  * @param {{}} [addHeaders={}] - Additional headers to send to the server.
+ * @param {{}} [params={}] - The query parameters to send to the server.
  * @returns {Promise<any>} - The response from the server.
  */
 export const getData = async (
   url: string,
-  addHeaders: {} = {}
+  addHeaders: {} = {},
+  params: {} = {}
 ): Promise<any> => {
   const headers: any = {
     'Content-Type': 'application/json',
@@ -107,8 +115,13 @@ export const getData = async (
     headers.Authorization = `Bearer ${idToken}`;
   }
 
+  const queryString = new URLSearchParams(params).toString();
+  const URL = queryString
+    ? `${API_URL}${url}?${queryString}`
+    : `${API_URL}${url}`;
+
   try {
-    const response = await fetch(`${API_URL}${url}`, {
+    const response = await fetch(URL, {
       method: 'GET',
       headers: headers
     });
