@@ -182,7 +182,8 @@ export const deleteData = async (
 export const putData = async (
   url: string,
   data: {} = {},
-  addHeaders: {} = {}
+  addHeaders: {} = {},
+  receiveData: boolean = true
 ): Promise<any> => {
   const headers: any = {
     'Content-Type': 'application/json',
@@ -205,7 +206,9 @@ export const putData = async (
       throw new Error(e.message);
     }
 
-    return await response.json();
+    if (receiveData) return await response.json();
+
+    return null;
   } catch (err: any) {
     console.error(err);
     throw new Error(err.message);

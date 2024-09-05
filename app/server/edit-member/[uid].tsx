@@ -51,17 +51,23 @@ const EditMember = () => {
     });
   }, []);
 
-  const currentRoles = useMemo(
-    () => members.find((member) => member.user_id === uid)!.roles,
-    [members, uid]
-  );
+  const currentRoles = useMemo(() => {
+    const tmp = members.find((member) => member.user_id === uid)!.roles;
+    if (!tmp) return [];
+    return tmp;
+  }, [members, uid]);
 
   const actions = useMemo(
     () => [
       {
         text: 'Kick',
         onPress: () => {
-          putData(`/api/v1/servers/${currentServerId}/kick/${uid}`);
+          putData(
+            `/api/v1/servers/${currentServerId}/kick/${uid}`,
+            {},
+            {},
+            false
+          );
           navigation.canGoBack() && navigation.goBack();
         }
       },

@@ -1,4 +1,4 @@
-import { Alert, FlatList, StyleSheet, Text, View } from 'react-native';
+import { Alert, StyleSheet, Text, View } from 'react-native';
 import React, {
   useCallback,
   useEffect,
@@ -17,7 +17,7 @@ import { colors, fonts } from '@/constants/theme';
 import { BottomSheetModal, BottomSheetScrollView } from '@gorhom/bottom-sheet';
 import MyBottomSheetModal from '@/components/modal/MyBottomSheetModal';
 import ButtonListText from '@/components/ButtonList/ButtonListText';
-import { ScrollView } from 'react-native-gesture-handler';
+import { FlatList, ScrollView } from 'react-native-gesture-handler';
 import MemberListItem from '@/components/userManagment/MemberListItem';
 import useServer from '@/hooks/useServer';
 import { ServerProfile } from '@/types';
