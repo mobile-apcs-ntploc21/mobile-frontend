@@ -18,7 +18,8 @@ export enum ServerActions {
   SET_MEMBERS = 'SET_MEMBERS',
   SET_ROLES = 'SET_ROLES',
   UPDATE_STATUS = 'UPDATE_STATUS',
-  UPDATE_PROFILE = 'UPDATE_PROFILE'
+  UPDATE_PROFILE = 'UPDATE_PROFILE',
+  UPDATE_CHANNEL = 'UPDATE_CHANNEL'
 }
 
 type Channel = {
@@ -127,6 +128,13 @@ const handlers: Record<
       members: state.members.map((member) =>
         member.user_id === profile.user_id ? { ...member, ...profile } : member
       )
+    };
+  },
+  [ServerActions.UPDATE_CHANNEL]: (state, { payload }) => {
+    return {
+      ...state,
+      latestAction: ServerActions.UPDATE_CHANNEL,
+      categories: payload
     };
   }
 };
