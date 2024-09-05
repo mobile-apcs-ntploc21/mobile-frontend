@@ -19,7 +19,9 @@ export enum ServerActions {
   SET_ROLES = 'SET_ROLES',
   UPDATE_STATUS = 'UPDATE_STATUS',
   UPDATE_PROFILE = 'UPDATE_PROFILE',
-  UPDATE_CHANNEL = 'UPDATE_CHANNEL'
+  CREATE_CHANNEL = 'CREATE_CHANNEL',
+  UPDATE_CHANNEL = 'UPDATE_CHANNEL',
+  CREATE_CATEGORY = 'CREATE_CATEGORY'
 }
 
 type Channel = {
@@ -128,6 +130,30 @@ const handlers: Record<
       members: state.members.map((member) =>
         member.user_id === profile.user_id ? { ...member, ...profile } : member
       )
+    };
+  },
+  [ServerActions.CREATE_CHANNEL]: (state, { payload }) => {
+    const newState = { ...state };
+
+    if (newState.categories[0].id === null) {
+      newState.categories[0].channels.push(payload);
+    } else {
+      console.log('What happen here?');
+      throw new Error('Something is wrong and we cannot find it.');
+    }
+
+    return {
+      ...newState,
+      latestAction: ServerActions.CREATE_CHANNEL
+    };
+  },
+  [ServerActions.CREATE_CATEGORY]: (state, { payload }) => {
+    const newState = { ...state };
+    newState.categories.push(payload);
+
+    return {
+      ...newState,
+      latestAction: ServerActions.CREATE_CATEGORY
     };
   },
   [ServerActions.UPDATE_CHANNEL]: (state, { payload }) => {
@@ -273,7 +299,8 @@ export const ServerProvider = (props: ProviderProps) => {
             name: category.name,
             channels: channelsFetch.filter(
               (channel: any) => channel.category_id === category.id
-            )
+            ),
+            position: index + 1
           };
         }
       );
@@ -286,7 +313,7 @@ export const ServerProvider = (props: ProviderProps) => {
           channels: channelsFetch.filter(
             (channel: any) => !channel.category_id
           ),
-          position: -1
+          position: 0
         });
       }
 
