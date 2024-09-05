@@ -119,7 +119,7 @@ const ServerInfo = (props: ServerInfoProps) => {
           rowGap: 16,
           paddingTop: 16,
           paddingBottom: 136 / 2 + 90 + 16,
-          minHeight: SCREEN_HEIGHT
+          minHeight: SCREEN_HEIGHT + 16
         }}
         scrollEventThrottle={16}
         onScroll={handleScroll}
