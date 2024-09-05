@@ -15,6 +15,7 @@ interface CustomTextInputProps {
     | 'email-address'
     | 'visible-password'
     | 'phone-pad';
+  props?: any;
 }
 
 const CustomTextInput = ({
@@ -24,7 +25,8 @@ const CustomTextInput = ({
   onChangeText,
   secureTextEntry = false,
   errorMessage,
-  keyboardType = 'default'
+  keyboardType = 'default',
+  props = {}
 }: CustomTextInputProps) => {
   return (
     <View style={styles.container}>
@@ -46,6 +48,7 @@ const CustomTextInput = ({
           onChangeText={onChangeText}
           secureTextEntry={secureTextEntry}
           keyboardType={keyboardType}
+          {...props}
         />
       </View>
       {errorMessage && <Text style={styles.errorMessage}>{errorMessage}</Text>}
