@@ -70,7 +70,7 @@ const styles = StyleSheet.create({
     fontSize: 12,
     fontFamily: fonts.black,
     color: colors.black,
-    marginLeft: 4,
+    marginLeft: 0,
     textTransform: 'uppercase'
   },
   input: {

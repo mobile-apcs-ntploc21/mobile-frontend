@@ -1,39 +1,63 @@
-import { ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Image } from 'expo-image';
 import { useMemo, useState } from 'react';
+import { Animated, Dimensions, StyleSheet, View } from 'react-native';
 
-import ChannelItem from '@/components/Servers_Channels/ChannelItem';
-import MyButtonIcon from '@/components/MyButton/MyButtonIcon';
-import StarIcon from '@/assets/icons/StarIcon';
 import AddFriendIcon from '@/assets/icons/AddFriendIcon';
-import SettingIcon from '@/assets/icons/SettingIcon';
-import MyText from '@/components/MyText';
-import Avatar from '@/components/Avatar';
 import DotsIcon from '@/assets/icons/DotsIcon';
-import { colors, fonts } from '@/constants/theme';
-import useServers from '@/hooks/useServers';
+import SettingIcon from '@/assets/icons/SettingIcon';
+import StarIcon from '@/assets/icons/StarIcon';
 import Accordion from '@/components/Accordion';
-import { router } from 'expo-router';
+import Avatar from '@/components/Avatar';
+import MyButtonIcon from '@/components/MyButton/MyButtonIcon';
+import MyText from '@/components/MyText';
+import ChannelItem from '@/components/Servers_Channels/ChannelItem';
+import { colors, fonts } from '@/constants/theme';
 import useServer from '@/hooks/useServer';
+import useServers from '@/hooks/useServers';
+import { router } from 'expo-router';
 
 const MAXUSERS = 4;
+const SCREEN_HEIGHT = Dimensions.get('window').height;
 
-const ServerInfo = () => {
+interface ServerInfoProps {
+  scrollY: Animated.Value;
+}
+
+const ServerInfo = (props: ServerInfoProps) => {
   const { servers, currentServerId } = useServers();
   const { members } = useServer();
-  const [userIds, setUserIds] = useState<string[]>(
-    Array.from({ length: 10 }, (_, i) => i.toString())
-  );
-
   const thisServer = useMemo(
     () => servers.find((server) => server.id === currentServerId),
     [servers, currentServerId]
   );
 
-  return (
-    <View style={styles.container}>
+  const [userIds, setUserIds] = useState<string[]>(
+    Array.from({ length: 10 }, (_, i) => i.toString())
+  );
+
+  // =============== UI ===============
+
+  const handleScroll = (event: any) => {
+    const { y } = event.nativeEvent.contentOffset;
+    Animated.timing(props.scrollY, {
+      toValue: y,
+      duration: 0,
+      useNativeDriver: true
+    }).start();
+  };
+
+  const ServerInfo = () => (
+    <View>
       <View style={styles.serverInfoContainer}>
         <View style={styles.serverContainer}>
-          <View style={styles.serverimg} />
+          {thisServer?.avatar ? (
+            <Image
+              source={{ uri: thisServer.avatar }}
+              style={styles.serverimg}
+            />
+          ) : (
+            <View style={styles.serverimg} />
+          )}
           <MyText style={styles.serverName}>{thisServer?.name}</MyText>
         </View>
         <View style={styles.serverActions}>
@@ -82,14 +106,23 @@ const ServerInfo = () => {
           )}
         </View>
       </View>
+    </View>
+  );
+
+  return (
+    <View style={styles.container}>
+      <ServerInfo />
       <View style={styles.separator} />
-      <ScrollView
+      <Animated.ScrollView
         style={styles.newsContainer}
         contentContainerStyle={{
           rowGap: 16,
           paddingTop: 16,
-          paddingBottom: 85 + 16
+          paddingBottom:  90 + 16,
+          minHeight: SCREEN_HEIGHT + 16
         }}
+        scrollEventThrottle={16}
+        onScroll={handleScroll}
       >
         {/* Uncategorized channels */}
         <View style={styles.newsWrapper}>
@@ -99,13 +132,17 @@ const ServerInfo = () => {
         {/* Categorized channels */}
         <Accordion heading={'General'} defaultOpen>
           <ChannelItem />
-          <ChannelItem unreadCount={3} />
-        </Accordion>
-        <Accordion heading={'Project'} defaultOpen>
           <ChannelItem />
           <ChannelItem unreadCount={3} />
         </Accordion>
-      </ScrollView>
+        <Accordion heading={'Project'} defaultOpen>
+          <ChannelItem unreadCount={3} />
+        </Accordion>
+
+        <Accordion heading={'NSFW'} defaultOpen>
+          <ChannelItem unreadCount={3} />
+        </Accordion>
+      </Animated.ScrollView>
     </View>
   );
 };

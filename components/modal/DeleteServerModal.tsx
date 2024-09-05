@@ -1,67 +1,65 @@
+import { colors, fonts } from '@/constants/theme';
+import useServers from '@/hooks/useServers';
+import GlobalStyles from '@/styles/GlobalStyles';
+import { TextStyles } from '@/styles/TextStyles';
+import { deleteData, postData } from '@/utils/api';
+import { useEffect, useState } from 'react';
 import {
   Modal,
   StyleSheet,
   TouchableWithoutFeedback,
   View
 } from 'react-native';
-import React, { useEffect, useState } from 'react';
-import MyText from '../MyText';
-import { TextStyles } from '@/styles/TextStyles';
-import { colors } from '@/constants/theme';
-import GlobalStyles from '@/styles/GlobalStyles';
 import { MyButtonText } from '../MyButton';
+import MyText from '../MyText';
 import CustomTextInput from '../common/CustomTextInput';
-import useServers from '@/hooks/useServers';
-import { postData } from '@/utils/api';
+import { Server } from '@/types';
+import { router } from 'expo-router';
+import { showAlert } from '@/services/alert';
 import { ServersActions } from '@/context/ServersProvider';
 
-export interface CreateServerModalProps {
+interface DeleteServerModalProps {
+  currentServer?: Server;
   visible: boolean;
   onClose: (isWithNewServer?: boolean) => void;
 }
 
-const CreateServerModal = (props: CreateServerModalProps) => {
+const DeleteServerModal = (props: DeleteServerModalProps) => {
   const { servers, dispatch } = useServers();
   const [serverName, setServerName] = useState('');
-  const [newServerId, setNewServerId] = useState('');
 
   const handleConfirm = async () => {
-    // Validate server name
-    if (serverName.length === 0) {
-      return;
-    }
+    if (serverName !== props.currentServer?.name) return;
 
-    const response = await postData('/api/v1/servers', {
-      name: serverName
-    });
+    try {
+      const response = await deleteData(
+        `/api/v1/servers/${props.currentServer?.id}`
+      );
 
-    if (!response) {
-      props.onClose(true);
-      throw new Error('Failed to create server.');
-    }
+      if (response) {
+        // Remove server from servers list
+        const newServers = servers.filter(
+          (server) => server.id !== props.currentServer?.id
+        );
 
-    const newServers = [
-      ...servers,
-      {
-        id: response.id,
-        owner_id: response.owner,
-        name: response.name,
-        is_favorite: false,
-        position: response.position || servers.length
+        dispatch({ type: ServersActions.SET_SERVERS, payload: newServers });
+        if (newServers.length) {
+          dispatch({
+            type: ServersActions.SELECT_SERVER,
+            payload: newServers[0].id
+          });
+        }
       }
-    ];
 
-    dispatch({ type: ServersActions.SET_SERVERS, payload: newServers });
-    setNewServerId(response.id);
-    props.onClose(true);
-  };
-
-  useEffect(() => {
-    if (newServerId) {
-      dispatch({ type: ServersActions.SELECT_SERVER, payload: newServerId });
-      setNewServerId('');
+      props.onClose(true);
+      // Go back to home screen
+      while (router.canGoBack()) {
+        router.back();
+      }
+    } catch (err: any) {
+      showAlert(err.message);
     }
-  }, [servers, newServerId]);
+  };
 
   return (
     <Modal
@@ -76,16 +74,23 @@ const CreateServerModal = (props: CreateServerModalProps) => {
         <View style={styles.modalContainer}>
           <TouchableWithoutFeedback>
             <View style={styles.modalView}>
-              <MyText style={styles.title}>Create Server</MyText>
+              <MyText style={styles.title}>Delete Server</MyText>
               <MyText style={styles.bodyText}>
-                What do you want to call this new server?
+                Are you sure you want to delete{' '}
+                <MyText style={styles.boldText}>
+                  {props.currentServer?.name}
+                </MyText>
+                ? This action cannot be undone.
               </MyText>
               <CustomTextInput
+                title="ENTER SERVER NAME"
                 placeholder="Server name"
                 value={serverName}
                 onChangeText={setServerName}
                 errorMessage={
-                  serverName.length === 0 ? 'Server name is required' : ''
+                  serverName !== props.currentServer?.name
+                    ? 'Server name does not match'
+                    : ''
                 }
               />
               <View style={styles.actions}>
@@ -100,8 +105,11 @@ const CreateServerModal = (props: CreateServerModalProps) => {
                   showOutline={false}
                   title="Confirm"
                   textStyle={TextStyles.h3}
+                  backgroundColor={colors.semantic_red}
+                  textColor={colors.white}
                   containerStyle={styles.actionBtn}
                   onPress={handleConfirm}
+                  disabled={serverName !== props.currentServer?.name}
                 />
               </View>
             </View>
@@ -112,7 +120,7 @@ const CreateServerModal = (props: CreateServerModalProps) => {
   );
 };
 
-export default CreateServerModal;
+export default DeleteServerModal;
 
 const styles = StyleSheet.create({
   modalContainer: {
@@ -127,20 +135,25 @@ const styles = StyleSheet.create({
     borderRadius: 16
   },
   title: {
-    ...TextStyles.h5,
+    ...TextStyles.h3,
     textAlign: 'center'
   },
   actions: {
-    columnGap: 8,
+    columnGap: 20,
     flexDirection: 'row',
-    justifyContent: 'center',
+    justifyContent: 'space-evenly',
     alignItems: 'center'
   },
   bodyText: {
-    ...TextStyles.bodyM,
-    marginTop: 24,
+    ...TextStyles.bodyL,
+    fontSize: 14,
+    marginTop: 16,
     marginBottom: 8,
-    textAlign: 'center'
+    textAlign: 'left'
+  },
+  boldText: {
+    ...TextStyles.bodyL,
+    fontFamily: fonts.bold
   },
   actionBtn: {
     marginTop: 24,

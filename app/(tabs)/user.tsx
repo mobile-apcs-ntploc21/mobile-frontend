@@ -1,11 +1,11 @@
 import {
-  Image,
   StyleSheet,
   Text,
   Touchable,
   TouchableOpacity,
   View
 } from 'react-native';
+import { Image } from 'expo-image';
 import React, { useRef } from 'react';
 import GlobalStyles from '@/styles/GlobalStyles';
 import { DefaultCoverImage, DefaultProfileImage } from '@/constants/images';

@@ -15,7 +15,7 @@ const Settings = () => {
     () => [
       {
         text: 'Overview',
-        onPress: () => {}
+        onPress: () => router.navigate('./overview')
       },
       {
         text: 'Channels',

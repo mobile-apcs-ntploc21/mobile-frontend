@@ -1,8 +1,11 @@
 import { StyleSheet, TouchableOpacity, View } from 'react-native';
+import { Image } from 'expo-image';
 import { colors, fonts } from '@/constants/theme';
 import { ServerItemProps } from '@/types';
 import MyText from '../MyText';
 import { FontAwesome5 } from '@expo/vector-icons';
+import useServers from '@/hooks/useServers';
+import { useMemo } from 'react';
 
 interface ExtendedServerItemProps extends ServerItemProps {
   name: string;
@@ -13,6 +16,10 @@ const ExtendedServerItem = ({
   name,
   onPress = (id) => console.log(id)
 }: ExtendedServerItemProps) => {
+  const placeholderImg = 'https://via.placeholder.com/150';
+  const { serverMap } = useServers();
+  const currentServer = useMemo(() => serverMap[id], [serverMap, id]);
+
   return (
     <TouchableOpacity
       onPress={() => {
@@ -20,7 +27,12 @@ const ExtendedServerItem = ({
       }}
     >
       <View style={styles.container}>
-        <View style={styles.serverImg} />
+        <Image
+          source={{
+            uri: currentServer?.avatar ?? placeholderImg
+          }}
+          style={styles.serverImg}
+        />
         <MyText
           style={styles.serverName}
           numberOfLines={2}

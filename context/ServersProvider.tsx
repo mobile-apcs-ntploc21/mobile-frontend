@@ -17,6 +17,7 @@ export enum ServersActions {
 
 type ServersState = {
   servers: Server[];
+  serverMap: Record<string, Server | null>;
   currentServerId: string | null;
 };
 
@@ -36,6 +37,7 @@ interface ServersProviderProps {
 // Initial state
 const initialState: ServersState = {
   servers: [],
+  serverMap: {},
   currentServerId: null
 };
 
@@ -76,6 +78,15 @@ const reducer = (state: ServersState, action: ServerAction) => {
 // Provider
 export const ServersProvider = ({ children }: ServersProviderProps) => {
   const [state, dispatch] = useReducer(reducer, initialState);
+
+  // Set server map for quick access using its id
+  state.serverMap = state.servers.reduce(
+    (acc, server) => {
+      acc[server.id] = server;
+      return acc;
+    },
+    { null: null } as Record<string, Server | null>
+  );
 
   return (
     <ServersContext.Provider
