@@ -8,7 +8,8 @@ import {
   ReactNode,
   useCallback,
   useEffect,
-  useReducer
+  useReducer,
+  useState
 } from 'react';
 
 export enum ServerActions {
@@ -23,12 +24,18 @@ export enum ServerActions {
 type Channel = {
   id: string;
   name: string;
+  description: string;
+  position: number;
+
+  is_archived: boolean;
+  is_nsfw: boolean;
 };
 
 type Category = {
-  id: string;
+  id: string | null;
   name: string;
   channels: Channel[];
+  position: number;
 };
 
 type Role = {
@@ -139,6 +146,7 @@ export const ServerContext = createContext<IContext>({
 });
 
 export const ServerProvider = (props: ProviderProps) => {
+  const [servers, setServers] = useState<Record<string, ServerState>>({});
   const [state, dispatch] = useReducer(reducer, initialState);
   const { data: subscriptionData } = useSubscription(SERVER_SUBSCRIPTION, {
     variables: { server_id: state.server_id },
@@ -233,19 +241,45 @@ export const ServerProvider = (props: ProviderProps) => {
     }
   }, [subscriptionData, dispatch]);
 
-  const setServer = async (id: string) => {
-    try {
-      // fetch server with id provided
-      const categories: Category[] = Array.from({ length: 5 }, (_, i) => ({
-        id: i.toString(),
-        name: i ? `Category ${i}` : `Uncategorized`,
-        channels: Array.from({ length: 5 }, (_, j) => ({
-          id: j.toString(),
-          name: `Channel ${j}`
-        }))
-      }));
+  // Fetch server data
+  const fetchServerData = async (server_id: string) => {
+    if (servers[server_id]) return servers[server_id];
 
-      const members = await getData(`/api/v1/servers/${id}/members`);
+    try {
+      const channelsFetch = (
+        await getData(`/api/v1/servers/${server_id}/channels`)
+      )?.channels;
+      const categoriesFetch = (
+        await getData(`/api/v1/servers/${server_id}/categories`)
+      )?.categories;
+      const membersFetch = await getData(
+        `/api/v1/servers/${server_id}/members`
+      );
+      // const rolesFetch = await getData(`/api/v1/servers/${server_id}/roles`);
+
+      const categories: Category[] = categoriesFetch.map(
+        (category: any, index: number) => {
+          return {
+            id: category.id,
+            name: category.name,
+            channels: channelsFetch.filter(
+              (channel: any) => channel.category_id === category.id
+            )
+          };
+        }
+      );
+
+      // Add a separate category for uncategorized channels
+      if (channelsFetch.some((channel: any) => !channel.category_id)) {
+        categories.unshift({
+          id: null,
+          name: 'Uncategorized',
+          channels: channelsFetch.filter(
+            (channel: any) => !channel.category_id
+          ),
+          position: -1
+        });
+      }
 
       const roles: Role[] = Array.from({ length: 10 }, (_, i) => ({
         id: i.toString(),
@@ -255,13 +289,41 @@ export const ServerProvider = (props: ProviderProps) => {
         }`
       }));
 
+      const updatedServer = {
+        latestAction: ServerActions.INIT,
+        server_id: server_id,
+        categories: categories,
+        members: membersFetch,
+        roles: roles
+      };
+
+      setServers((prevServers) => ({
+        ...prevServers,
+        [server_id]: updatedServer
+      }));
+
+      return updatedServer;
+    } catch (err: any) {
+      throw new Error(err.message);
+    }
+  };
+
+  const setServer = async (server_id: string) => {
+    // Dispatch an action to reset the state
+    dispatch({
+      type: ServerActions.INIT,
+      payload: initialState
+    });
+
+    try {
+      // Fetch server data and update the state
+      const currentServer = await fetchServerData(server_id);
+
       dispatch({
         type: ServerActions.INIT,
         payload: {
-          server_id: id,
-          categories,
-          members,
-          roles
+          ...currentServer,
+          server_id: server_id
         }
       });
     } catch (err: any) {
@@ -270,7 +332,9 @@ export const ServerProvider = (props: ProviderProps) => {
   };
 
   useEffect(() => {
-    if (props.server_id) setServer(props.server_id);
+    if (props.server_id) {
+      setServer(props.server_id);
+    }
   }, [props.server_id]);
 
   return (
