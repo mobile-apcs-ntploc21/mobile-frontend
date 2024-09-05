@@ -26,20 +26,18 @@ interface ServerInfoProps {
 const ServerInfo = (props: ServerInfoProps) => {
   const { servers, currentServerId } = useServers();
   const { latestAction, categories, members } = useServer();
-  const [userIds, setUserIds] = useState<string[]>(
-    Array.from({ length: 10 }, (_, i) => i.toString())
-  );
-
   const thisServer = useMemo(
     () => servers.find((server) => server.id === currentServerId),
     [servers, currentServerId]
   );
 
+  // =============== UI ===============
+
   const HandleCategoriesView = () => {
     if (!categories) {
       return (
         <View style={styles.newsWrapper}>
-          <Text>Loading...</Text>
+          <MyText>Loading...</MyText>
         </View>
       );
     }
@@ -65,8 +63,17 @@ const ServerInfo = (props: ServerInfoProps) => {
     });
   };
 
-  return (
-    <View style={styles.container}>
+  const handleScroll = (event: any) => {
+    const { y } = event.nativeEvent.contentOffset;
+    Animated.timing(props.scrollY, {
+      toValue: y,
+      duration: 0,
+      useNativeDriver: true
+    }).start();
+  };
+
+  const ServerInfo = () => (
+    <View>
       <View style={styles.serverInfoContainer}>
         <View style={styles.serverContainer}>
           {thisServer?.avatar ? (
@@ -115,14 +122,14 @@ const ServerInfo = (props: ServerInfoProps) => {
                 // subscribeToStatus
               />
             ))}
-          {userIds.length > MAXUSERS && (
+          {/* {members.length > MAXUSERS && (
             <MyButtonIcon
               icon={DotsIcon}
               onPress={() => router.navigate('server-members')}
               showOutline={false}
               containerStyle={styles.activeMember}
             />
-          )}
+          )} */}
         </View>
       </View>
     </View>
@@ -137,14 +144,14 @@ const ServerInfo = (props: ServerInfoProps) => {
         contentContainerStyle={{
           rowGap: 16,
           paddingTop: 16,
-          paddingBottom:  90 + 16,
+          paddingBottom: 90 + 16,
           minHeight: SCREEN_HEIGHT + 16
         }}
         scrollEventThrottle={16}
         onScroll={handleScroll}
       >
         <HandleCategoriesView />
-      </ScrollView>
+      </Animated.ScrollView>
     </View>
   );
 };
