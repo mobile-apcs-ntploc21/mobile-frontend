@@ -1,6 +1,6 @@
 import { Image } from 'expo-image';
 import { useMemo, useState } from 'react';
-import { Animated, Dimensions, StyleSheet, View } from 'react-native';
+import { Animated, Dimensions, StyleSheet, View, Text } from 'react-native';
 
 import AddFriendIcon from '@/assets/icons/AddFriendIcon';
 import DotsIcon from '@/assets/icons/DotsIcon';
@@ -37,12 +37,30 @@ const ServerInfo = (props: ServerInfoProps) => {
     if (!categories) {
       return (
         <View style={styles.newsWrapper}>
-          <MyText>Loading...</MyText>
+          <Text style={{ textAlign: 'center', fontSize: 16 }}>Loading...</Text>
         </View>
       );
     }
 
-    return categories.map((category) => {
+    if (categories.length === 0) {
+      return (
+        <View
+          style={{
+            flex: 1,
+            justifyContent: 'flex-start',
+            alignItems: 'center',
+            marginHorizontal: 30
+          }}
+        >
+          <Text style={{ textAlign: 'center', fontSize: 16 }}>
+            No categories or channels found.{'\n'}Create a category or channel
+            to get started.
+          </Text>
+        </View>
+      );
+    }
+
+    return categories?.map((category) => {
       // Uncategorized channels
       if (category.id === null)
         return (
