@@ -148,12 +148,10 @@ const handlers: Record<
     };
   },
   [ServerActions.CREATE_CATEGORY]: (state, { payload }) => {
-    const newState = { ...state };
-    newState.categories.push(payload);
-
     return {
-      ...newState,
-      latestAction: ServerActions.CREATE_CATEGORY
+      ...state,
+      latestAction: ServerActions.CREATE_CATEGORY,
+      categories: [...state.categories, payload]
     };
   },
   [ServerActions.UPDATE_CHANNEL]: (state, { payload }) => {
