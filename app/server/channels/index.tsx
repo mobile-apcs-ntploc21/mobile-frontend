@@ -178,7 +178,7 @@ const styles = StyleSheet.create({
   createContainer: {
     justifyContent: 'flex-end',
     alignItems: 'center',
-    paddingBottom: 16,
+    paddingBottom: 24,
     backgroundColor: 'transparent'
   },
   normalEdit: {
