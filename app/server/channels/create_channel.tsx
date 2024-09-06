@@ -47,7 +47,7 @@ const CreateChannel = () => {
         requestBody
       );
       if (!response) {
-        throw new Error();
+        throw new Error('Failed to create channel');
       }
 
       // Add the new channel to the list of channels

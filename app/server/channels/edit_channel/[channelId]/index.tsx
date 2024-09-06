@@ -88,6 +88,10 @@ const EditChannel = () => {
         `/api/v1/servers/${currentServerId}/channels/${channelId}`
       );
 
+      if (!response) {
+        throw new Error('Failed to delete channel');
+      }
+
       // Remove the channel
       const newCategories = [...categories];
       for (let i = 0; i < newCategories.length; i++) {
@@ -133,10 +137,14 @@ const EditChannel = () => {
         name: values.channelName,
         description: values.channelTopic
       };
-      const response = patchData(
+      const response = await patchData(
         `/api/v1/servers/${currentServerId}/channels/${channelId}`,
         requestBody
       );
+
+      if (!response) {
+        throw new Error('Failed to update channel');
+      }
 
       // Set new channels data
       const newCategories = [...categories];

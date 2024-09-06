@@ -31,7 +31,7 @@ const Move = () => {
       );
 
       if (!response) {
-        throw new Error();
+        throw new Error('Failed to move channel to new category');
       }
 
       // Move the chanel to new categories and dispatch

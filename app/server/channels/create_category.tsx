@@ -52,7 +52,7 @@ const CreateCategory = () => {
       console.log(response);
 
       if (!response) {
-        throw new Error();
+        throw new Error('Failed to create category');
       }
 
       // Add the new category to the list of categories

@@ -86,6 +86,10 @@ const EditCategory = () => {
         `/api/v1/servers/${currentServerId}/categories/${categoryId}`
       );
 
+      if (!response) {
+        throw new Error('Failed to delete category');
+      }
+
       // Remove the category and add the channels back to the uncategorized category
       let newCategories = [...categories];
       const index = newCategories.findIndex((c) => c.id === categoryId);
@@ -120,10 +124,14 @@ const EditCategory = () => {
       const responseBody = {
         name: values.categoryName
       };
-      const response = patchData(
+      const response = await patchData(
         `/api/v1/servers/${currentServerId}/categories/${categoryId}`,
         responseBody
       );
+
+      if (!response) {
+        throw new Error('Failed to update category');
+      }
 
       // Save the data
       const newCategories = [...categories];
