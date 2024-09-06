@@ -119,6 +119,14 @@ const EditChannel = () => {
       setErrors('channelName', 'Channel name is required');
       return;
     }
+    if (values.channelName.length > 100) {
+      setErrors('channelName', 'Channel name is too long');
+      return;
+    }
+    if (values.channelTopic.length > 1024) {
+      setErrors('channelTopic', 'Channel topic is too long');
+      return;
+    }
 
     try {
       const requestBody = {

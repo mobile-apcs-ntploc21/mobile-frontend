@@ -33,6 +33,10 @@ const CreateCategory = () => {
       setErrors('categoryName', 'Category name is required');
       return;
     }
+    if (values.categoryName.length > 100) {
+      setErrors('categoryName', 'Category name is too long');
+      return;
+    }
 
     try {
       const requestBody = {

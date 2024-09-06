@@ -33,6 +33,10 @@ const CreateChannel = () => {
       setErrors('channelName', 'Channel name is required');
       return;
     }
+    if (values.channelName.length > 100) {
+      setErrors('channelName', 'Channel name is too long');
+      return;
+    }
 
     try {
       const requestBody = {
