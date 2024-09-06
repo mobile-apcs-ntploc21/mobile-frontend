@@ -86,8 +86,14 @@ const EditCategory = () => {
         `/api/v1/servers/${currentServerId}/categories/${categoryId}`
       );
 
-      // Remove the category
-      const newCategories = categories.filter((c) => c.id !== categoryId);
+      // Remove the category and add the channels back to the uncategorized category
+      let newCategories = [...categories];
+      const index = newCategories.findIndex((c) => c.id === categoryId);
+      const removedChannels = newCategories[index].channels;
+      newCategories.splice(index, 1);
+      // Add the channels back to the uncategorized category
+      newCategories[0].channels.push(...removedChannels);
+
       dispatch({ type: ServerActions.UPDATE_CHANNEL, payload: newCategories });
 
       // Navigate back
