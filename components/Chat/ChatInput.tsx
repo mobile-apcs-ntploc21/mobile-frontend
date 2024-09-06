@@ -1,6 +1,5 @@
-import { StyleSheet, Text, Touchable, View } from 'react-native';
-import React, { useRef } from 'react';
-import { TextInput } from 'react-native-gesture-handler';
+import { StyleSheet, Text, TextInput, Touchable, View } from 'react-native';
+import React, { useEffect, useRef, useState } from 'react';
 import { colors } from '@/constants/theme';
 import { TouchableOpacity } from '@gorhom/bottom-sheet';
 import IconWithSize from '../IconWithSize';
@@ -8,29 +7,71 @@ import PlusIcon from '@/assets/icons/PlusIcon';
 import ImageIcon from '@/assets/icons/ImageIcon';
 import MicIcon from '@/assets/icons/MicIcon';
 import EmojiIcon from '@/assets/icons/EmojiIcon';
+import Animated from 'react-native-reanimated';
+import ArrowForwardIcon from '@/assets/icons/ArrowForwardIcon';
+import SendIcon from '@/assets/icons/SendIcon';
 
 const IconButton = ({
   icon,
-  size
-}: React.ComponentProps<typeof IconWithSize>) => {
+  size,
+  onPress
+}: React.ComponentProps<typeof IconWithSize> & {
+  onPress?: () => void;
+}) => {
   return (
-    <TouchableOpacity>
+    <TouchableOpacity onPress={onPress}>
       <IconWithSize icon={icon} size={size} color={colors.primary} />
     </TouchableOpacity>
   );
 };
 
-const ChatInput = () => {
+interface ChatInputProps {
+  value?: string;
+  onChange?: (text: string) => void;
+}
+
+const ChatInput = (props: ChatInputProps) => {
+  const inputRef = useRef<TextInput>(null);
+  const [isHidden, setIsHidden] = useState(false);
+
+  const onChange = (text: string) => {
+    props.onChange?.(text);
+    setIsHidden(text.length > 0);
+  };
+
   return (
     <View style={styles.container}>
       <View style={styles.chatBarContainer}>
-        <IconButton icon={PlusIcon} size={32} />
-        <IconButton icon={ImageIcon} size={32} />
+        {!isHidden ? (
+          <>
+            <IconButton icon={PlusIcon} size={32} />
+            <IconButton icon={ImageIcon} size={32} />
+          </>
+        ) : (
+          <IconButton
+            icon={ArrowForwardIcon}
+            size={32}
+            onPress={() => setIsHidden(false)}
+          />
+        )}
         <View style={styles.inputContainer}>
-          <TextInput style={styles.input} placeholder="Message..." />
+          <TextInput
+            ref={inputRef}
+            style={styles.input}
+            placeholder="Message..."
+            value={props.value}
+            onChangeText={onChange}
+            multiline
+            onFocus={() => setIsHidden(true)}
+            onBlur={() => setIsHidden(false)}
+          />
           <IconButton icon={EmojiIcon} size={24} />
         </View>
-        <IconButton icon={MicIcon} size={32} />
+        {props.value?.length === 0 ? (
+          <IconButton icon={MicIcon} size={32} />
+        ) : (
+          <IconButton icon={SendIcon} size={32} />
+        )}
       </View>
     </View>
   );
@@ -54,9 +95,10 @@ const styles = StyleSheet.create({
   },
   inputContainer: {
     flex: 1,
-    height: 36,
     paddingLeft: 8,
     paddingRight: 6,
+    paddingVertical: 4,
+    gap: 8,
     backgroundColor: colors.gray03,
     borderRadius: 18,
     flexDirection: 'row',
@@ -64,7 +106,8 @@ const styles = StyleSheet.create({
   },
   input: {
     flex: 1,
-    fontSize: 12,
-    color: colors.black
+    fontSize: 14,
+    color: colors.black,
+    paddingVertical: 0
   }
 });

@@ -7,7 +7,7 @@ import {
   TouchableOpacity,
   View
 } from 'react-native';
-import React, { useLayoutEffect } from 'react';
+import React, { useLayoutEffect, useState } from 'react';
 import { useNavigation } from 'expo-router';
 import MyHeader from '@/components/MyHeader';
 import MyText from '@/components/MyText';
@@ -19,6 +19,7 @@ import ChatInput from '@/components/Chat/ChatInput';
 
 const subPlayground = () => {
   const navigation = useNavigation();
+  const [text, setText] = useState('');
 
   useLayoutEffect(() => {
     navigation.setOptions({
@@ -49,7 +50,7 @@ const subPlayground = () => {
         )}
         inverted
       />
-      <ChatInput />
+      <ChatInput value={text} onChange={setText} />
     </KeyboardAvoidingView>
   );
 };
