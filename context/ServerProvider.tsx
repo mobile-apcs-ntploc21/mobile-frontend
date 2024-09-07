@@ -1,5 +1,6 @@
 import { SERVER_SUBSCRIPTION } from '@/services/graphql/subscriptions';
 import { ServerEvents, ServerProfile } from '@/types';
+import { Category, Role } from '@/types/server';
 import { getData } from '@/utils/api';
 import { useSubscription } from '@apollo/client';
 import {
@@ -20,29 +21,13 @@ export enum ServerActions {
   UPDATE_PROFILE = 'UPDATE_PROFILE'
 }
 
-type Channel = {
-  id: string;
-  name: string;
-};
-
-type Category = {
-  id: string;
-  name: string;
-  channels: Channel[];
-};
-
-type Role = {
-  id: string;
-  name: string;
-  color: string;
-};
-
 type ServerState = {
   latestAction: ServerActions | null;
   server_id: string | null;
   categories: Category[];
   members: ServerProfile[];
-  roles: Role[];
+  defaultRole: Role | null;
+  customRoles: Role[];
 };
 
 type ServerAction = {
@@ -65,7 +50,8 @@ const initialState: ServerState = {
   server_id: null,
   categories: [],
   members: [],
-  roles: []
+  defaultRole: null,
+  customRoles: []
 };
 
 const handlers: Record<
@@ -188,9 +174,7 @@ export const ServerProvider = (props: ProviderProps) => {
           let profileAndStatus = await getServerProfile(
             serverUpdated.data,
             true
-          );
-          if (!profileAndStatus)
-            profileAndStatus = await getServerProfile(serverUpdated.data);
+          ).catch(() => getServerProfile(serverUpdated.data));
           dispatch({
             type: ServerActions.SET_MEMBERS,
             payload: [...state.members, profileAndStatus]
@@ -230,6 +214,41 @@ export const ServerProvider = (props: ProviderProps) => {
           )
         });
         break;
+      case ServerEvents.userRoleAdded:
+        {
+          const members = [...state.members];
+          members.forEach(
+            (member) =>
+              member.user_id === serverUpdated.data.user_id &&
+              member.roles.push(
+                state.customRoles.find(
+                  (role) => role.id === serverUpdated.data.role_id
+                )!
+              )
+          );
+          dispatch({
+            type: ServerActions.SET_MEMBERS,
+            payload: members
+          });
+        }
+        break;
+      case ServerEvents.userRoleDeleted:
+        {
+          const members = [...state.members];
+          members.forEach((member) => {
+            if (member.user_id === serverUpdated.data.user_id)
+              member.roles = member.roles.filter(
+                (role) => role.id !== serverUpdated.data.role_id
+              );
+          });
+          dispatch({
+            type: ServerActions.SET_MEMBERS,
+            payload: members
+          });
+        }
+        break;
+      default:
+        console.warn(`Unknown event type ${serverUpdated.type}`);
     }
   }, [subscriptionData, dispatch]);
 
@@ -245,15 +264,28 @@ export const ServerProvider = (props: ProviderProps) => {
         }))
       }));
 
-      const members = await getData(`/api/v1/servers/${id}/members`);
+      const roles: Role[] = (await getData(`/api/v1/servers/${id}/roles`))
+        .roles;
+      let defaultRole: Role | null = null;
+      const customRoles: Role[] = [];
+      roles.forEach((role: Role) => {
+        if (role.default) {
+          defaultRole = role;
+        } else {
+          customRoles.push(role);
+        }
+      });
 
-      const roles: Role[] = Array.from({ length: 10 }, (_, i) => ({
-        id: i.toString(),
-        name: `role_${i}`,
-        color: `#${
-          Math.floor(Math.random() * 16777215).toString(16) // random color
-        }`
-      }));
+      const members = (await getData(`/api/v1/servers/${id}/members`)).map(
+        (member: any) => ({
+          ...member,
+          roles: member.roleIds
+            .map((roleId: string) =>
+              customRoles.find((role: Role) => role.id === roleId)
+            )
+            .filter((role: any) => role)
+        })
+      );
 
       dispatch({
         type: ServerActions.INIT,
@@ -261,7 +293,8 @@ export const ServerProvider = (props: ProviderProps) => {
           server_id: id,
           categories,
           members,
-          roles
+          defaultRole,
+          customRoles
         }
       });
     } catch (err: any) {

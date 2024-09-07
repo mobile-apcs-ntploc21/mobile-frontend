@@ -6,7 +6,7 @@ import { ServerProfile, UserProfile, UserStatus } from '@/types';
 import Avatar from '../Avatar';
 import { getData } from '@/utils/api';
 import { Skeleton } from 'moti/skeleton';
-import getStatusText from '@/utils/status';
+import { checkOnline, getStatusText } from '@/utils/status';
 
 interface MemberItemProps {
   profile?: ServerProfile;
@@ -28,9 +28,10 @@ const MemberListItem = ({ profile }: MemberItemProps) => {
           <Skeleton colorMode="light" width={'50%'} height={16}>
             {profile && (
               <MyText style={styles.status_text}>
-                {profile.status?.status_text
-                  ? profile.status.status_text
-                  : getStatusText(profile.status.type)}
+                {checkOnline(profile.status.is_online, profile.status.type)
+                  ? profile.status.status_text ||
+                    getStatusText(profile.status.type)
+                  : 'Offline'}
               </MyText>
             )}
           </Skeleton>
