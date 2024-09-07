@@ -23,7 +23,7 @@ const Settings = () => {
       },
       {
         text: 'Emoji',
-        onPress: () => {}
+        onPress: () => router.navigate('./emoji')
       },
       {
         text: 'Invite code',
