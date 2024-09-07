@@ -92,15 +92,12 @@ const ChatInput = (props: ChatInputProps) => {
             onChangeText={onChange}
             multiline
             onFocus={() => {
-              setIsIconHidden(true);
               setEmojiPickerVisible(false);
             }}
-            onBlur={() => {
-              setIsIconHidden(false);
-            }}
-            // showSoftInputOnFocus={keyboardShown}
           />
-          <IconButton icon={EmojiIcon} size={24} onPress={handleOpenEmoji} />
+          <View style={{ marginBottom: 2 }}>
+            <IconButton icon={EmojiIcon} size={24} onPress={handleOpenEmoji} />
+          </View>
         </View>
         {props.value?.length === 0 ? (
           <IconButton icon={MicIcon} size={32} />
@@ -142,7 +139,7 @@ const styles = StyleSheet.create({
     backgroundColor: colors.gray03,
     borderRadius: 18,
     flexDirection: 'row',
-    alignItems: 'center'
+    alignItems: 'flex-end'
   },
   input: {
     flex: 1,
