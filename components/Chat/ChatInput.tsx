@@ -1,4 +1,11 @@
-import { StyleSheet, Text, TextInput, Touchable, View } from 'react-native';
+import {
+  Keyboard,
+  StyleSheet,
+  Text,
+  TextInput,
+  Touchable,
+  View
+} from 'react-native';
 import React, { useEffect, useRef, useState } from 'react';
 import { colors } from '@/constants/theme';
 import { TouchableOpacity } from '@gorhom/bottom-sheet';
@@ -10,6 +17,7 @@ import EmojiIcon from '@/assets/icons/EmojiIcon';
 import Animated from 'react-native-reanimated';
 import ArrowForwardIcon from '@/assets/icons/ArrowForwardIcon';
 import SendIcon from '@/assets/icons/SendIcon';
+import EmojiPicker from './EmojiPicker';
 
 const IconButton = ({
   icon,
@@ -32,17 +40,37 @@ interface ChatInputProps {
 
 const ChatInput = (props: ChatInputProps) => {
   const inputRef = useRef<TextInput>(null);
-  const [isHidden, setIsHidden] = useState(false);
+  const [isIconHidden, setIsIconHidden] = useState(false);
+  const [emojiPickerVisible, setEmojiPickerVisible] = useState(false);
+  const [keyboardHeight, setKeyboardHeight] = useState(0);
+
+  useEffect(() => {
+    const keyboardDidShowListener = Keyboard.addListener(
+      'keyboardDidShow',
+      (e) => {
+        setKeyboardHeight(e.endCoordinates.height);
+      }
+    );
+
+    return () => {
+      keyboardDidShowListener.remove();
+    };
+  }, []);
 
   const onChange = (text: string) => {
     props.onChange?.(text);
-    setIsHidden(text.length > 0);
+    setIsIconHidden(text.length > 0);
+  };
+
+  const handleOpenEmoji = () => {
+    setEmojiPickerVisible(true);
+    Keyboard.dismiss();
   };
 
   return (
     <View style={styles.container}>
       <View style={styles.chatBarContainer}>
-        {!isHidden ? (
+        {!isIconHidden ? (
           <>
             <IconButton icon={PlusIcon} size={32} />
             <IconButton icon={ImageIcon} size={32} />
@@ -51,21 +79,28 @@ const ChatInput = (props: ChatInputProps) => {
           <IconButton
             icon={ArrowForwardIcon}
             size={32}
-            onPress={() => setIsHidden(false)}
+            onPress={() => setIsIconHidden(false)}
           />
         )}
         <View style={styles.inputContainer}>
           <TextInput
+            autoFocus // show keyboard on first render to get keyboard height
             ref={inputRef}
             style={styles.input}
             placeholder="Message..."
             value={props.value}
             onChangeText={onChange}
             multiline
-            onFocus={() => setIsHidden(true)}
-            onBlur={() => setIsHidden(false)}
+            onFocus={() => {
+              setIsIconHidden(true);
+              setEmojiPickerVisible(false);
+            }}
+            onBlur={() => {
+              setIsIconHidden(false);
+            }}
+            // showSoftInputOnFocus={keyboardShown}
           />
-          <IconButton icon={EmojiIcon} size={24} />
+          <IconButton icon={EmojiIcon} size={24} onPress={handleOpenEmoji} />
         </View>
         {props.value?.length === 0 ? (
           <IconButton icon={MicIcon} size={32} />
@@ -73,6 +108,11 @@ const ChatInput = (props: ChatInputProps) => {
           <IconButton icon={SendIcon} size={32} />
         )}
       </View>
+      <EmojiPicker
+        visible={emojiPickerVisible}
+        handleClose={() => setEmojiPickerVisible(false)}
+        height={keyboardHeight}
+      />
     </View>
   );
 };

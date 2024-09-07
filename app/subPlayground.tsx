@@ -42,6 +42,7 @@ const subPlayground = () => {
   return (
     <KeyboardAvoidingView style={GlobalStyles.screen}>
       <FlatList
+        keyboardShouldPersistTaps="always"
         data={Array.from({ length: 100 })}
         renderItem={({ item, index }) => (
           <View>
