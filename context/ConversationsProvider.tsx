@@ -1,6 +1,6 @@
 import { Conversation, ConversationsTypes } from '@/types/chat';
 import { ConversationsAction } from '@/types/chat';
-import { createContext, Dispatch, useReducer } from 'react';
+import { createContext, Dispatch, useContext, useReducer } from 'react';
 
 export type ConversationsState = {
   conversations: Conversation[];
@@ -150,6 +150,16 @@ export const ConversationsContext = createContext<IContext>({
   ...initialState,
   dispatch: () => null
 });
+
+export const useConversations = () => {
+  const context = useContext(ConversationsContext);
+  if (context === undefined) {
+    throw new Error(
+      'useConversations must be used within a ConversationsProvider'
+    );
+  }
+  return context;
+};
 
 export const ConversationsProvider: React.FC<ProviderProps> = ({
   children
