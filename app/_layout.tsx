@@ -12,6 +12,7 @@ import WsProvider from '@/context/WsProvider';
 import UserProvider from '@/context/UserProvider';
 import StatusProvider from '@/context/StatusProvider';
 import { ServersProvider } from '@/context/ServersProvider';
+import { ConversationsProvider } from '@/context/ConversationsProvider';
 
 export {
   // Catch any errors thrown by the Layout component.
@@ -62,26 +63,28 @@ function RootLayoutNav() {
               <UserProvider>
                 <GlobalProvider>
                   <ServersProvider>
-                    <SafeAreaView style={{ flex: 1 }}>
-                      <Stack>
-                        <Stack.Screen
-                          name="(auth)"
-                          options={{ headerShown: false }}
-                        />
-                        <Stack.Screen
-                          name="(tabs)"
-                          options={{ headerShown: false }}
-                        />
-                        <Stack.Screen
-                          name="modal"
-                          options={{ presentation: 'modal' }}
-                        />
-                        <Stack.Screen
-                          name="user/[userId]"
-                          options={{ headerShown: false }}
-                        />
-                      </Stack>
-                    </SafeAreaView>
+                    <ConversationsProvider>
+                      <SafeAreaView style={{ flex: 1 }}>
+                        <Stack>
+                          <Stack.Screen
+                            name="(auth)"
+                            options={{ headerShown: false }}
+                          />
+                          <Stack.Screen
+                            name="(tabs)"
+                            options={{ headerShown: false }}
+                          />
+                          <Stack.Screen
+                            name="modal"
+                            options={{ presentation: 'modal' }}
+                          />
+                          <Stack.Screen
+                            name="user/[userId]"
+                            options={{ headerShown: false }}
+                          />
+                        </Stack>
+                      </SafeAreaView>
+                    </ConversationsProvider>
                   </ServersProvider>
                 </GlobalProvider>
               </UserProvider>
