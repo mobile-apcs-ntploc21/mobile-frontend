@@ -1,6 +1,6 @@
 import { SERVER_SUBSCRIPTION } from '@/services/graphql/subscriptions';
 import { ServerEvents, ServerProfile } from '@/types';
-import { Category, Role } from '@/types/server';
+import { Category, Emoji, Role } from '@/types/server';
 import { getData } from '@/utils/api';
 import { useSubscription } from '@apollo/client';
 import {
@@ -17,6 +17,7 @@ export enum ServerActions {
   SET_CATEGORIES = 'SET_CATEGORIES',
   SET_MEMBERS = 'SET_MEMBERS',
   SET_ROLES = 'SET_ROLES',
+  SET_EMOJI = 'SET_EMOJI',
   UPDATE_STATUS = 'UPDATE_STATUS',
   UPDATE_PROFILE = 'UPDATE_PROFILE'
 }
@@ -28,6 +29,8 @@ type ServerState = {
   members: ServerProfile[];
   defaultRole: Role | null;
   customRoles: Role[];
+  roles: Role[];
+  emojis: Emoji[];
 };
 
 type ServerAction = {
@@ -51,7 +54,9 @@ const initialState: ServerState = {
   categories: [],
   members: [],
   defaultRole: null,
-  customRoles: []
+  customRoles: [],
+  roles: [],
+  emojis: []
 };
 
 const handlers: Record<
@@ -76,6 +81,13 @@ const handlers: Record<
       ...state,
       latestAction: ServerActions.SET_MEMBERS,
       members: payload
+    };
+  },
+  [ServerActions.SET_EMOJI]: (state, { payload }) => {
+    return {
+      ...state,
+      latestAction: ServerActions.SET_EMOJI,
+      emojis: payload
     };
   },
   [ServerActions.SET_ROLES]: (state, { payload }) => {
@@ -247,8 +259,39 @@ export const ServerProvider = (props: ProviderProps) => {
           });
         }
         break;
+      case ServerEvents.emojiAdded:
+        dispatch({
+          type: ServerActions.SET_EMOJI,
+          payload: [
+            ...state.emojis,
+            {
+              id: serverUpdated.data._id,
+              ...serverUpdated.data
+            }
+          ]
+        });
+        break;
+      case ServerEvents.emojiUpdated:
+        dispatch({
+          type: ServerActions.SET_EMOJI,
+          payload: state.emojis.map((emoji) =>
+            emoji.id === serverUpdated.data._id
+              ? { ...emoji, ...serverUpdated.data }
+              : emoji
+          )
+        });
+        break;
+      case ServerEvents.emojiDeleted:
+        dispatch({
+          type: ServerActions.SET_EMOJI,
+          payload: state.emojis.filter(
+            (emoji) => emoji.id !== serverUpdated.data._id
+          )
+        });
+        break;
       default:
-        console.warn(`Unknown event type ${serverUpdated.type}`);
+        console.warn('Unknown event type:', serverUpdated.type);
+        console.log(serverUpdated);
     }
   }, [subscriptionData, dispatch]);
 
@@ -287,6 +330,8 @@ export const ServerProvider = (props: ProviderProps) => {
         })
       );
 
+      const emojis: Emoji[] = await getData(`/api/v1/servers/${id}/emojis`);
+
       dispatch({
         type: ServerActions.INIT,
         payload: {
@@ -294,7 +339,9 @@ export const ServerProvider = (props: ProviderProps) => {
           categories,
           members,
           defaultRole,
-          customRoles
+          customRoles,
+          roles,
+          emojis
         }
       });
     } catch (err: any) {

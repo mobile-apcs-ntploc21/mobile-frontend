@@ -20,3 +20,10 @@ export interface Role {
   default: boolean;
   number_of_users: number;
 }
+
+export interface Emoji {
+  id: string;
+  name: string;
+  image_url: string;
+  uploader_id: string;
+}
