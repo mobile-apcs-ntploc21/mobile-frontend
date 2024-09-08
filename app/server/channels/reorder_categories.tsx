@@ -1,38 +1,58 @@
-import {
-  FlatList,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  TouchableWithoutFeedback,
-  View
-} from 'react-native';
-import React, {
-  useCallback,
-  useEffect,
-  useLayoutEffect,
-  useState
-} from 'react';
-import { router, useNavigation } from 'expo-router';
 import { NativeStackHeaderProps } from '@react-navigation/native-stack';
+import { router, useNavigation } from 'expo-router';
+import { useCallback, useEffect, useLayoutEffect, useState } from 'react';
+import { ScrollView, StyleSheet } from 'react-native';
 
-import ReorderList from '@/components/reordering/ReorderList';
 import MyHeaderRight from '@/components/MyHeaderRight';
-import useServer from '@/hooks/useServer';
+import ReorderList from '@/components/reordering/ReorderList';
 import { ServerActions } from '@/context/ServerProvider';
+import useServer from '@/hooks/useServer';
+import { showAlert } from '@/services/alert';
+import { patchData } from '@/utils/api';
 
 const ReorderCategories = () => {
   const navigation = useNavigation();
-  const { categories, dispatch } = useServer();
+  const { server_id, categories, dispatch } = useServer();
 
   const [currentCat, setCurrentCat] = useState<typeof categories>(
     categories.slice(1)
   );
 
-  const handleSave = useCallback(() => {
-    currentCat.unshift(categories[0]);
-    dispatch({ type: ServerActions.SET_CATEGORIES, payload: currentCat });
-    router.canGoBack() && router.back();
+  const handleSave = useCallback(async () => {
+    // Post a request to the server to update the categories order
+    type Category = {
+      category_id: string | null;
+      position: number;
+    };
+    const _categories: Category[] = currentCat.map((category, index) => ({
+      category_id: category.id,
+      position: index
+    }));
+
+    // Request to the server to update the categories order
+    try {
+      const requestBody = {
+        server_id,
+        categories: _categories
+      };
+
+      const response = await patchData(
+        `/api/v1/servers/${server_id}/categories/move`,
+        requestBody
+      );
+
+      if (!response) {
+        throw new Error('Failed to update categories order.');
+      }
+
+      // Update the server with the new categories order
+      currentCat.unshift(categories[0]);
+      dispatch({ type: ServerActions.SET_CATEGORIES, payload: currentCat });
+      router.canGoBack() && router.back();
+    } catch (e: any) {
+      showAlert('Failed to update categories order.');
+      console.error(e.message);
+    }
   }, [currentCat]);
 
   useEffect(() => {

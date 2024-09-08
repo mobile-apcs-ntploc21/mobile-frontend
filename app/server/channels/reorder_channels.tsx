@@ -1,35 +1,61 @@
-import {
-  FlatList,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  TouchableWithoutFeedback,
-  View
-} from 'react-native';
-import React, {
-  useCallback,
-  useEffect,
-  useLayoutEffect,
-  useState
-} from 'react';
-import { router, useNavigation } from 'expo-router';
 import { NativeStackHeaderProps } from '@react-navigation/native-stack';
+import { router, useNavigation } from 'expo-router';
+import { useCallback, useEffect, useLayoutEffect, useState } from 'react';
+import { ScrollView, StyleSheet } from 'react-native';
 
-import ReorderList from '@/components/reordering/ReorderList';
 import MyHeaderRight from '@/components/MyHeaderRight';
-import useServer from '@/hooks/useServer';
+import ReorderList from '@/components/reordering/ReorderList';
 import { ServerActions } from '@/context/ServerProvider';
+import useServer from '@/hooks/useServer';
+import { patchData } from '@/utils/api';
+import { showAlert } from '@/services/alert';
 
 const ReorderChannels = () => {
   const navigation = useNavigation();
-  const { categories, dispatch } = useServer();
+  const { server_id, categories, dispatch } = useServer();
 
   const [currentCat, setCurrentCat] = useState<typeof categories>(categories);
 
-  const handleSave = useCallback(() => {
-    dispatch({ type: ServerActions.SET_CATEGORIES, payload: currentCat });
-    router.canGoBack() && router.back();
+  const handleSave = useCallback(async () => {
+    // Create a new array contains list of channels
+    type Channel = {
+      channel_id: string;
+      category_id: string | null;
+      position: number;
+    };
+    const channels: Channel[] = [];
+    currentCat.forEach((category) => {
+      category.channels.forEach((channel, index) => {
+        channels.push({
+          channel_id: channel.id,
+          category_id: category.id,
+          position: index
+        });
+      });
+    });
+
+    // Post a request to the server to update the channels order
+    try {
+      const requestBody = {
+        server_id,
+        channels
+      };
+      const response = await patchData(
+        `/api/v1/servers/${server_id}/channels/move`,
+        requestBody
+      );
+
+      if (!response) {
+        throw new Error('Failed to update channels order.');
+      }
+
+      // Update the server with the new channels order
+      dispatch({ type: ServerActions.SET_CATEGORIES, payload: currentCat });
+      router.canGoBack() && router.back();
+    } catch (e: any) {
+      showAlert('Failed to update channels order.');
+      console.error(e.message);
+    }
   }, [currentCat]);
 
   useEffect(() => {
