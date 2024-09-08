@@ -214,6 +214,27 @@ export async function register(
 }
 
 export async function logout(): Promise<void> {
-  // TODO: Call the server to logout the user.
-  await AsyncStorage.clear();
+  try {
+    const idToken = await getIdToken();
+    const refreshToken = await AsyncStorage.getItem('refreshToken');
+
+    if (!idToken || !refreshToken) {
+      await AsyncStorage.clear();
+      return;
+    }
+
+    const response = await postData(
+      '/api/v1/users/logout',
+      {
+        refreshToken
+      },
+      {
+        Authorization: `Bearer ${idToken}`
+      }
+    );
+  } catch (e: any) {
+    throw new Error(e.message);
+  } finally {
+    await AsyncStorage.clear();
+  }
 }
