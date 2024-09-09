@@ -6,8 +6,8 @@ import {
   Touchable,
   View
 } from 'react-native';
-import React, { useEffect, useRef, useState } from 'react';
-import { colors } from '@/constants/theme';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
+import { colors, fonts } from '@/constants/theme';
 import { TouchableOpacity } from '@gorhom/bottom-sheet';
 import IconWithSize from '../IconWithSize';
 import PlusIcon from '@/assets/icons/PlusIcon';
@@ -36,6 +36,7 @@ const IconButton = ({
 interface ChatInputProps {
   value?: string;
   onChange?: (text: string) => void;
+  highlightedPatterns?: string[];
 }
 
 const ChatInput = (props: ChatInputProps) => {
@@ -67,6 +68,31 @@ const ChatInput = (props: ChatInputProps) => {
     Keyboard.dismiss();
   };
 
+  const parseText = useCallback(
+    (text?: string) => {
+      if (!text) return <Text>{text}</Text>;
+      if (!props.highlightedPatterns) return <Text>{text}</Text>;
+
+      const parts = text.split(/( |\n)/);
+
+      return parts.map((part, index) => {
+        const isHighlighted = props.highlightedPatterns?.includes(part);
+        return (
+          <Text
+            key={index}
+            style={{
+              color: isHighlighted ? colors.primary : colors.black,
+              fontFamily: isHighlighted ? fonts.bold : fonts.regular
+            }}
+          >
+            {part}
+          </Text>
+        );
+      });
+    },
+    [props.highlightedPatterns]
+  );
+
   return (
     <View style={styles.container}>
       <View style={styles.chatBarContainer}>
@@ -89,13 +115,14 @@ const ChatInput = (props: ChatInputProps) => {
             style={styles.input}
             placeholder="Message..."
             placeholderTextColor={colors.gray02}
-            value={props.value}
             onChangeText={onChange}
             multiline
             onFocus={() => {
               setEmojiPickerVisible(false);
             }}
-          />
+          >
+            {parseText(props.value)}
+          </TextInput>
           <View style={{ marginBottom: 2 }}>
             <IconButton icon={EmojiIcon} size={24} onPress={handleOpenEmoji} />
           </View>
@@ -146,6 +173,7 @@ const styles = StyleSheet.create({
     flex: 1,
     fontSize: 14,
     color: colors.black,
-    paddingVertical: 0
+    paddingVertical: 0,
+    fontFamily: fonts.regular
   }
 });

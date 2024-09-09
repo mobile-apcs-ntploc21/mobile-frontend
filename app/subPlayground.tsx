@@ -51,7 +51,11 @@ const subPlayground = () => {
         )}
         inverted
       />
-      <ChatInput value={text} onChange={setText} />
+      <ChatInput
+        value={text}
+        onChange={setText}
+        highlightedPatterns={[':kekw:', '@nhanbin03']}
+      />
     </KeyboardAvoidingView>
   );
 };
