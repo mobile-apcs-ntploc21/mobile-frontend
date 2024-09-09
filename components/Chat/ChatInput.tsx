@@ -88,6 +88,7 @@ const ChatInput = (props: ChatInputProps) => {
             ref={inputRef}
             style={styles.input}
             placeholder="Message..."
+            placeholderTextColor={colors.gray02}
             value={props.value}
             onChangeText={onChange}
             multiline
