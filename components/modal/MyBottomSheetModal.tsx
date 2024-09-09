@@ -43,7 +43,7 @@ const MyBottomSheetModal = forwardRef<Ref, MyBottomSheetModalProps>(
         }}
       >
         <BottomSheetView
-          style={[styles.container, { paddingBottom: insets.bottom }]}
+          style={[styles.container, { paddingBottom: 8 + insets.bottom }]}
         >
           {props.heading && <Text style={TextStyles.h4}>{props.heading}</Text>}
           {props.children}

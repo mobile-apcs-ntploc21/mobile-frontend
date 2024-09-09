@@ -100,7 +100,7 @@ const Channels = () => {
           console.log('Close bottom modal');
         }}
       >
-        <ButtonListText heading="Reorder" items={reorderActions} />
+        <ButtonListText items={reorderActions} />
       </MyBottomSheetModal>
       <MyBottomSheetModal
         ref={bottomSheetModalRef2}
@@ -108,7 +108,7 @@ const Channels = () => {
           console.log('Close bottom modal');
         }}
       >
-        <ButtonListText heading="Create" items={createActions} />
+        <ButtonListText items={createActions} />
       </MyBottomSheetModal>
       <FlatList
         data={categories}
@@ -176,10 +176,10 @@ const styles = StyleSheet.create({
     color: colors.primary
   },
   createContainer: {
-    justifyContent: 'flex-end',
-    alignItems: 'center',
-    paddingBottom: 24,
-    backgroundColor: 'transparent'
+    position: 'absolute',
+    bottom: 24,
+    left: '50%',
+    transform: [{ translateX: -75 }]
   },
   normalEdit: {
     position: 'absolute',
