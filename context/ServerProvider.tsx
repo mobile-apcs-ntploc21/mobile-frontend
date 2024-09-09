@@ -304,16 +304,14 @@ export const ServerProvider = (props: ProviderProps) => {
       );
 
       // Add a separate category for uncategorized channels
-      if (channelsFetch.some((channel: any) => !channel.category_id)) {
-        categories.unshift({
-          id: null,
-          name: 'Uncategorized',
-          channels: channelsFetch.filter(
-            (channel: any) => !channel.category_id
-          ),
-          position: 0
-        });
-      }
+      // if (channelsFetch.some((channel: any) => !channel.category_id)) {
+      categories.unshift({
+        id: null,
+        name: 'Uncategorized',
+        channels: channelsFetch.filter((channel: any) => !channel.category_id),
+        position: 0
+      });
+      // }
 
       const roles: Role[] = Array.from({ length: 10 }, (_, i) => ({
         id: i.toString(),
