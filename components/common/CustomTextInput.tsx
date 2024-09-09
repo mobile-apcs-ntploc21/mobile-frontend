@@ -2,7 +2,7 @@ import { StyleSheet, Text, TextInput, View } from 'react-native';
 import React from 'react';
 import { colors, fonts } from '@/constants/theme';
 
-interface CustomTextInputProps {
+interface CustomTextInputProps extends React.ComponentProps<typeof TextInput> {
   title?: string;
   placeholder?: string;
   value?: string;
@@ -15,7 +15,6 @@ interface CustomTextInputProps {
     | 'email-address'
     | 'visible-password'
     | 'phone-pad';
-  props?: any;
 }
 
 const CustomTextInput = ({
@@ -26,7 +25,7 @@ const CustomTextInput = ({
   secureTextEntry = false,
   errorMessage,
   keyboardType = 'default',
-  props = {}
+  ...props
 }: CustomTextInputProps) => {
   return (
     <View style={styles.container}>

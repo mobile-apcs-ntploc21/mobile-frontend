@@ -221,10 +221,7 @@ const EditChannel = () => {
                     ? errors.channelTopic
                     : undefined
                 }
-                props={{
-                  multiline: true,
-                  numberOfLines: 4
-                }}
+                multiline
               />
               <ButtonListText
                 items={[
