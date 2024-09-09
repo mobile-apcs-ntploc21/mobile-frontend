@@ -1,5 +1,5 @@
 import { Image } from 'expo-image';
-import { useMemo, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { Animated, Dimensions, StyleSheet, View, Text } from 'react-native';
 
 import AddFriendIcon from '@/assets/icons/AddFriendIcon';
@@ -33,7 +33,7 @@ const ServerInfo = (props: ServerInfoProps) => {
 
   // =============== UI ===============
 
-  const HandleCategoriesView = () => {
+  const HandleCategoriesView = useCallback(() => {
     if (!categories) {
       return (
         <View style={styles.newsWrapper}>
@@ -42,7 +42,10 @@ const ServerInfo = (props: ServerInfoProps) => {
       );
     }
 
-    if (categories.length === 0) {
+    if (
+      categories.length === 0 ||
+      (categories.length === 1 && categories[0].channels.length === 0)
+    ) {
       return (
         <View
           style={{
@@ -63,13 +66,13 @@ const ServerInfo = (props: ServerInfoProps) => {
     return categories?.map((category) => {
       // Uncategorized channels
       if (category.id === null)
-        return (
+        return category.channels.length > 0 ? (
           <View key={category.id} style={styles.newsWrapper}>
             {category.channels.map((channel) => (
               <ChannelItem key={channel.id} name={channel.name} />
             ))}
           </View>
-        );
+        ) : null;
       // Categorized channels
       return (
         <Accordion key={category.id} heading={category.name} defaultOpen>
@@ -79,7 +82,7 @@ const ServerInfo = (props: ServerInfoProps) => {
         </Accordion>
       );
     });
-  };
+  }, [categories]);
 
   const handleScroll = (event: any) => {
     const { y } = event.nativeEvent.contentOffset;
@@ -90,57 +93,58 @@ const ServerInfo = (props: ServerInfoProps) => {
     }).start();
   };
 
-  const ServerInfo = () => (
-    <View>
-      <View style={styles.serverInfoContainer}>
-        <View style={styles.serverContainer}>
-          {thisServer?.avatar ? (
-            <Image
-              source={{ uri: thisServer.avatar }}
-              style={styles.serverimg}
-            />
-          ) : (
-            <View style={styles.serverimg} />
-          )}
-          <MyText style={styles.serverName}>{thisServer?.name}</MyText>
-        </View>
-        <View style={styles.serverActions}>
-          <MyButtonIcon
-            icon={StarIcon}
-            onPress={() => router.navigate(`/server/edit_permissions`)}
-            showOutline={false}
-            containerStyle={styles.actionStyle}
-          />
-          <MyButtonIcon
-            icon={AddFriendIcon}
-            onPress={() => {}}
-            showOutline={false}
-            containerStyle={styles.actionStyle}
-          />
-          <MyButtonIcon
-            icon={SettingIcon}
-            onPress={() => router.navigate(`/server/settings`)}
-            showOutline={false}
-            containerStyle={styles.actionStyle}
-          />
-        </View>
-      </View>
-      <View style={styles.activeMembersContainer}>
-        <MyText style={styles.activeTitle}>Active (40)</MyText>
-        <View style={styles.activeMembers}>
-          {members
-            .slice(0, Math.min(members.length, MAXUSERS))
-            .map((member) => (
-              <Avatar
-                key={member.user_id}
-                id={member.user_id}
-                profile={member}
-                avatarStyle={styles.activeMember}
-                showStatus
-                // subscribeToStatus
+  const ServerInfo = useCallback(
+    () => (
+      <View>
+        <View style={styles.serverInfoContainer}>
+          <View style={styles.serverContainer}>
+            {thisServer?.avatar ? (
+              <Image
+                source={{ uri: thisServer.avatar }}
+                style={styles.serverimg}
               />
-            ))}
-          {/* {members.length > MAXUSERS && (
+            ) : (
+              <View style={styles.serverimg} />
+            )}
+            <MyText style={styles.serverName}>{thisServer?.name}</MyText>
+          </View>
+          <View style={styles.serverActions}>
+            <MyButtonIcon
+              icon={StarIcon}
+              onPress={() => router.navigate(`/server/edit_permissions`)}
+              showOutline={false}
+              containerStyle={styles.actionStyle}
+            />
+            <MyButtonIcon
+              icon={AddFriendIcon}
+              onPress={() => {}}
+              showOutline={false}
+              containerStyle={styles.actionStyle}
+            />
+            <MyButtonIcon
+              icon={SettingIcon}
+              onPress={() => router.navigate(`/server/settings`)}
+              showOutline={false}
+              containerStyle={styles.actionStyle}
+            />
+          </View>
+        </View>
+        <View style={styles.activeMembersContainer}>
+          <MyText style={styles.activeTitle}>Active (40)</MyText>
+          <View style={styles.activeMembers}>
+            {members
+              .slice(0, Math.min(members.length, MAXUSERS))
+              .map((member) => (
+                <Avatar
+                  key={member.user_id}
+                  id={member.user_id}
+                  profile={member}
+                  avatarStyle={styles.activeMember}
+                  showStatus
+                  // subscribeToStatus
+                />
+              ))}
+            {/* {members.length > MAXUSERS && (
             <MyButtonIcon
               icon={DotsIcon}
               onPress={() => router.navigate('server-members')}
@@ -148,9 +152,11 @@ const ServerInfo = (props: ServerInfoProps) => {
               containerStyle={styles.activeMember}
             />
           )} */}
+          </View>
         </View>
       </View>
-    </View>
+    ),
+    [thisServer, members]
   );
 
   return (
