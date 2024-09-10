@@ -1,4 +1,5 @@
 import { colors } from '@/constants/theme';
+import { ServerProfile } from '@/types';
 import { StatusType } from '@/types/user_status';
 
 export const getOnlineStatusColor = (status?: StatusType) => {
@@ -12,4 +13,8 @@ export const getOnlineStatusColor = (status?: StatusType) => {
     default:
       return colors.status_offline;
   }
+};
+
+export const isAdmin = (profile: ServerProfile) => {
+  return profile.roles.some((role) => role.is_admin);
 };

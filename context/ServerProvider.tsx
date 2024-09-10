@@ -1,5 +1,6 @@
 import { SERVER_SUBSCRIPTION } from '@/services/graphql/subscriptions';
 import { ServerEvents, ServerProfile } from '@/types';
+import { Category, Emoji, Role } from '@/types/server';
 import { getData } from '@/utils/api';
 import { useSubscription } from '@apollo/client';
 import {
@@ -16,33 +17,20 @@ export enum ServerActions {
   SET_CATEGORIES = 'SET_CATEGORIES',
   SET_MEMBERS = 'SET_MEMBERS',
   SET_ROLES = 'SET_ROLES',
+  SET_EMOJI = 'SET_EMOJI',
   UPDATE_STATUS = 'UPDATE_STATUS',
   UPDATE_PROFILE = 'UPDATE_PROFILE'
 }
-
-type Channel = {
-  id: string;
-  name: string;
-};
-
-type Category = {
-  id: string;
-  name: string;
-  channels: Channel[];
-};
-
-type Role = {
-  id: string;
-  name: string;
-  color: string;
-};
 
 type ServerState = {
   latestAction: ServerActions | null;
   server_id: string | null;
   categories: Category[];
   members: ServerProfile[];
+  defaultRole: Role | null;
+  customRoles: Role[];
   roles: Role[];
+  emojis: Emoji[];
 };
 
 type ServerAction = {
@@ -65,7 +53,10 @@ const initialState: ServerState = {
   server_id: null,
   categories: [],
   members: [],
-  roles: []
+  defaultRole: null,
+  customRoles: [],
+  roles: [],
+  emojis: []
 };
 
 const handlers: Record<
@@ -90,6 +81,13 @@ const handlers: Record<
       ...state,
       latestAction: ServerActions.SET_MEMBERS,
       members: payload
+    };
+  },
+  [ServerActions.SET_EMOJI]: (state, { payload }) => {
+    return {
+      ...state,
+      latestAction: ServerActions.SET_EMOJI,
+      emojis: payload
     };
   },
   [ServerActions.SET_ROLES]: (state, { payload }) => {
@@ -188,9 +186,7 @@ export const ServerProvider = (props: ProviderProps) => {
           let profileAndStatus = await getServerProfile(
             serverUpdated.data,
             true
-          );
-          if (!profileAndStatus)
-            profileAndStatus = await getServerProfile(serverUpdated.data);
+          ).catch(() => getServerProfile(serverUpdated.data));
           dispatch({
             type: ServerActions.SET_MEMBERS,
             payload: [...state.members, profileAndStatus]
@@ -230,6 +226,72 @@ export const ServerProvider = (props: ProviderProps) => {
           )
         });
         break;
+      case ServerEvents.userRoleAdded:
+        {
+          const members = [...state.members];
+          members.forEach(
+            (member) =>
+              member.user_id === serverUpdated.data.user_id &&
+              member.roles.push(
+                state.customRoles.find(
+                  (role) => role.id === serverUpdated.data.role_id
+                )!
+              )
+          );
+          dispatch({
+            type: ServerActions.SET_MEMBERS,
+            payload: members
+          });
+        }
+        break;
+      case ServerEvents.userRoleDeleted:
+        {
+          const members = [...state.members];
+          members.forEach((member) => {
+            if (member.user_id === serverUpdated.data.user_id)
+              member.roles = member.roles.filter(
+                (role) => role.id !== serverUpdated.data.role_id
+              );
+          });
+          dispatch({
+            type: ServerActions.SET_MEMBERS,
+            payload: members
+          });
+        }
+        break;
+      case ServerEvents.emojiAdded:
+        dispatch({
+          type: ServerActions.SET_EMOJI,
+          payload: [
+            ...state.emojis,
+            {
+              id: serverUpdated.data._id,
+              ...serverUpdated.data
+            }
+          ]
+        });
+        break;
+      case ServerEvents.emojiUpdated:
+        dispatch({
+          type: ServerActions.SET_EMOJI,
+          payload: state.emojis.map((emoji) =>
+            emoji.id === serverUpdated.data._id
+              ? { ...emoji, ...serverUpdated.data }
+              : emoji
+          )
+        });
+        break;
+      case ServerEvents.emojiDeleted:
+        dispatch({
+          type: ServerActions.SET_EMOJI,
+          payload: state.emojis.filter(
+            (emoji) => emoji.id !== serverUpdated.data._id
+          )
+        });
+        break;
+      default:
+        console.warn('Unknown event type:', serverUpdated.type);
+        console.log(serverUpdated);
     }
   }, [subscriptionData, dispatch]);
 
@@ -245,15 +307,30 @@ export const ServerProvider = (props: ProviderProps) => {
         }))
       }));
 
-      const members = await getData(`/api/v1/servers/${id}/members`);
+      const roles: Role[] = (await getData(`/api/v1/servers/${id}/roles`))
+        .roles;
+      let defaultRole: Role | null = null;
+      const customRoles: Role[] = [];
+      roles.forEach((role: Role) => {
+        if (role.default) {
+          defaultRole = role;
+        } else {
+          customRoles.push(role);
+        }
+      });
 
-      const roles: Role[] = Array.from({ length: 10 }, (_, i) => ({
-        id: i.toString(),
-        name: `role_${i}`,
-        color: `#${
-          Math.floor(Math.random() * 16777215).toString(16) // random color
-        }`
-      }));
+      const members = (await getData(`/api/v1/servers/${id}/members`)).map(
+        (member: any) => ({
+          ...member,
+          roles: member.roleIds
+            .map((roleId: string) =>
+              customRoles.find((role: Role) => role.id === roleId)
+            )
+            .filter((role: any) => role)
+        })
+      );
+
+      const emojis: Emoji[] = await getData(`/api/v1/servers/${id}/emojis`);
 
       dispatch({
         type: ServerActions.INIT,
@@ -261,7 +338,10 @@ export const ServerProvider = (props: ProviderProps) => {
           server_id: id,
           categories,
           members,
-          roles
+          defaultRole,
+          customRoles,
+          roles,
+          emojis
         }
       });
     } catch (err: any) {

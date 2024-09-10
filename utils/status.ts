@@ -1,6 +1,6 @@
 import { StatusType } from '@/types/user_status';
 
-export default function getStatusText(onlineStatus: StatusType): string {
+export function getStatusText(onlineStatus: StatusType): string {
   switch (onlineStatus) {
     case StatusType.ONLINE:
       return 'Online';
@@ -12,4 +12,10 @@ export default function getStatusText(onlineStatus: StatusType): string {
       // Should not happen
       return 'Offline';
   }
+}
+
+export function checkOnline(is_online: boolean, type: StatusType) {
+  return (
+    is_online && ![StatusType.INVISIBLE, StatusType.OFFLINE].includes(type)
+  );
 }

@@ -39,9 +39,11 @@ import { IconProps } from '@/types';
 import { getOnlineStatusColor } from '@/utils/user';
 import { useUserById } from '@/hooks/useUserById';
 import { StatusType } from '@/types/user_status';
+import { useAuth } from '@/context/AuthProvider';
 
 const UserById = () => {
   const { userId } = useLocalSearchParams<{ userId: string }>();
+  const { user: currentUser } = useAuth();
   const bottomSheetRef = useRef<BottomSheetModal>(null);
   const navigation = useNavigation();
   const [relationship, setRelationship] = useState<string>('');
@@ -64,6 +66,9 @@ const UserById = () => {
   };
 
   useLayoutEffect(() => {
+    if (userId === currentUser?.id) {
+      router.navigate('/user');
+    }
     fetchData();
   }, []);
 

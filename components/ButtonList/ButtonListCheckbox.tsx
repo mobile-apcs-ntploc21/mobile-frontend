@@ -8,19 +8,20 @@ import TickIcon from '@/assets/icons/TickIcon';
 import { colors } from '@/constants/theme';
 import Checkbox from '../Checkbox';
 
-interface ButtonListTextProps extends Omit<ButtonListBaseProps, 'items'> {
-  items?: {
-    value: string;
-    label?: string;
-  }[];
-  values?: string[];
-  onAdd?: (value: string) => void;
-  onRemove?: (value: string) => void;
+interface ButtonListTextProps<T> extends Omit<ButtonListBaseProps, 'items'> {
+  data: T[];
+  values?: T[];
+  onAdd?: (value: T) => void;
+  onRemove?: (value: T) => void;
+  labelExtractor: (item: T) => string;
+  valueExtractor: (item: T) => any;
+  keyExtractor: (item: T) => string;
+  compareValues: (a: T, b: T) => boolean;
 }
 
-const ButtonListCheckbox = (props: ButtonListTextProps) => {
+const ButtonListCheckbox = <T,>(props: ButtonListTextProps<T>) => {
   const handlePress = useCallback(
-    (value: string) => {
+    (value: T) => {
       if (props.values?.includes(value)) props.onRemove?.(value);
       else props.onAdd?.(value);
     },
@@ -29,18 +30,25 @@ const ButtonListCheckbox = (props: ButtonListTextProps) => {
   return (
     <ButtonListBase
       {...props}
-      items={props.items?.map((item, index) => ({
-        itemComponent: (
-          <View style={styles.radioContainer} key={index}>
-            <MyText style={styles.label}>{item.label}</MyText>
-            <Checkbox
-              value={props.values?.includes(item.value)}
-              onChange={() => handlePress(item.value)}
-            />
-          </View>
-        ),
-        onPress: () => handlePress(item.value)
-      }))}
+      items={props.data.map((item) => {
+        return {
+          itemComponent: (
+            <View style={styles.radioContainer} key={props.keyExtractor(item)}>
+              <MyText style={styles.label}>{props.labelExtractor(item)}</MyText>
+              <Checkbox
+                value={props.values?.some((sitem) =>
+                  props.compareValues(
+                    props.valueExtractor(sitem),
+                    props.valueExtractor(item)
+                  )
+                )}
+                onChange={() => handlePress(props.valueExtractor(item))}
+              />
+            </View>
+          ),
+          onPress: () => handlePress(props.valueExtractor(item))
+        };
+      })}
     />
   );
 };

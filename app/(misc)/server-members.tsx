@@ -1,4 +1,4 @@
-import { FlatList, StyleSheet, Text, View } from 'react-native';
+import { Alert, StyleSheet, Text, View } from 'react-native';
 import React, {
   useCallback,
   useEffect,
@@ -17,25 +17,31 @@ import { colors, fonts } from '@/constants/theme';
 import { BottomSheetModal, BottomSheetScrollView } from '@gorhom/bottom-sheet';
 import MyBottomSheetModal from '@/components/modal/MyBottomSheetModal';
 import ButtonListText from '@/components/ButtonList/ButtonListText';
-import { ScrollView } from 'react-native-gesture-handler';
+import { FlatList, ScrollView } from 'react-native-gesture-handler';
 import MemberListItem from '@/components/userManagment/MemberListItem';
 import useServer from '@/hooks/useServer';
 import { ServerProfile } from '@/types';
+import MyText from '@/components/MyText';
+import { Role } from '@/types/server';
+import { useAuth } from '@/context/AuthProvider';
+import useServers from '@/hooks/useServers';
+import { isAdmin } from '@/utils/user';
+import { checkOnline } from '@/utils/status';
 
 const ServerMembers = () => {
   const navigation = useNavigation();
   const { members } = useServer();
+  const { servers, currentServerId } = useServers();
+  const { user: thisUser } = useAuth();
   const [onlineMembers, setOM] = useState<ServerProfile[]>([]);
   const [offlineMembers, setOFM] = useState<ServerProfile[]>([]);
+  const [modalUser, setModalUser] = useState<ServerProfile | null>(null);
 
   useEffect(() => {
     const onlineMembers: ServerProfile[] = [];
     const offlineMembers: ServerProfile[] = [];
     members.forEach((member) => {
-      if (
-        member.status.is_online &&
-        ![StatusType.INVISIBLE, StatusType.OFFLINE].includes(member.status.type)
-      ) {
+      if (checkOnline(member.status.is_online, member.status.type)) {
         onlineMembers.push(member);
       } else {
         offlineMembers.push(member);
@@ -63,8 +69,6 @@ const ServerMembers = () => {
     bottomSheetModalRef.current?.dismiss();
   }, [bottomSheetModalRef]);
 
-  const [modalUser, setModalUser] = React.useState<any>(null);
-
   return (
     <View style={GlobalStyles.screenGray}>
       <MyBottomSheetModal
@@ -75,23 +79,27 @@ const ServerMembers = () => {
         <View style={styles.bottomSheetContainer}>
           <View style={styles.rolesContainer}>
             <Text style={styles.rolesText}>Roles</Text>
-            <ScrollView
-              horizontal
-              contentContainerStyle={styles.roles}
-              showsHorizontalScrollIndicator={false}
-            >
-              {Array.from({ length: 10 }, (_, i) => (
-                <View key={i} style={styles.roleItem}>
+            <FlatList
+              data={modalUser?.roles}
+              keyExtractor={(role) => role.id}
+              renderItem={({ item }) => (
+                <View style={styles.roleItem}>
                   <View
                     style={{
                       ...styles.roleDot,
-                      backgroundColor: i % 2 === 0 ? 'red' : 'blue'
+                      backgroundColor: item.color
                     }}
                   />
-                  <Text style={styles.roleTitle}>Role {i}</Text>
+                  <MyText style={styles.roleTitle}>{item.name}</MyText>
                 </View>
-              ))}
-            </ScrollView>
+              )}
+              horizontal
+              contentContainerStyle={styles.roles}
+              showsHorizontalScrollIndicator={false}
+              ListEmptyComponent={
+                <MyText>There is no role assigned to this member.</MyText>
+              }
+            />
           </View>
           <ButtonListText
             items={[
@@ -99,13 +107,31 @@ const ServerMembers = () => {
                 text: 'View Profile',
                 onPress: () => {
                   handleCloseBottomSheet();
-                  router.navigate(`/user/${modalUser.id}`);
+                  router.navigate(`/user/${modalUser?.user_id}`);
                 }
               },
               {
                 text: 'Edit Member',
                 onPress: () => {
-                  handleCloseBottomSheet();
+                  if (
+                    currentServerId &&
+                    (servers.find((server) => server.id === currentServerId)!
+                      .owner_id === thisUser.id ||
+                      isAdmin(
+                        members.find(
+                          (member) => member.user_id === thisUser.id
+                        )!
+                      ))
+                  ) {
+                    handleCloseBottomSheet();
+                    router.navigate(
+                      `/server/edit-member/${modalUser?.user_id}`
+                    );
+                  } else
+                    Alert.alert(
+                      'Not allowed',
+                      'You are not the owner or admin to edit this member.'
+                    );
                 }
               }
             ]}
@@ -120,10 +146,7 @@ const ServerMembers = () => {
               <MemberListItem key={member.user_id} profile={member} />
             ),
             onPress: () => {
-              setModalUser({
-                id: member.user_id,
-                username: member.username
-              });
+              setModalUser(member);
               handleOpenBottomSheet();
             }
           }))}
@@ -135,10 +158,7 @@ const ServerMembers = () => {
               <MemberListItem key={member.user_id} profile={member} />
             ),
             onPress: () => {
-              setModalUser({
-                id: member.user_id,
-                username: member.username
-              });
+              setModalUser(member);
               handleOpenBottomSheet();
             }
           }))}
@@ -182,6 +202,7 @@ const styles = StyleSheet.create({
   },
   roles: {
     gap: 8,
+    paddingHorizontal: 8,
     flexDirection: 'row'
   },
   rolesText: {
