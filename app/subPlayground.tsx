@@ -54,7 +54,8 @@ const subPlayground = () => {
       <ChatInput
         value={text}
         onChange={setText}
-        highlightedPatterns={[':kekw:', '@nhanbin03']}
+        mentions={['nhanbin03', 'role 1', 'role 1 lorem ipsum']}
+        emojis={['kekw', 'pepega', 'pog']}
       />
     </KeyboardAvoidingView>
   );

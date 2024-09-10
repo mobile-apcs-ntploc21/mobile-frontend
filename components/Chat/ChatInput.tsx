@@ -36,7 +36,8 @@ const IconButton = ({
 interface ChatInputProps {
   value?: string;
   onChange?: (text: string) => void;
-  highlightedPatterns?: string[];
+  mentions?: string[];
+  emojis?: string[];
 }
 
 const ChatInput = (props: ChatInputProps) => {
@@ -70,27 +71,55 @@ const ChatInput = (props: ChatInputProps) => {
 
   const parseText = useCallback(
     (text?: string) => {
-      if (!text) return <Text>{text}</Text>;
-      if (!props.highlightedPatterns) return <Text>{text}</Text>;
+      if (!text || !props.emojis || !props.mentions) return <Text>{text}</Text>;
+      const mentionPatterns = props.mentions
+        .map((mention) => `@${mention}`)
+        .sort((a, b) => b.length - a.length);
+      const emojiPatterns = props.emojis.map((emoji) => `:${emoji}:`);
 
-      const parts = text.split(/( |\n)/);
+      // mentions should be surrounded by whitespace or at the beginning/end of the text
+      const mentionRegex = new RegExp(
+        `(?<=^|\\s)(${mentionPatterns
+          .map((mention) => mention.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'))
+          .join('|')})(?=\\s|$)`,
+        'g'
+      );
+
+      // emojis don't need to be surrounded by whitespace
+      const emojiRegex = new RegExp(
+        `(${emojiPatterns
+          .map((emoji) => emoji.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'))
+          .join('|')})`,
+        'g'
+      );
+
+      const regex = new RegExp(
+        `(?:${mentionRegex.source}|${emojiRegex.source})`,
+        'g'
+      );
+      console.log(text);
+      console.log(regex);
+      console.log(text.match(regex));
+
+      const parts = text.split(regex);
+      console.log(parts);
 
       return parts.map((part, index) => {
-        const isHighlighted = props.highlightedPatterns?.includes(part);
-        return (
-          <Text
-            key={index}
-            style={{
-              color: isHighlighted ? colors.primary : colors.black,
-              fontFamily: isHighlighted ? fonts.bold : fonts.regular
-            }}
-          >
-            {part}
-          </Text>
-        );
+        if (mentionPatterns.includes(part) || emojiPatterns.includes(part)) {
+          return (
+            <Text
+              key={index}
+              style={{ color: colors.primary, fontFamily: fonts.bold }}
+            >
+              {part}
+            </Text>
+          );
+        }
+
+        return <Text key={index}>{part}</Text>;
       });
     },
-    [props.highlightedPatterns]
+    [props.emojis, props.mentions]
   );
 
   return (
