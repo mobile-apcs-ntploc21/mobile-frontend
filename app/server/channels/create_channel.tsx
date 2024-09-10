@@ -62,8 +62,7 @@ const CreateChannel = () => {
         }
       });
 
-      // Go back to the previous screen
-      router.back();
+      router.replace(`./edit_channel/${response.id}`);
     } catch (e) {
       setErrors('channelName', 'Invalid channel name');
     }

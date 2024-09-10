@@ -68,8 +68,7 @@ const CreateCategory = () => {
         }
       });
 
-      // Go back to the previous screen
-      router.back();
+      router.replace(`./edit_category/${response.id}`);
     } catch (e) {
       setErrors('categoryName', 'Invalid channel name');
     }
