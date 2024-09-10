@@ -68,7 +68,10 @@ const CreateCategory = () => {
         }
       });
 
-      router.replace(`./edit_category/${response.id}`);
+      router.replace({
+        pathname: `./edit_category/${response.id}`,
+        params: { categoryName: response.name }
+      });
     } catch (e) {
       setErrors('categoryName', 'Invalid channel name');
     }
