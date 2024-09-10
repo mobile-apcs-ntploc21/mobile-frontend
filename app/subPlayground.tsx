@@ -56,6 +56,7 @@ const subPlayground = () => {
         onChange={setText}
         mentions={['nhanbin03', 'role 1', 'role 1 lorem ipsum']}
         emojis={['kekw', 'pepega', 'pog']}
+        channels={['Channel 1', 'Channel 2', 'Channel 1 extra']}
       />
     </KeyboardAvoidingView>
   );

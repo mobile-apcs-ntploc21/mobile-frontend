@@ -38,6 +38,7 @@ interface ChatInputProps {
   onChange?: (text: string) => void;
   mentions?: string[];
   emojis?: string[];
+  channels?: string[];
 }
 
 const ChatInput = (props: ChatInputProps) => {
@@ -71,16 +72,26 @@ const ChatInput = (props: ChatInputProps) => {
 
   const parseText = useCallback(
     (text?: string) => {
-      if (!text || !props.emojis || !props.mentions) return <Text>{text}</Text>;
+      if (!text || !props.emojis || !props.mentions || !props.channels)
+        return <Text>{text}</Text>;
       const mentionPatterns = props.mentions
         .map((mention) => `@${mention}`)
         .sort((a, b) => b.length - a.length);
+      const channelPatterns = props.channels
+        .map((channel) => `#${channel}`)
+        .sort((a, b) => b.length - a.length);
       const emojiPatterns = props.emojis.map((emoji) => `:${emoji}:`);
 
-      // mentions should be surrounded by whitespace or at the beginning/end of the text
+      // mentions and channels should be surrounded by whitespace or at the beginning/end of the text
       const mentionRegex = new RegExp(
         `(?<=^|\\s)(${mentionPatterns
           .map((mention) => mention.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'))
+          .join('|')})(?=\\s|$)`,
+        'g'
+      );
+      const channelRegex = new RegExp(
+        `(?<=^|\\s)(${channelPatterns
+          .map((channel) => channel.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'))
           .join('|')})(?=\\s|$)`,
         'g'
       );
@@ -94,13 +105,17 @@ const ChatInput = (props: ChatInputProps) => {
       );
 
       const regex = new RegExp(
-        `(?:${mentionRegex.source}|${emojiRegex.source})`,
+        `(?:${mentionRegex.source}|${emojiRegex.source}|${channelRegex.source})`,
         'g'
       );
       const parts = text.split(regex);
 
       return parts.map((part, index) => {
-        if (mentionPatterns.includes(part) || emojiPatterns.includes(part)) {
+        if (
+          mentionPatterns.includes(part) ||
+          emojiPatterns.includes(part) ||
+          channelPatterns.includes(part)
+        ) {
           return (
             <Text
               key={index}
