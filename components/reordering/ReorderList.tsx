@@ -15,7 +15,7 @@ const ReorderList = (props: ReorderListProps) => {
       {props.heading && <MyText style={styles.heading}>{props.heading}</MyText>}
       <View style={styles.list}>
         {props.items.map((item, index) => (
-          <View key={item.text}>
+          <View key={index}>
             <View style={styles.item}>
               <ReorderItem {...item} />
             </View>
