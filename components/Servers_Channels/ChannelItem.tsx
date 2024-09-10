@@ -1,10 +1,11 @@
-import { StyleSheet, Text, View } from 'react-native';
+import { Image, StyleSheet, Text, View } from 'react-native';
 import React from 'react';
 import { colors, fonts } from '@/constants/theme';
 import MyText from '../MyText';
 import { TextStyles } from '@/styles/TextStyles';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import { router } from 'expo-router';
+import { DefaultChannelImage } from '@/constants/images';
 
 interface ChannelItemProps {
   name: string;
@@ -22,7 +23,7 @@ const ChannelItem = (props: ChannelItemProps) => {
       }
     >
       <View style={styles.channelContainer}>
-        <View style={styles.channelImg} />
+        <Image style={styles.channelImg} source={DefaultChannelImage} />
         <View style={styles.channelMessageContainer}>
           <MyText style={styles.channelName}>{props.name}</MyText>
           <MyText style={TextStyles.bodyM}>Hello World!</MyText>
