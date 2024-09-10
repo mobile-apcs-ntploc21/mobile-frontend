@@ -25,7 +25,7 @@ interface ServerInfoProps {
 
 const ServerInfo = (props: ServerInfoProps) => {
   const { servers, currentServerId } = useServers();
-  const { latestAction, categories, members } = useServer();
+  const { server_id, categories, members } = useServer();
   const thisServer = useMemo(
     () => servers.find((server) => server.id === currentServerId),
     [servers, currentServerId]
