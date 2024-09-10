@@ -5,6 +5,7 @@ import MyText from '../MyText';
 import { TextStyles } from '@/styles/TextStyles';
 
 interface ChannelItemProps {
+  name: string;
   unreadCount?: number;
 }
 
@@ -15,7 +16,7 @@ const ChannelItem = (props: ChannelItemProps) => {
       <View style={styles.channelContainer}>
         <View style={styles.channelImg} />
         <View style={styles.channelMessageContainer}>
-          <MyText style={styles.channelName}>Announcement</MyText>
+          <MyText style={styles.channelName}>{props.name}</MyText>
           <MyText style={TextStyles.bodyM}>Hello World!</MyText>
         </View>
       </View>

@@ -1,21 +1,18 @@
-import {
-  FlatList,
-  StyleSheet,
-  View,
-  TouchableOpacity,
-  Alert
-} from 'react-native';
-import React, { useCallback, useLayoutEffect, useMemo, useRef } from 'react';
-import { router, useNavigation } from 'expo-router';
 import { NativeStackHeaderProps } from '@react-navigation/native-stack';
+import { router, useNavigation } from 'expo-router';
+import { useLayoutEffect, useRef } from 'react';
+import { Alert, StyleSheet, TouchableOpacity, View } from 'react-native';
 
 import MyHeader from '@/components/MyHeader';
-import GlobalStyles from '@/styles/GlobalStyles';
 import MyText from '@/components/MyText';
-import { colors, fonts } from '@/constants/theme';
 import CustomTextInput from '@/components/common/CustomTextInput';
+import { colors, fonts } from '@/constants/theme';
+import GlobalStyles from '@/styles/GlobalStyles';
 import { Formik, FormikProps } from 'formik';
+import useServers from '@/hooks/useServers';
+import { postData } from '@/utils/api';
 import useServer from '@/hooks/useServer';
+import { ServerActions } from '@/context/ServerProvider';
 
 type FormProps = {
   categoryName: string;
@@ -25,13 +22,53 @@ const CreateCategory = () => {
   const navigation = useNavigation();
   const formRef = useRef<FormikProps<FormProps>>(null);
 
-  const handleSubmit = (
+  const { currentServerId } = useServers();
+  const { categories, dispatch } = useServer();
+
+  const handleSubmit = async (
     values: FormProps,
     setErrors: (field: string, message: string | undefined) => void
   ) => {
-    console.log(values);
+    if (!values.categoryName) {
+      setErrors('categoryName', 'Category name is required');
+      return;
+    }
+    if (values.categoryName.length > 100) {
+      setErrors('categoryName', 'Category name is too long');
+      return;
+    }
+
     try {
-      // handle create here
+      const requestBody = {
+        name: values.categoryName
+      };
+      const response = (
+        await postData(
+          `/api/v1/servers/${currentServerId}/categories`,
+          requestBody
+        )
+      ).category;
+
+      console.log(response);
+
+      if (!response) {
+        throw new Error('Failed to create category');
+      }
+
+      // Add the new category to the list of categories
+      const newCategory = [...categories];
+      newCategory.push(response);
+      dispatch({
+        type: ServerActions.CREATE_CATEGORY,
+        payload: {
+          id: response.id,
+          name: response.name,
+          position: categories.length,
+          channels: []
+        }
+      });
+
+      router.replace(`./edit_category/${response.id}`);
     } catch (e) {
       setErrors('categoryName', 'Invalid channel name');
     }

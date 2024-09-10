@@ -1,16 +1,20 @@
-import { Alert, StyleSheet, Text, View } from 'react-native';
-import React, { useLayoutEffect, useRef, useState } from 'react';
+import ButtonListText from '@/components/ButtonList/ButtonListText';
+import MyHeader from '@/components/MyHeader';
+import MyText from '@/components/MyText';
+import CustomTextInput from '@/components/common/CustomTextInput';
+import BasicModal from '@/components/modal/BasicModal';
+import { colors } from '@/constants/theme';
+import { ServerActions } from '@/context/ServerProvider';
+import useServer from '@/hooks/useServer';
+import useServers from '@/hooks/useServers';
+import { TextStyles } from '@/styles/TextStyles';
+import { deleteData, patchData } from '@/utils/api';
+import { NativeStackHeaderProps } from '@react-navigation/native-stack';
 import { router, useLocalSearchParams, useNavigation } from 'expo-router';
 import { Formik, FormikProps } from 'formik';
-import { NativeStackHeaderProps } from '@react-navigation/native-stack';
-import MyHeader from '@/components/MyHeader';
+import { useLayoutEffect, useRef, useState } from 'react';
+import { Alert, StyleSheet, View } from 'react-native';
 import { ScrollView, TouchableOpacity } from 'react-native-gesture-handler';
-import MyText from '@/components/MyText';
-import { TextStyles } from '@/styles/TextStyles';
-import { colors, fonts } from '@/constants/theme';
-import CustomTextInput from '@/components/common/CustomTextInput';
-import ButtonListText from '@/components/ButtonList/ButtonListText';
-import BasicModal from '@/components/modal/BasicModal';
 
 type FormProps = {
   channelName: string;
@@ -22,9 +26,12 @@ const EditChannel = () => {
   const navigation = useNavigation();
   const formRef = useRef<FormikProps<FormProps>>(null);
 
-  const { channelId, channelName } = useLocalSearchParams<{
+  const { currentServerId } = useServers();
+  const { categories, dispatch } = useServer();
+  const { channelId, channelName, description } = useLocalSearchParams<{
     channelId: string;
     channelName?: string;
+    description?: string;
   }>();
 
   useLayoutEffect(() => {
@@ -72,15 +79,96 @@ const EditChannel = () => {
 
   const [deleteModalVisible, setDeleteModalVisible] = useState(false);
 
-  const handleSubmit = (
+  /**
+   * Handles the deletion of the channel
+   */
+  const handleDelete = async () => {
+    try {
+      const response = await deleteData(
+        `/api/v1/servers/${currentServerId}/channels/${channelId}`
+      );
+
+      if (!response) {
+        throw new Error('Failed to delete channel');
+      }
+
+      // Remove the channel
+      const newCategories = [...categories];
+      for (let i = 0; i < newCategories.length; i++) {
+        const channelIndex = newCategories[i].channels.findIndex(
+          (channel) => channel.id === channelId
+        );
+        if (channelIndex !== -1) {
+          newCategories[i].channels.splice(channelIndex, 1);
+          break;
+        }
+      }
+      dispatch({ type: ServerActions.UPDATE_CHANNEL, payload: newCategories });
+
+      // Navigate back
+      router.back();
+    } catch (e: any) {
+      console.log(e);
+    }
+  };
+
+  /**
+   * Handles the form submission
+   */
+  const handleSubmit = async (
     values: FormProps,
     setErrors: (field: string, message: string | undefined) => void
   ) => {
-    console.log(values);
+    if (!values.channelName) {
+      setErrors('channelName', 'Channel name is required');
+      return;
+    }
+    if (values.channelName.length > 100) {
+      setErrors('channelName', 'Channel name is too long');
+      return;
+    }
+    if (values.channelTopic.length > 1024) {
+      setErrors('channelTopic', 'Channel topic is too long');
+      return;
+    }
+
     try {
-      // handle create here
-    } catch (e) {
+      const requestBody = {
+        name: values.channelName,
+        description: values.channelTopic
+      };
+      const response = await patchData(
+        `/api/v1/servers/${currentServerId}/channels/${channelId}`,
+        requestBody
+      );
+
+      if (!response) {
+        throw new Error('Failed to update channel');
+      }
+
+      // Set new channels data
+      const newCategories = [...categories];
+      for (let i = 0; i < newCategories.length; i++) {
+        const channelIndex = newCategories[i].channels.findIndex(
+          (channel) => channel.id === channelId
+        );
+        if (channelIndex !== -1) {
+          newCategories[i].channels[channelIndex] = {
+            ...newCategories[i].channels[channelIndex],
+            name: values.channelName,
+            description: values.channelTopic
+          };
+          break;
+        }
+      }
+
+      dispatch({ type: ServerActions.UPDATE_CHANNEL, payload: newCategories });
+
+      router.back();
+    } catch (e: any) {
       // setErrors('channelName', 'Invalid channel name');
+      console.log(e);
+      throw new Error(e.message);
     }
   };
 
@@ -88,8 +176,8 @@ const EditChannel = () => {
     <Formik
       innerRef={formRef}
       initialValues={{
-        channelName: '',
-        channelTopic: ''
+        channelName: channelName || 'Channel Name',
+        channelTopic: description || ''
       }}
       onSubmit={(values, { setFieldError }) => {
         handleSubmit(values, setFieldError);
@@ -106,9 +194,7 @@ const EditChannel = () => {
             visible={deleteModalVisible}
             onClose={() => setDeleteModalVisible(false)}
             title="Delete Channel"
-            onConfirm={() => {
-              // deleteData();
-            }}
+            onConfirm={handleDelete}
           >
             <MyText>{`Are you sure you want to delete this channel?`}</MyText>
           </BasicModal>
@@ -135,6 +221,7 @@ const EditChannel = () => {
                     ? errors.channelTopic
                     : undefined
                 }
+                multiline
               />
               <ButtonListText
                 items={[

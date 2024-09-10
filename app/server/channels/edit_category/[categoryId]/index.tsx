@@ -11,6 +11,10 @@ import { colors, fonts } from '@/constants/theme';
 import CustomTextInput from '@/components/common/CustomTextInput';
 import ButtonListText from '@/components/ButtonList/ButtonListText';
 import BasicModal from '@/components/modal/BasicModal';
+import useServers from '@/hooks/useServers';
+import { deleteData, patchData } from '@/utils/api';
+import useServer from '@/hooks/useServer';
+import { ServerActions } from '@/context/ServerProvider';
 
 type FormProps = {
   categoryName: string;
@@ -21,6 +25,8 @@ const EditCategory = () => {
   const navigation = useNavigation();
   const formRef = useRef<FormikProps<FormProps>>(null);
 
+  const { currentServerId } = useServers();
+  const { categories, dispatch } = useServer();
   const { categoryId, categoryName } = useLocalSearchParams<{
     categoryId: string;
     categoryName?: string;
@@ -71,15 +77,76 @@ const EditCategory = () => {
 
   const [deleteModalVisible, setDeleteModalVisible] = useState(false);
 
-  const handleSubmit = (
+  /**
+   * Handles the deletion of the category
+   */
+  const handleDelete = async () => {
+    try {
+      const response = await deleteData(
+        `/api/v1/servers/${currentServerId}/categories/${categoryId}`
+      );
+
+      if (!response) {
+        throw new Error('Failed to delete category');
+      }
+
+      // Remove the category and add the channels back to the uncategorized category
+      let newCategories = [...categories];
+      const index = newCategories.findIndex((c) => c.id === categoryId);
+      const removedChannels = newCategories[index].channels;
+      newCategories.splice(index, 1);
+      // Add the channels back to the uncategorized category
+      newCategories[0].channels.push(...removedChannels);
+
+      dispatch({ type: ServerActions.UPDATE_CHANNEL, payload: newCategories });
+
+      // Navigate back
+      router.back();
+    } catch (e: any) {
+      throw new Error(e.message);
+    }
+  };
+
+  /**
+   * Handles the form submission
+   */
+  const handleSubmit = async (
     values: FormProps,
     setErrors: (field: string, message: string | undefined) => void
   ) => {
-    console.log(values);
+    // Validate the form
+    if (!values.categoryName) {
+      setErrors('categoryName', 'Category name is required');
+      return;
+    }
+
     try {
-      // handle create here
-    } catch (e) {
+      const responseBody = {
+        name: values.categoryName
+      };
+      const response = await patchData(
+        `/api/v1/servers/${currentServerId}/categories/${categoryId}`,
+        responseBody
+      );
+
+      if (!response) {
+        throw new Error('Failed to update category');
+      }
+
+      // Save the data
+      const newCategories = [...categories];
+      const index = newCategories.findIndex((c) => c.id === categoryId);
+      newCategories[index] = {
+        ...newCategories[index],
+        name: values.categoryName
+      };
+      dispatch({ type: ServerActions.UPDATE_CHANNEL, payload: newCategories });
+
+      // Navigate back
+      router.back();
+    } catch (e: any) {
       // setErrors('categoryName', 'Invalid category name');
+      throw new Error(e.message);
     }
   };
 
@@ -87,7 +154,7 @@ const EditCategory = () => {
     <Formik
       innerRef={formRef}
       initialValues={{
-        categoryName: ''
+        categoryName: categoryName || ''
       }}
       onSubmit={(values, { setFieldError }) => {
         handleSubmit(values, setFieldError);
@@ -104,9 +171,7 @@ const EditCategory = () => {
             visible={deleteModalVisible}
             onClose={() => setDeleteModalVisible(false)}
             title="Delete Category"
-            onConfirm={() => {
-              // deleteData();
-            }}
+            onConfirm={handleDelete}
           >
             <MyText>{`Are you sure you want to delete this category?`}</MyText>
           </BasicModal>
