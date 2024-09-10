@@ -25,12 +25,14 @@ const SimpleServerList = () => {
             <SimpleServerItem
               id={item.id}
               selected={item.id === currentServerId}
-              onPress={() =>
+              onPress={() => {
+                if (item.id === currentServerId) return;
+
                 dispatch({
                   type: ServersActions.SELECT_SERVER,
                   payload: item.id
-                })
-              }
+                });
+              }}
             />
           </View>
         )}

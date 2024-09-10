@@ -9,6 +9,7 @@ import {
   useCallback,
   useEffect,
   useReducer,
+  useRef,
   useState
 } from 'react';
 
@@ -178,6 +179,7 @@ export const ServerContext = createContext<IContext>({
 });
 
 export const ServerProvider = (props: ProviderProps) => {
+  const activeServerIdRef = useRef<String | null>(null);
   const [servers, setServers] = useState<Record<string, ServerState>>({});
   const [state, dispatch] = useReducer(reducer, initialState);
   const fetchedServerIds = Object.keys(servers);
@@ -351,13 +353,14 @@ export const ServerProvider = (props: ProviderProps) => {
       // Fetch server data and update the state
       const currentServer = await fetchServerData(server_id);
 
-      dispatch({
-        type: ServerActions.INIT,
-        payload: {
-          ...currentServer,
-          server_id: server_id
+      if (String(activeServerIdRef.current).match(server_id)) {
+        if (server_id !== state.server_id) {
+          dispatch({
+            type: ServerActions.INIT,
+            payload: currentServer
+          });
         }
-      });
+      }
     } catch (err: any) {
       throw new Error(err.message);
     }
@@ -365,6 +368,7 @@ export const ServerProvider = (props: ProviderProps) => {
 
   useEffect(() => {
     if (props.server_id) {
+      activeServerIdRef.current = props.server_id;
       setServer(props.server_id);
     }
   }, [props.server_id]);
