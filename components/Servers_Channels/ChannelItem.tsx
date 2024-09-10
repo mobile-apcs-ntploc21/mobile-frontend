@@ -3,16 +3,24 @@ import React from 'react';
 import { colors, fonts } from '@/constants/theme';
 import MyText from '../MyText';
 import { TextStyles } from '@/styles/TextStyles';
+import { TouchableOpacity } from 'react-native-gesture-handler';
+import { router } from 'expo-router';
 
 interface ChannelItemProps {
   name: string;
   unreadCount?: number;
+  channel_id: string;
 }
 
 const ChannelItem = (props: ChannelItemProps) => {
   const { unreadCount = 0 } = props;
   return (
-    <View style={styles.container}>
+    <TouchableOpacity
+      style={styles.container}
+      onPress={() =>
+        router.navigate(`conversation/channel/${props.channel_id}`)
+      }
+    >
       <View style={styles.channelContainer}>
         <View style={styles.channelImg} />
         <View style={styles.channelMessageContainer}>
@@ -28,7 +36,7 @@ const ChannelItem = (props: ChannelItemProps) => {
           </View>
         )}
       </View>
-    </View>
+    </TouchableOpacity>
   );
 };
 
