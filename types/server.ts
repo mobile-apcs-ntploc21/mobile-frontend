@@ -3,6 +3,7 @@ export interface Channel {
   name: string;
   description: string;
   position: number;
+  conversation_id: string;
 
   is_archived: boolean;
   is_nsfw: boolean;
