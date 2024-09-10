@@ -97,12 +97,7 @@ const ChatInput = (props: ChatInputProps) => {
         `(?:${mentionRegex.source}|${emojiRegex.source})`,
         'g'
       );
-      console.log(text);
-      console.log(regex);
-      console.log(text.match(regex));
-
       const parts = text.split(regex);
-      console.log(parts);
 
       return parts.map((part, index) => {
         if (mentionPatterns.includes(part) || emojiPatterns.includes(part)) {
