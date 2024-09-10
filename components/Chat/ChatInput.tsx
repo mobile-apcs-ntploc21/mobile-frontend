@@ -6,8 +6,8 @@ import {
   Touchable,
   View
 } from 'react-native';
-import React, { useEffect, useRef, useState } from 'react';
-import { colors } from '@/constants/theme';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
+import { colors, fonts } from '@/constants/theme';
 import { TouchableOpacity } from '@gorhom/bottom-sheet';
 import IconWithSize from '../IconWithSize';
 import PlusIcon from '@/assets/icons/PlusIcon';
@@ -36,6 +36,9 @@ const IconButton = ({
 interface ChatInputProps {
   value?: string;
   onChange?: (text: string) => void;
+  mentions?: string[];
+  emojis?: string[];
+  channels?: string[];
 }
 
 const ChatInput = (props: ChatInputProps) => {
@@ -67,6 +70,68 @@ const ChatInput = (props: ChatInputProps) => {
     Keyboard.dismiss();
   };
 
+  const parseText = useCallback(
+    (text?: string) => {
+      if (!text || !props.emojis || !props.mentions || !props.channels)
+        return <Text>{text}</Text>;
+      const mentionPatterns = props.mentions
+        .map((mention) => `@${mention}`)
+        .sort((a, b) => b.length - a.length);
+      const channelPatterns = props.channels
+        .map((channel) => `#${channel}`)
+        .sort((a, b) => b.length - a.length);
+      const emojiPatterns = props.emojis.map((emoji) => `:${emoji}:`);
+
+      // mentions and channels should be surrounded by whitespace or at the beginning/end of the text
+      const mentionRegex = new RegExp(
+        `(?<=^|\\s)(${mentionPatterns
+          .map((mention) => mention.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'))
+          .join('|')})(?=\\s|$)`,
+        'g'
+      );
+      const channelRegex = new RegExp(
+        `(?<=^|\\s)(${channelPatterns
+          .map((channel) => channel.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'))
+          .join('|')})(?=\\s|$)`,
+        'g'
+      );
+
+      // emojis don't need to be surrounded by whitespace
+      const emojiRegex = new RegExp(
+        `(${emojiPatterns
+          .map((emoji) => emoji.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'))
+          .join('|')})`,
+        'g'
+      );
+
+      const regex = new RegExp(
+        `(?:${mentionRegex.source}|${emojiRegex.source}|${channelRegex.source})`,
+        'g'
+      );
+      const parts = text.split(regex);
+
+      return parts.map((part, index) => {
+        if (
+          mentionPatterns.includes(part) ||
+          emojiPatterns.includes(part) ||
+          channelPatterns.includes(part)
+        ) {
+          return (
+            <Text
+              key={index}
+              style={{ color: colors.primary, fontFamily: fonts.bold }}
+            >
+              {part}
+            </Text>
+          );
+        }
+
+        return <Text key={index}>{part}</Text>;
+      });
+    },
+    [props.emojis, props.mentions]
+  );
+
   return (
     <View style={styles.container}>
       <View style={styles.chatBarContainer}>
@@ -89,13 +154,14 @@ const ChatInput = (props: ChatInputProps) => {
             style={styles.input}
             placeholder="Message..."
             placeholderTextColor={colors.gray02}
-            value={props.value}
             onChangeText={onChange}
             multiline
             onFocus={() => {
               setEmojiPickerVisible(false);
             }}
-          />
+          >
+            {parseText(props.value)}
+          </TextInput>
           <View style={{ marginBottom: 2 }}>
             <IconButton icon={EmojiIcon} size={24} onPress={handleOpenEmoji} />
           </View>
@@ -146,6 +212,7 @@ const styles = StyleSheet.create({
     flex: 1,
     fontSize: 14,
     color: colors.black,
-    paddingVertical: 0
+    paddingVertical: 0,
+    fontFamily: fonts.regular
   }
 });
