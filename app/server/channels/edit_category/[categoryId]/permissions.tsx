@@ -17,7 +17,7 @@ import useServer from '@/hooks/useServer';
 
 const Permissions = () => {
   const navigation = useNavigation();
-  const { members, roles, dispatch } = useServer();
+  const { members, roles } = useServer();
   const { setCallback } = useGlobalContext();
 
   useLayoutEffect(() => {
@@ -54,6 +54,7 @@ const Permissions = () => {
             }
           ]}
         />
+        {/* Mocking data, use the whole members and roles of server for mocking */}
         {members.length > 0 && (
           <ButtonListBase
             heading="Members"

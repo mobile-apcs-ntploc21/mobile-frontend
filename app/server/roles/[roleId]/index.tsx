@@ -31,10 +31,11 @@ import { deleteData, getData, patchData, postData } from '@/utils/api';
 import useServers from '@/hooks/useServers';
 import { showAlert } from '@/services/alert';
 import useServer from '@/hooks/useServer';
-import { Member, ServerActions } from '@/context/ServerProvider';
+import { ServerActions } from '@/context/ServerProvider';
 import { ServerProfile } from '@/types';
 import { useGlobalContext } from '@/context/GlobalProvider';
 import { DefaultProfileImage } from '@/constants/images';
+import { Member } from '@/types/server';
 
 type FormProps = {
   roleTitle: string;
@@ -177,15 +178,6 @@ const RoleEdit = () => {
         allowMention: response.allow_anyone_mention,
         memberCount: members.length
       };
-      dispatch({
-        type: ServerActions.SET_ROLES,
-        payload: roles.map((role) => {
-          if (role.id === roleId) {
-            return newRole;
-          }
-          return role;
-        })
-      });
       router.back();
     } catch (e) {
       showAlert('Error');
@@ -198,10 +190,6 @@ const RoleEdit = () => {
         `/api/v1/servers/${currentServerId}/roles/${roleId}`
       );
       const newRoles = roles.filter((role) => role.id !== roleId);
-      dispatch({
-        type: ServerActions.SET_ROLES,
-        payload: newRoles
-      });
       router.back();
     } catch (e) {
       showAlert('Error');
@@ -262,18 +250,6 @@ const RoleEdit = () => {
                       setMembers(
                         members.filter((member) => member.id !== removeMemberId)
                       );
-                      dispatch({
-                        type: ServerActions.SET_ROLES,
-                        payload: roles.map((role) => {
-                          if (role.id === roleId) {
-                            return {
-                              ...role,
-                              memberCount: response.members.length
-                            };
-                          }
-                          return role;
-                        })
-                      });
                     } catch (e) {
                       showAlert('Error');
                     }
@@ -353,18 +329,6 @@ const RoleEdit = () => {
                                   avatar: member.avatar_url
                                 }))
                               );
-                              dispatch({
-                                type: ServerActions.SET_ROLES,
-                                payload: roles.map((role) => {
-                                  if (role.id === roleId) {
-                                    return {
-                                      ...role,
-                                      memberCount: response.members.length
-                                    };
-                                  }
-                                  return role;
-                                })
-                              });
                             });
                           })();
                         });

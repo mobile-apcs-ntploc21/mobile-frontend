@@ -5,7 +5,7 @@ import { TextStyles } from '@/styles/TextStyles';
 import { colors } from '@/constants/theme';
 import { getData } from '@/utils/api';
 import useServers from '@/hooks/useServers';
-import { Role } from '@/context/ServerProvider';
+import { Role } from '@/types/server';
 
 const RoleItem = ({ role }: { role: Role }) => {
   return (
@@ -14,7 +14,7 @@ const RoleItem = ({ role }: { role: Role }) => {
         <View style={styles.iconWrapper}>
           <RoleIcon color={role.color} />
         </View>
-        <Text style={styles.memberCount}>{role.memberCount}</Text>
+        <Text style={styles.memberCount}>{role.number_of_users}</Text>
       </View>
       <Text style={styles.roleTitle}>{role.name}</Text>
     </View>

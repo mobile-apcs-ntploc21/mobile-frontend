@@ -11,12 +11,14 @@ import useServers from '@/hooks/useServers';
 import { ScrollView } from 'react-native-gesture-handler';
 import RoleIcon from '@/assets/icons/RoleIcon';
 import { TextStyles } from '@/styles/TextStyles';
-import { Actions } from '@/context/ServersProvider';
 import RoleItem from '@/components/userManagment/RoleItem';
+import useServer from '@/hooks/useServer';
+import { useGlobalContext } from '@/context/GlobalProvider';
 
 const Permissions = () => {
   const navigation = useNavigation();
-  const { members, roles, dispatch } = useServers();
+  const { members, roles } = useServer();
+  const { setCallback } = useGlobalContext();
 
   useLayoutEffect(() => {
     navigation.setOptions({
@@ -33,12 +35,9 @@ const Permissions = () => {
             {
               text: 'Add members',
               onPress: () => {
-                dispatch({
-                  type: Actions.SET_CALLBACK,
-                  payload: (memberIds: string[]) => {
-                    // add members to the server
-                    console.log('Adding members:', memberIds);
-                  }
+                setCallback(() => (memberIds: string[]) => {
+                  // add members to the server
+                  console.log('Adding members:', memberIds);
                 });
                 router.navigate('/server/add_members');
               }
@@ -46,23 +45,21 @@ const Permissions = () => {
             {
               text: 'Add roles',
               onPress: () => {
-                dispatch({
-                  type: Actions.SET_CALLBACK,
-                  payload: (roleIds: string[]) => {
-                    // add roles to the server
-                    console.log('Adding roles:', roleIds);
-                  }
+                setCallback(() => (roleIds: string[]) => {
+                  // add roles to the server
+                  console.log('Adding roles:', roleIds);
                 });
                 router.navigate('/server/add_roles');
               }
             }
           ]}
         />
+        {/* Mocking data, use the whole members and roles of server for mocking */}
         {members.length > 0 && (
           <ButtonListBase
             heading="Members"
             items={members.map((member) => ({
-              itemComponent: <MemberItem member={member} />,
+              itemComponent: <MemberItem profile={member} />,
               onPress: () => {}
             }))}
           />

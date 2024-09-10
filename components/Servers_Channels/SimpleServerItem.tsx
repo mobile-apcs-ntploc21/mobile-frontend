@@ -1,5 +1,6 @@
 import { Pressable, StyleSheet, Text, View } from 'react-native';
-import { useState } from 'react';
+import { Image } from 'expo-image';
+import { useMemo, useState } from 'react';
 import { colors } from '@/constants/theme';
 import Animated, {
   useAnimatedStyle,
@@ -7,6 +8,7 @@ import Animated, {
   withTiming
 } from 'react-native-reanimated';
 import { ServerItemProps } from '@/types';
+import useServers from '@/hooks/useServers';
 
 interface SimpleServerItemProps extends ServerItemProps {
   id: string;
@@ -18,10 +20,13 @@ const SimpleServerItem = ({
   selected,
   onPress = (id) => console.log(id)
 }: SimpleServerItemProps) => {
+  const placeholderImg = 'https://via.placeholder.com/150';
+  const { serverMap } = useServers();
   const [flag, setFlag] = useState(false);
 
   const isControlled = selected !== undefined;
   const state = isControlled ? selected : flag;
+  const currentServer = useMemo(() => serverMap[id], [serverMap, id]);
 
   const animatedStyle = useAnimatedStyle(
     () => ({
@@ -40,7 +45,12 @@ const SimpleServerItem = ({
   return (
     <Pressable onPress={handlePress}>
       <Animated.View style={[styles.container, animatedStyle]}>
-        <View style={styles.serverImg} />
+        <Image
+          source={{
+            uri: currentServer?.avatar ?? placeholderImg
+          }}
+          style={styles.serverImg}
+        />
       </Animated.View>
     </Pressable>
   );

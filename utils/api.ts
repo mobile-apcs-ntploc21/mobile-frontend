@@ -45,6 +45,48 @@ export const postData = async (
 };
 
 /**
+ * To send a PATCH request to the server.
+ *
+ * @async
+ * @param {string} url - The URL to send the request.
+ * @param {*} data - The data to send to the server.
+ * @param {{}} [addHeaders={}] - Additional headers to send to the server.
+ * @returns {Promise<any>} - The response from the server.
+ */
+export const patchData = async (
+  url: string,
+  data: {} = {},
+  addHeaders: {} = {}
+): Promise<any> => {
+  const headers: any = {
+    'Content-Type': 'application/json',
+    ...addHeaders
+  };
+  const idToken = await getIdToken();
+  if (idToken) {
+    headers.Authorization = `Bearer ${idToken}`;
+  }
+
+  try {
+    const response = await fetch(`${API_URL}${url}`, {
+      method: 'PATCH',
+      headers: headers,
+      body: JSON.stringify(data || {})
+    });
+
+    if (!response.ok) {
+      const e = await response.json();
+      throw new Error(e.message);
+    }
+
+    return await response.json();
+  } catch (err: any) {
+    console.error(err);
+    throw new Error(err.message);
+  }
+};
+
+/**
  * To send a GET request to the server.
  *
  * @async
@@ -117,46 +159,8 @@ export const deleteData = async (
       throw new Error(e.message);
     }
 
-    return await response.json();
-  } catch (err: any) {
-    console.error(err);
-    throw new Error(err.message);
-  }
-};
-
-/**
- * To send a PATCH request to the server.
- *
- * @async
- * @param {string} url - The URL to send the request.
- * @param {*} data - The data to send to the server.
- * @param {{}} [addHeaders={}] - Additional headers to send to the server.
- * @returns {Promise<any>} - The response from the server.
- */
-export const patchData = async (
-  url: string,
-  data: {} = {},
-  addHeaders: {} = {}
-): Promise<any> => {
-  const headers: any = {
-    'Content-Type': 'application/json',
-    ...addHeaders
-  };
-  const idToken = await getIdToken();
-  if (idToken) {
-    headers.Authorization = `Bearer ${idToken}`;
-  }
-
-  try {
-    const response = await fetch(`${API_URL}${url}`, {
-      method: 'PATCH',
-      headers: headers,
-      body: JSON.stringify(data || {})
-    });
-
-    if (!response.ok) {
-      const e = await response.json();
-      throw new Error(e.message);
+    if (response.status === 204) {
+      return {};
     }
 
     return await response.json();
@@ -178,7 +182,8 @@ export const patchData = async (
 export const putData = async (
   url: string,
   data: {} = {},
-  addHeaders: {} = {}
+  addHeaders: {} = {},
+  receiveData: boolean = true
 ): Promise<any> => {
   const headers: any = {
     'Content-Type': 'application/json',
@@ -201,7 +206,9 @@ export const putData = async (
       throw new Error(e.message);
     }
 
-    return await response.json();
+    if (receiveData) return await response.json();
+
+    return null;
   } catch (err: any) {
     console.error(err);
     throw new Error(err.message);

@@ -15,7 +15,7 @@ const Settings = () => {
     () => [
       {
         text: 'Overview',
-        onPress: () => {}
+        onPress: () => router.navigate('./overview')
       },
       {
         text: 'Channels',
@@ -23,7 +23,7 @@ const Settings = () => {
       },
       {
         text: 'Emoji',
-        onPress: () => {}
+        onPress: () => router.navigate('./emoji')
       },
       {
         text: 'Invite code',

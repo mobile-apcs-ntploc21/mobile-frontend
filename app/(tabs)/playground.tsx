@@ -34,6 +34,10 @@ import ButtonListToggle from '@/components/ButtonList/ButtonListToggle';
 import ToggleItem3 from '@/components/Toggles/ToggleItem3';
 import MyList from '@/components/MyList';
 import ReorderItem from '@/components/reordering/ReorderItem';
+import EmojiIcon from '@/assets/icons/EmojiIcon';
+import ImageIcon from '@/assets/icons/ImageIcon';
+import MicIcon from '@/assets/icons/MicIcon';
+import PlusIcon from '@/assets/icons/PlusIcon';
 
 const Playground = () => {
   const [selected, setSelected] = useState<string>();
@@ -51,6 +55,14 @@ const Playground = () => {
 
   return (
     <ScrollView>
+      <MyButtonText
+        title="SubPlayground"
+        onPress={() => router.navigate('/subPlayground')}
+      />
+      <MyButtonIcon icon={EmojiIcon} />
+      <MyButtonIcon icon={ImageIcon} />
+      <MyButtonIcon icon={MicIcon} />
+      <MyButtonIcon icon={PlusIcon} />
       <ButtonListToggle
         heading="Lorem ipsum"
         items={toggleList.map((item, index) => ({
@@ -74,7 +86,6 @@ const Playground = () => {
           )
         }
       />
-
       <MyList
         heading="Hello"
         items={Array.from({ length: 5 }, (_, index) => (
@@ -96,9 +107,6 @@ const Playground = () => {
         title="Blocked List"
         onPress={() => router.navigate('/blocked')}
       />
-      <TouchableOpacity onPress={() => router.navigate('/subPlayground')}>
-        <MyText>Go to subplayground</MyText>
-      </TouchableOpacity>
       <View style={{ padding: 16 }}>
         <ButtonListText
           heading="Lorem ipsum"
@@ -170,9 +178,7 @@ const Playground = () => {
       <MyText style={TextStyles.h3}>Heading 3</MyText>
       <MyText style={TextStyles.bodyXL}>Body XL</MyText>
       <MyText>Body L</MyText>
-
       <MyButtonText title="Logout" onPress={() => logout()} />
-
       <MyButtonText
         title="Default"
         onPress={() => console.log('Default')}

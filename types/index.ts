@@ -1,3 +1,4 @@
+import { Role } from './server';
 import { StatusType } from './user_status';
 
 export interface IconProps {
@@ -6,7 +7,10 @@ export interface IconProps {
 
 export interface Server {
   id: string;
+  owner_id: string;
   name: string;
+  avatar?: string | null;
+  banner?: string | null;
   position?: number;
   is_favorite?: boolean;
 }
@@ -46,6 +50,7 @@ export interface ServerProfile extends UserProfile {
     type: StatusType;
     status_text?: string;
   };
+  roles: Role[];
 }
 
 export enum ServerEvents {
@@ -64,5 +69,12 @@ export enum ServerEvents {
   serverDeleted = 'SERVER_DELETED',
 
   memberAdded = 'MEMBER_ADDED',
-  memberRemoved = 'MEMBER_REMOVED'
+  memberRemoved = 'MEMBER_REMOVED',
+
+  userRoleAdded = 'ADD_USER_TO_ROLE',
+  userRoleDeleted = 'REMOVE_USER_FROM_ROLE',
+
+  roleAdded = 'ROLE_ADDED',
+  roleDeleted = 'ROLE_DELETED',
+  roleUpdated = 'ROLE_UPDATED'
 }

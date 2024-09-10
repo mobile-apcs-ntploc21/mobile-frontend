@@ -19,11 +19,10 @@ import { frequencyMatch } from '@/utils/search';
 import { getData } from '@/utils/api';
 import useServer from '@/hooks/useServer';
 import { ServerActions } from '@/context/ServerProvider';
-import { responseToRoles } from '@/utils/response_handler';
 
 const Roles = () => {
   const { currentServerId } = useServers();
-  const { roles, dispatch } = useServer();
+  const { customRoles: roles, dispatch } = useServer();
   const navigation = useNavigation();
   useLayoutEffect(() => {
     navigation.setOptions({
@@ -41,23 +40,23 @@ const Roles = () => {
     });
   }, []);
 
-  useEffect(() => {
-    (async () => {
-      try {
-        const response = await getData(
-          `/api/v1/servers/${currentServerId}/roles`
-        );
-        // console.log(response);
-        // console.log(responseToRoles(response));
-        dispatch({
-          type: ServerActions.SET_ROLES,
-          payload: responseToRoles(response)
-        });
-      } catch (e: any) {
-        console.error(e.message);
-      }
-    })();
-  }, []);
+  // useEffect(() => {
+  //   (async () => {
+  //     try {
+  //       const response = await getData(
+  //         `/api/v1/servers/${currentServerId}/roles`
+  //       );
+  //       // console.log(response);
+  //       // console.log(responseToRoles(response));
+  //       dispatch({
+  //         type: ServerActions.SET_ROLES,
+  //         payload: responseToRoles(response)
+  //       });
+  //     } catch (e: any) {
+  //       console.error(e.message);
+  //     }
+  //   })();
+  // }, []);
 
   const [searchText, setSearchText] = useState('');
 
@@ -81,7 +80,7 @@ const Roles = () => {
                 ).id;
                 console.log(defaultRoleId);
                 if (defaultRoleId) {
-                  router.navigate(`./${defaultRoleId}/permissions`);
+                  router.navigate(`./default/permissions`);
                 }
               }
             }

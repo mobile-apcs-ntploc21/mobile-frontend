@@ -2,8 +2,8 @@ import { Image, StyleSheet, Text, View } from 'react-native';
 import React from 'react';
 import MyText from '../MyText';
 import { colors, fonts } from '@/constants/theme';
-import { Member } from '@/context/ServerProvider';
 import { DefaultProfileImage } from '@/constants/images';
+import { Member } from '@/types/server';
 
 const BasicMemberItem = ({ member }: { member?: Member }) => {
   return (

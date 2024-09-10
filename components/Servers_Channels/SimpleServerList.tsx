@@ -8,6 +8,7 @@ import { ServersActions } from '@/context/ServersProvider';
 
 const SimpleServerList = () => {
   const { servers, currentServerId, dispatch } = useServers();
+
   return (
     <View style={styles.container}>
       <FlatList

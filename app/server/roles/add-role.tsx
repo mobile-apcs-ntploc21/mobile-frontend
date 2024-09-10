@@ -96,17 +96,6 @@ const AddRole = () => {
           color: values.roleColor
         }
       );
-      dispatch({
-        type: ServerActions.SET_ROLES,
-        payload: [
-          ...roles,
-          {
-            id: response.id,
-            name: response.name,
-            color: response.color
-          }
-        ]
-      });
       router.replace({
         pathname: `./${response.id}`,
         params: {
