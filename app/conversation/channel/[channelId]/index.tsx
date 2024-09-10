@@ -9,7 +9,7 @@ import {
   View
 } from 'react-native';
 import React, { useLayoutEffect, useMemo, useState } from 'react';
-import { useLocalSearchParams, useNavigation } from 'expo-router';
+import { router, useLocalSearchParams, useNavigation } from 'expo-router';
 import MyHeader from '@/components/MyHeader';
 import MyText from '@/components/MyText';
 import { TextStyles } from '@/styles/TextStyles';
@@ -44,9 +44,7 @@ const ChannelConversation = () => {
           {...props}
           title={channelName || 'Channel'}
           headerRight={
-            <TouchableOpacity
-              onPress={() => console.log('Header right pressed')}
-            >
+            <TouchableOpacity onPress={() => router.navigate('./info')}>
               <IconWithSize icon={InfoIcon} size={36} color={colors.primary} />
             </TouchableOpacity>
           }
