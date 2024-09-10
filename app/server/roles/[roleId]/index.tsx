@@ -6,7 +6,13 @@ import {
   Text,
   View
 } from 'react-native';
-import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
+import React, {
+  useEffect,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  useState
+} from 'react';
 import { router, useLocalSearchParams, useNavigation } from 'expo-router';
 import { Formik, FormikProps } from 'formik';
 import { NativeStackHeaderProps } from '@react-navigation/native-stack';
@@ -35,7 +41,7 @@ import { ServerActions } from '@/context/ServerProvider';
 import { ServerProfile } from '@/types';
 import { useGlobalContext } from '@/context/GlobalProvider';
 import { DefaultProfileImage } from '@/constants/images';
-import { Member } from '@/types/server';
+import { Member, Role } from '@/types/server';
 
 type FormProps = {
   roleTitle: string;
@@ -45,7 +51,7 @@ type FormProps = {
 
 const RoleEdit = () => {
   const { currentServerId } = useServers();
-  const { roles, dispatch } = useServer();
+  const { roles, members: allMembers } = useServer();
   const { setCallback } = useGlobalContext();
   const navigation = useNavigation();
   const formRef = useRef<FormikProps<FormProps>>(null);
@@ -54,7 +60,6 @@ const RoleEdit = () => {
     roleTitle?: string;
   }>();
   const [loading, setLoading] = useState(true);
-  const [members, setMembers] = useState<Member[]>([]);
 
   useLayoutEffect(() => {
     navigation.setOptions({
@@ -105,31 +110,21 @@ const RoleEdit = () => {
     allowMention: false
   });
 
+  const members = useMemo(() => {
+    return allMembers.filter((member) =>
+      member.roles.some((role) => role.id === roleId)
+    );
+  }, [allMembers]);
+
   useEffect(() => {
-    (async () => {
-      const response = await getData(
-        `/api/v1/servers/${currentServerId}/roles/${roleId}`
-      );
-      setInitialValues({
-        roleTitle: response.name,
-        roleColor: response.color,
-        allowMention: response.allow_anyone_mention
-      });
-      const responseMembers = await getData(
-        `/api/v1/servers/${currentServerId}/roles/${roleId}/members`
-      );
-      setMembers(
-        responseMembers.members.map(
-          (member: any): Member => ({
-            id: member.id,
-            username: member.username,
-            display_name: member.display_name,
-            avatar: member.avatar_url
-          })
-        )
-      );
-      setLoading(false);
-    })();
+    const currentRole = roles.find((role) => role.id === roleId);
+    if (!currentRole) return;
+    setInitialValues({
+      roleTitle: currentRole.name,
+      roleColor: currentRole.color,
+      allowMention: currentRole.allow_anyone_mention
+    });
+    setLoading(false);
   }, []);
 
   const [deleteModalVisible, setDeleteModalVisible] = useState(false);
@@ -171,13 +166,6 @@ const RoleEdit = () => {
           allow_anyone_mention: values.allowMention
         }
       );
-      const newRole = {
-        id: response.id,
-        name: response.name,
-        color: response.color,
-        allowMention: response.allow_anyone_mention,
-        memberCount: members.length
-      };
       router.back();
     } catch (e) {
       showAlert('Error');
@@ -246,9 +234,6 @@ const RoleEdit = () => {
                     try {
                       const response = await deleteData(
                         `/api/v1/servers/${currentServerId}/roles/${roleId}/members/${removeMemberId}`
-                      );
-                      setMembers(
-                        members.filter((member) => member.id !== removeMemberId)
                       );
                     } catch (e) {
                       showAlert('Error');
@@ -321,14 +306,6 @@ const RoleEdit = () => {
                               const response = await postData(
                                 `/api/v1/servers/${currentServerId}/roles/${roleId}/members/${memberId}`
                               );
-                              setMembers(
-                                response.members.map((member: any) => ({
-                                  id: member.id,
-                                  username: member.username,
-                                  display_name: member.display_name,
-                                  avatar: member.avatar_url
-                                }))
-                              );
                             });
                           })();
                         });
@@ -336,7 +313,7 @@ const RoleEdit = () => {
                         router.navigate({
                           pathname: '/server/add_members',
                           params: {
-                            excluded: members.map((member) => member.id)
+                            excluded: members.map((member) => member.user_id)
                           }
                         });
                       }
@@ -349,16 +326,15 @@ const RoleEdit = () => {
                       key={index}
                       style={styles.memberItem}
                       onPress={() => {
-                        setRemoveMemberId(member.id);
+                        setRemoveMemberId(member.user_id);
                         setRemoveMemberUsername(member.username);
                         handleOpenRemoveMember();
-                        console.log(member);
                       }}
                     >
                       <Image
                         source={
-                          member.avatar
-                            ? { uri: member.avatar }
+                          member.avatar_url
+                            ? { uri: member.avatar_url }
                             : DefaultProfileImage
                         }
                         style={styles.avatar}
