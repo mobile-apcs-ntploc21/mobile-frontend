@@ -105,7 +105,8 @@ const Members = () => {
               itemComponent: (
                 <MemberItem key={member.user_id} profile={member} />
               ),
-              onPress: () => router.navigate('./edit_member')
+              onPress: () =>
+                router.navigate(`/server/edit-member/${member.user_id}`)
             }))}
           />
         </View>

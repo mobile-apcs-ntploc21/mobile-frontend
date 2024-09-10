@@ -15,15 +15,12 @@ import TrashIcon from '@/assets/icons/TrashIcon';
 import BasicModal from '@/components/modal/BasicModal';
 import CustomTextInput from '@/components/common/CustomTextInput';
 import * as ImagePicker from 'expo-image-picker';
+import { Emoji } from '@/types';
+import useServer from '@/hooks/useServer';
+import { deleteData, patchData, postData } from '@/utils/api';
+import useServers from '@/hooks/useServers';
 
-const placeholderEmojiList = Array.from({ length: 10 }, (_, i) => ({
-  id: `e${i + 1}`,
-  name: `emoji-${i + 1}`,
-  image_url: `https://via.placeholder.com/150x150.png?text=Emoji+${i + 1}`,
-  uploader_id: `user-${i + 1}`
-}));
-
-const Emoji = () => {
+const EmojiSettings = () => {
   const navigation = useNavigation();
   useLayoutEffect(() => {
     navigation.setOptions({
@@ -33,14 +30,8 @@ const Emoji = () => {
     });
   }, []);
 
-  const [emojiList, setEmojiList] = useState<
-    {
-      id: string;
-      name: string;
-      image_url: string;
-      uploader_id: string;
-    }[]
-  >(placeholderEmojiList);
+  const { currentServerId } = useServers();
+  const { emojis } = useServer();
 
   const [deleteModalVisible, setDeleteModalVisible] = useState(false);
   const [editModalVisible, setEditModalVisible] = useState(false);
@@ -51,20 +42,15 @@ const Emoji = () => {
     let result = await ImagePicker.launchImageLibraryAsync({
       allowsEditing: true,
       quality: 1,
-      aspect: [1, 1]
+      aspect: [1, 1],
+      base64: true
     });
 
     if (!result.canceled) {
-      // postData();
-      setEmojiList((prev) => [
-        {
-          id: `e${prev.length + 1}`,
-          name: `emoji-${prev.length + 1}`,
-          image_url: result.assets[0].uri,
-          uploader_id: 'user-1'
-        },
-        ...prev
-      ]);
+      postData(`/api/v1/servers/${currentServerId}/emojis`, {
+        name: `emoji-${emojis.length + 1}`,
+        image: `data:${result.assets[0].mimeType};base64,${result.assets[0].base64}`
+      });
     } else {
       // alert('You did not select any image.');
     }
@@ -72,13 +58,13 @@ const Emoji = () => {
 
   const handleDeleteEmoji = (id: string) => {
     setModalEmojiId(id);
-    setModalEmojiName(emojiList.find((emoji) => emoji.id === id)?.name || '');
+    setModalEmojiName(emojis.find((emoji) => emoji.id === id)?.name || '');
     setDeleteModalVisible(true);
   };
 
   const handleUpdateEmoji = (id: string) => {
     setModalEmojiId(id);
-    setModalEmojiName(emojiList.find((emoji) => emoji.id === id)?.name || '');
+    setModalEmojiName(emojis.find((emoji) => emoji.id === id)?.name || '');
     setEditModalVisible(true);
   };
 
@@ -89,9 +75,8 @@ const Emoji = () => {
         onClose={() => setDeleteModalVisible(false)}
         title="Delete Emoji"
         onConfirm={() => {
-          // deleteData();
-          setEmojiList((prev) =>
-            prev.filter((emoji) => emoji.id !== modalEmojiId)
+          deleteData(
+            `/api/v1/servers/${currentServerId}/emojis/${modalEmojiId}`
           );
         }}
       >
@@ -104,13 +89,9 @@ const Emoji = () => {
         title="Edit Emoji"
         confirmText="Save"
         onConfirm={() => {
-          // updateData();
-          setEmojiList((prev) =>
-            prev.map((emoji) =>
-              emoji.id === modalEmojiId
-                ? { ...emoji, name: modalEmojiName }
-                : emoji
-            )
+          patchData(
+            `/api/v1/servers/${currentServerId}/emojis/${modalEmojiId}`,
+            { name: modalEmojiName }
           );
         }}
       >
@@ -118,8 +99,7 @@ const Emoji = () => {
           <Image
             style={styles.emojiImageEdit}
             source={{
-              uri: emojiList.find((emoji) => emoji.id === modalEmojiId)
-                ?.image_url
+              uri: emojis.find((emoji) => emoji.id === modalEmojiId)?.image_url
             }}
           />
           <View style={{ flex: 1 }}>
@@ -147,8 +127,8 @@ const Emoji = () => {
             <MyText style={styles.addEmojiText}>Add Emoji</MyText>
           </TouchableOpacity>
           <ButtonListBase
-            heading={`All Emoji (${emojiList.length}/20)`}
-            items={emojiList.map((item) => ({
+            heading={`All Emoji (${emojis.length}/20)`}
+            items={emojis.map((item) => ({
               itemComponent: (
                 <View style={styles.emojiItemContainer}>
                   <View style={styles.emojiInfoContainer}>
@@ -178,7 +158,7 @@ const Emoji = () => {
   );
 };
 
-export default Emoji;
+export default EmojiSettings;
 
 const styles = StyleSheet.create({
   container: {
