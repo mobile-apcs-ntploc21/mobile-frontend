@@ -4,9 +4,11 @@ import { Message } from '@/types/chat';
 import MyText from '../MyText';
 import { colors } from '@/constants/theme';
 import { TextStyles } from '@/styles/TextStyles';
+import { TouchableOpacity } from 'react-native-gesture-handler';
 
-interface ChatItemProps {
+export interface ChatItemProps {
   message: Message;
+  onLongPress?: () => void;
   displayedContents: ReactNode[];
 }
 
@@ -20,7 +22,7 @@ const BaseChatItem = (props: ChatItemProps) => {
   };
 
   return (
-    <View style={styles.container}>
+    <TouchableOpacity style={styles.container} onLongPress={props.onLongPress}>
       <View style={styles.messageContainer}>
         <View style={styles.avatarImg} />
         <View style={styles.innerContainer}>
@@ -36,7 +38,7 @@ const BaseChatItem = (props: ChatItemProps) => {
           <View style={styles.reactionsContainer}></View>
         </View>
       </View>
-    </View>
+    </TouchableOpacity>
   );
 };
 

@@ -1,7 +1,7 @@
 import { Image, StyleSheet, Text, View } from 'react-native';
 import React, { useCallback, useMemo } from 'react';
 import { Message } from '@/types/chat';
-import BaseChatItem from './BaseChatItem';
+import BaseChatItem, { ChatItemProps } from './BaseChatItem';
 import useServer from '@/hooks/useServer';
 import { colors, fonts } from '@/constants/theme';
 import {
@@ -9,10 +9,8 @@ import {
   TouchableOpacity
 } from 'react-native-gesture-handler';
 
-interface ServerChatItemProps {
-  message: Message;
-  onPress?: () => void;
-}
+interface ServerChatItemProps
+  extends Omit<ChatItemProps, 'displayedContents'> {}
 
 const ServerChatItem = (props: ServerChatItemProps) => {
   const { emojis, members, roles, categories } = useServer();
@@ -38,7 +36,6 @@ const ServerChatItem = (props: ServerChatItemProps) => {
       if ((match = /<@!?([a-f0-9]{24})>/g.exec(part))) {
         const userId = match[1];
         const member = members.find((member) => member.user_id === userId);
-        console.log(userId);
         return <Text style={styles.highlightText}>@{member?.username}</Text>;
       }
       if ((match = /<@&([a-f0-9]{24})>/g.exec(part))) {
@@ -65,14 +62,7 @@ const ServerChatItem = (props: ServerChatItemProps) => {
     });
   }, [props.message.content, emojis, members, roles, channels]);
 
-  return (
-    <TouchableOpacity onPress={props.onPress} delayLongPress={0.5}>
-      <BaseChatItem
-        message={props.message}
-        displayedContents={parseContent()}
-      />
-    </TouchableOpacity>
-  );
+  return <BaseChatItem {...props} displayedContents={parseContent()} />;
 };
 
 export default ServerChatItem;

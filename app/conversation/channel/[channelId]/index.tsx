@@ -8,7 +8,14 @@ import {
   TouchableOpacity,
   View
 } from 'react-native';
-import React, { useEffect, useLayoutEffect, useMemo, useState } from 'react';
+import React, {
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  useState
+} from 'react';
 import { router, useLocalSearchParams, useNavigation } from 'expo-router';
 import MyHeader from '@/components/MyHeader';
 import MyText from '@/components/MyText';
@@ -23,8 +30,11 @@ import IconWithSize from '@/components/IconWithSize';
 import InfoIcon from '@/assets/icons/InfoIcon';
 import { colors } from '@/constants/theme';
 import { useConversations } from '@/context/ConversationsProvider';
-import { ConversationsTypes } from '@/types/chat';
+import { ConversationsTypes, Message } from '@/types/chat';
 import ServerChatItem from '@/components/Chat/ServerChatItem';
+import MyBottomSheetModal from '@/components/modal/MyBottomSheetModal';
+import ButtonListText from '@/components/ButtonList/ButtonListText';
+import { BottomSheetModal } from '@gorhom/bottom-sheet';
 
 const ChannelConversation = () => {
   const navigation = useNavigation();
@@ -100,13 +110,57 @@ const ChannelConversation = () => {
     setChatInput('');
   };
 
+  const messageBottomSheetRef = useRef<BottomSheetModal>(null);
+  const [modalMessage, setModalMessage] = useState<Message | null>(null);
+
+  const handleOpenBottomSheet = useCallback(
+    (message: Message) => {
+      setModalMessage(message);
+      messageBottomSheetRef.current?.present();
+    },
+    [messageBottomSheetRef]
+  );
+
+  const handleCloseBottomSheet = useCallback(() => {
+    messageBottomSheetRef.current?.dismiss();
+  }, [messageBottomSheetRef]);
+
   return (
-    <KeyboardAvoidingView style={GlobalStyles.screen}>
+    <View style={GlobalStyles.screen}>
+      <MyBottomSheetModal
+        ref={messageBottomSheetRef}
+        onClose={handleCloseBottomSheet}
+      >
+        <ButtonListText
+          items={[
+            {
+              text: 'React',
+              onPress: () => {}
+            },
+            {
+              text: 'Edit',
+              onPress: () => {}
+            },
+            {
+              text: 'Reply',
+              onPress: () => {}
+            },
+            {
+              text: 'Delete',
+              onPress: () => {}
+            }
+          ]}
+        />
+      </MyBottomSheetModal>
       <FlatList
         keyboardShouldPersistTaps="always"
         data={conversation?.messages || []}
         renderItem={({ item, index }) => (
-          <ServerChatItem key={index} message={item} />
+          <ServerChatItem
+            key={index}
+            message={item}
+            onLongPress={() => handleOpenBottomSheet(item)}
+          />
         )}
         keyExtractor={(item, index) => index.toString()}
         inverted
@@ -116,7 +170,7 @@ const ChannelConversation = () => {
         onChange={setChatInput}
         onSend={handleSend}
       />
-    </KeyboardAvoidingView>
+    </View>
   );
 };
 
