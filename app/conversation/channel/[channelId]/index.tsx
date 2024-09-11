@@ -8,7 +8,7 @@ import {
   TouchableOpacity,
   View
 } from 'react-native';
-import React, { useLayoutEffect, useMemo, useState } from 'react';
+import React, { useEffect, useLayoutEffect, useMemo, useState } from 'react';
 import { router, useLocalSearchParams, useNavigation } from 'expo-router';
 import MyHeader from '@/components/MyHeader';
 import MyText from '@/components/MyText';
@@ -22,6 +22,9 @@ import { Channel } from '@/types/server';
 import IconWithSize from '@/components/IconWithSize';
 import InfoIcon from '@/assets/icons/InfoIcon';
 import { colors } from '@/constants/theme';
+import { useConversations } from '@/context/ConversationsProvider';
+import ChatItem from '@/components/Chat/ChatItem';
+import { ConversationsTypes } from '@/types/chat';
 
 const ChannelConversation = () => {
   const navigation = useNavigation();
@@ -35,6 +38,10 @@ const ChannelConversation = () => {
       .flat()
       .find((channel) => channel.id === channelId);
   }, [categories, channelId]);
+  const { conversations, dispatch: conversationDispatch } = useConversations();
+  const conversation = useMemo(() => {
+    return conversations.find((conv) => conv.id === channel?.conversation_id);
+  }, [conversations, channelId]);
 
   useLayoutEffect(() => {
     const channelName = channel?.name;
@@ -64,6 +71,29 @@ const ChannelConversation = () => {
     });
   });
 
+  // Mock get history
+  useEffect(() => {
+    if (!conversation) return;
+    if (conversation.messages.length > 10) return;
+    conversationDispatch({
+      type: ConversationsTypes.AddConversationMessageHistory,
+      payload: {
+        conversationId: conversation.id,
+        messages: Array.from({ length: 10 }).map((_, i) => {
+          return {
+            id: (i + 1).toString(),
+            content: `Message ${i}`,
+            sender_id: '1',
+            replied_message: null,
+            is_modified: false,
+            createdAt: new Date().toISOString(),
+            reactions: []
+          };
+        })
+      }
+    });
+  }, []);
+
   const [chatInput, setChatInput] = useState('');
   const handleSend = () => {
     console.log('Send:', chatInput);
@@ -74,12 +104,11 @@ const ChannelConversation = () => {
     <KeyboardAvoidingView style={GlobalStyles.screen}>
       <FlatList
         keyboardShouldPersistTaps="always"
-        data={Array.from({ length: 100 })}
+        data={conversation?.messages || []}
         renderItem={({ item, index }) => (
-          <View>
-            <MyText style={TextStyles.h3}>Hello, World! {index}</MyText>
-          </View>
+          <ChatItem key={index} message={item} />
         )}
+        keyExtractor={(item, index) => index.toString()}
         inverted
       />
       <ChatInput

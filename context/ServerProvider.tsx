@@ -13,6 +13,8 @@ import {
   useRef,
   useState
 } from 'react';
+import { useConversations } from './ConversationsProvider';
+import { Conversation, ConversationsTypes, Message } from '@/types/chat';
 
 export enum ServerActions {
   INIT = 'INIT',
@@ -174,6 +176,7 @@ export const ServerProvider = (props: ProviderProps) => {
   const activeServerIdRef = useRef<String | null>(null);
   const [servers, setServers] = useState<Record<string, ServerState>>({});
   const [state, dispatch] = useReducer(reducer, initialState);
+  const { dispatch: conversationDispatch } = useConversations();
   const fetchedServerIds = Object.keys(servers);
   const { data: subscriptionData } = useSubscription(SERVER_SUBSCRIPTION, {
     variables: { server_id: fetchedServerIds },
@@ -362,14 +365,50 @@ export const ServerProvider = (props: ProviderProps) => {
       );
 
       // Add a separate category for uncategorized channels
-      // if (channelsFetch.some((channel: any) => !channel.category_id)) {
       categories.unshift({
         id: null,
         name: 'Uncategorized',
         channels: channelsFetch.filter((channel: any) => !channel.category_id),
         position: 0
       });
-      // }
+
+      // Initialize conversations
+      conversationDispatch({
+        type: ConversationsTypes.AddConversations,
+        payload: {
+          conversations: channelsFetch.map(
+            (channel: any) =>
+              ({
+                id: channel.conversation_id,
+                type: 'channel',
+                number_of_unread_mentions: channel.number_of_unread_mentions,
+                has_new_message: channel.has_new_message,
+                messages: []
+              } as Conversation)
+          )
+        }
+      });
+
+      channelsFetch.forEach((channel: any) => {
+        conversationDispatch({
+          type: ConversationsTypes.AddConversationMessage,
+          payload: {
+            conversationId: channel.conversation_id,
+            // Mock message
+            message: {
+              id: '1',
+              sender_id: '6690983e2a505b6209cc1c21',
+              content:
+                'Lorem ipsum dolor sit amet consectetur. Dignissim penatibus nulla orci consectetur consequat tellus nunc maecenas ',
+              replied_message: null,
+              is_modified: false,
+              createdAt: new Date().toISOString(),
+              reactions: []
+            } as Message
+          }
+        });
+      });
+
       const roles: Role[] = (
         await getData(`/api/v1/servers/${server_id}/roles`)
       ).roles;
