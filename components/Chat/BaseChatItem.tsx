@@ -1,4 +1,4 @@
-import { StyleSheet, Text, View } from 'react-native';
+import { Image, StyleSheet, Text, View } from 'react-native';
 import React, { ReactNode } from 'react';
 import { Message } from '@/types/chat';
 import MyText from '../MyText';
@@ -24,10 +24,15 @@ const BaseChatItem = (props: ChatItemProps) => {
   return (
     <TouchableOpacity style={styles.container} onLongPress={props.onLongPress}>
       <View style={styles.messageContainer}>
-        <View style={styles.avatarImg} />
+        <Image
+          source={{ uri: props.message.author.avatar_url }}
+          style={styles.avatarImg}
+        />
         <View style={styles.innerContainer}>
           <View style={styles.messageHeader}>
-            <MyText style={styles.displayName}>John Doe</MyText>
+            <MyText style={styles.displayName}>
+              {props.message.author.display_name}
+            </MyText>
             <MyText style={styles.timestamp}>
               {convertTimestamp(props.message.createdAt)}
             </MyText>

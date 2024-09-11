@@ -398,6 +398,12 @@ export const ServerProvider = (props: ProviderProps) => {
             message: {
               id: '1',
               sender_id: '6690983e2a505b6209cc1c21',
+              author: {
+                user_id: '6690983e2a505b6209cc1c21',
+                username: 'nhanbin',
+                display_name: 'Bin',
+                avatar_url: 'https://i.pravatar.cc/300'
+              },
               content:
                 'Hi, I am <@6690983e2a505b6209cc1c21>, I have role <@&66d194165078560ffa0ad056> and I am in my favorite channel <#66e02c81aef35e1bf5f8844e> and I am using emoji <:echphat:66dd25ab4b008670bee60422>',
               replied_message: null,

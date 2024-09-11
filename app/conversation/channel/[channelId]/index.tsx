@@ -94,6 +94,12 @@ const ChannelConversation = () => {
             id: (i + 1).toString(),
             content: `Message ${i}`,
             sender_id: '1',
+            author: {
+              user_id: '1',
+              username: 'JohnDoe',
+              display_name: 'John Doe',
+              avatar_url: 'https://i.pravatar.cc/150?img=1'
+            },
             replied_message: null,
             is_modified: false,
             createdAt: new Date().toISOString(),

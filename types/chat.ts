@@ -6,6 +6,12 @@ export type Reaction = {
 export type Message = {
   id: string;
   sender_id: string;
+  author: {
+    user_id: string;
+    username: string;
+    display_name: string;
+    avatar_url: string;
+  };
   content: string;
   replied_message: {
     id: string;
