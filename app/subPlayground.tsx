@@ -15,7 +15,7 @@ import { TextStyles } from '@/styles/TextStyles';
 import { NativeStackHeaderProps } from '@react-navigation/native-stack';
 import GlobalStyles from '@/styles/GlobalStyles';
 import { TextInput } from 'react-native-gesture-handler';
-import ChatInput from '@/components/Chat/ChatInput';
+import BaseChatInput from '@/components/Chat/BaseChatInput';
 
 const subPlayground = () => {
   const navigation = useNavigation();
@@ -51,7 +51,7 @@ const subPlayground = () => {
         )}
         inverted
       />
-      <ChatInput
+      <BaseChatInput
         value={text}
         onChange={setText}
         mentions={['nhanbin03', 'role 1', 'role 1 lorem ipsum']}
