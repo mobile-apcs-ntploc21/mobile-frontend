@@ -38,7 +38,14 @@ const BaseChatItem = (props: ChatItemProps) => {
             </MyText>
           </View>
           <View style={styles.messageContent}>
-            <MyText style={styles.message}>{props.displayedContents}</MyText>
+            <MyText style={styles.message}>
+              {props.displayedContents.map((content, index) => (
+                <React.Fragment key={index}>{content}</React.Fragment>
+              ))}
+              {props.message.is_modified && (
+                <Text style={styles.editedText}> (edited)</Text>
+              )}
+            </MyText>
           </View>
           <View style={styles.reactionsContainer}></View>
         </View>
@@ -83,6 +90,10 @@ const styles = StyleSheet.create({
   messageContent: {},
   message: {
     ...TextStyles.bodyL
+  },
+  editedText: {
+    ...TextStyles.bodyS,
+    color: colors.gray02
   },
   reactionsContainer: {}
 });

@@ -101,7 +101,7 @@ const ChannelConversation = () => {
               avatar_url: 'https://i.pravatar.cc/150?img=1'
             },
             replied_message: null,
-            is_modified: false,
+            is_modified: true,
             createdAt: new Date().toISOString(),
             reactions: []
           };
