@@ -15,7 +15,6 @@ import TrashIcon from '@/assets/icons/TrashIcon';
 import BasicModal from '@/components/modal/BasicModal';
 import CustomTextInput from '@/components/common/CustomTextInput';
 import * as ImagePicker from 'expo-image-picker';
-import { Emoji } from '@/types';
 import useServer from '@/hooks/useServer';
 import { deleteData, patchData, postData } from '@/utils/api';
 import useServers from '@/hooks/useServers';
