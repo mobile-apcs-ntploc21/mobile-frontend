@@ -7,6 +7,14 @@ export type Message = {
   id: string;
   sender_id: string;
   content: string;
+  replied_message: {
+    id: string;
+    sender_id: string;
+    content: string;
+    is_deleted: boolean;
+  } | null;
+  is_modified: boolean;
+  createdAt: string;
   reactions: Reaction[];
 };
 
@@ -14,14 +22,16 @@ export type ChannelConversation = {
   id: string;
   type: 'channel';
   messages: Message[];
-  unread: number;
+  number_of_unread_mentions: number;
+  has_new_message: boolean;
 };
 
 export type DirectConversation = {
   id: string;
   type: 'direct';
   messages: Message[];
-  unread: number;
+  number_of_unread_mentions: number;
+  has_new_message: boolean;
 };
 
 export type Conversation = ChannelConversation | DirectConversation;
@@ -29,6 +39,7 @@ export type Conversation = ChannelConversation | DirectConversation;
 export enum ConversationsTypes {
   SetFocus = 'SET_FOCUS',
   AddConversation = 'ADD_CONVERSATION',
+  AddConversations = 'ADD_CONVERSATIONS',
   RemoveConversation = 'REMOVE_CONVERSATION',
   AddConversationMessage = 'ADD_CONVERSATION_MESSAGE',
   AddConversationMessageHistory = 'ADD_CONVERSATION_MESSAGE_HISTORY',
@@ -50,6 +61,13 @@ export type AddConversationAction = {
   payload: {
     conversation: Conversation;
     focus: boolean;
+  };
+};
+
+export type AddConversationsAction = {
+  type: ConversationsTypes.AddConversations;
+  payload: {
+    conversations: Conversation[];
   };
 };
 
@@ -114,6 +132,7 @@ export type EditConversationMessageAction = {
 export type ConversationsAction =
   | SetFocusAction
   | AddConversationAction
+  | AddConversationsAction
   | RemoveConversationAction
   | AddConversationMessageAction
   | AddConversationMessageHistoryAction
