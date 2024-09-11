@@ -96,9 +96,14 @@ const ServerChatInput = (props: ServerChatInputProps) => {
 
   const suggestions = useMemo(() => {
     if (!lastWord) return [];
-    const suggestionList = [
+    const suggestionList: {
+      name: string;
+      subname?: string;
+      component: React.ReactNode;
+    }[] = [
       ...members.map((member) => ({
         name: `@${member.username}`,
+        subname: `@${member.display_name}`,
         component: <MemberSuggestion member={member} />
       })),
       ...roles.map((role) => ({
@@ -114,8 +119,14 @@ const ServerChatInput = (props: ServerChatInputProps) => {
         component: <EmojiSuggestion emoji={emoji} />
       }))
     ];
-    return suggestionList.filter((suggestion) =>
-      suggestion.name.startsWith(lastWord)
+    return suggestionList.filter(
+      (suggestion) =>
+        suggestion.name
+          .toLocaleLowerCase()
+          .startsWith(lastWord.toLocaleLowerCase()) ||
+        suggestion.subname
+          ?.toLocaleLowerCase()
+          .startsWith(lastWord.toLocaleLowerCase())
     );
   }, [lastWord, members, channels, emojis]);
 
