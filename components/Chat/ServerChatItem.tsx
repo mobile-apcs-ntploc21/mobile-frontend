@@ -41,6 +41,9 @@ const ServerChatItem = (props: ServerChatItemProps) => {
       if ((match = /<@&([a-f0-9]{24})>/g.exec(part))) {
         const roleId = match[1];
         const role = roles.find((role) => role.id === roleId);
+        if (role?.default) {
+          return <Text style={styles.highlightText}>@everyone</Text>;
+        }
         return <Text style={styles.highlightText}>@{role?.name}</Text>;
       }
       if ((match = /<#([a-f0-9]{24})>/g.exec(part))) {
