@@ -23,8 +23,8 @@ import IconWithSize from '@/components/IconWithSize';
 import InfoIcon from '@/assets/icons/InfoIcon';
 import { colors } from '@/constants/theme';
 import { useConversations } from '@/context/ConversationsProvider';
-import ChatItem from '@/components/Chat/ChatItem';
 import { ConversationsTypes } from '@/types/chat';
+import ServerChatItem from '@/components/Chat/ServerChatItem';
 
 const ChannelConversation = () => {
   const navigation = useNavigation();
@@ -106,7 +106,7 @@ const ChannelConversation = () => {
         keyboardShouldPersistTaps="always"
         data={conversation?.messages || []}
         renderItem={({ item, index }) => (
-          <ChatItem key={index} message={item} />
+          <ServerChatItem key={index} message={item} />
         )}
         keyExtractor={(item, index) => index.toString()}
         inverted

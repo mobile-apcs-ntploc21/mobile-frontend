@@ -394,12 +394,12 @@ export const ServerProvider = (props: ProviderProps) => {
           type: ConversationsTypes.AddConversationMessage,
           payload: {
             conversationId: channel.conversation_id,
-            // Mock message
+            // Mock message for server `nhanbin sv`
             message: {
               id: '1',
               sender_id: '6690983e2a505b6209cc1c21',
               content:
-                'Lorem ipsum dolor sit amet consectetur. Dignissim penatibus nulla orci consectetur consequat tellus nunc maecenas ',
+                'Hi, I am <@6690983e2a505b6209cc1c21>, I have role <@&66d194165078560ffa0ad056> and I am in my favorite channel <#66e02c81aef35e1bf5f8844e> and I am using emoji <:echphat:66dd25ab4b008670bee60422>',
               replied_message: null,
               is_modified: false,
               createdAt: new Date().toISOString(),
