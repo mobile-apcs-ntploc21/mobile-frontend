@@ -1,23 +1,21 @@
-import {
-  SERVERS_SUBSCRIPTION,
-  SERVER_SUBSCRIPTION
-} from '@/services/graphql/subscriptions';
+import { SERVERS_SUBSCRIPTION } from '@/services/graphql/subscriptions';
 import { ServerEvents, ServerProfile } from '@/types';
+import { Conversation, ConversationsTypes, Message } from '@/types/chat';
 import { Category, Emoji, Role } from '@/types/server';
 import { getData } from '@/utils/api';
 import { useSubscription } from '@apollo/client';
 import {
-  createContext,
   Dispatch,
   ReactNode,
+  createContext,
   useCallback,
   useEffect,
   useReducer,
   useRef,
   useState
 } from 'react';
+import { useAuth } from './AuthProvider';
 import { useConversations } from './ConversationsProvider';
-import { Conversation, ConversationsTypes, Message } from '@/types/chat';
 
 export enum ServerActions {
   INIT = 'INIT',
@@ -181,10 +179,13 @@ export const ServerProvider = (props: ProviderProps) => {
   const activeServerIdRef = useRef<String | null>(null);
   const [servers, setServers] = useState<Record<string, ServerState>>({});
   const [state, dispatch] = useReducer(reducer, initialState);
+
+  const { user } = useAuth();
   const { dispatch: conversationDispatch } = useConversations();
+
   const fetchedServerIds = Object.keys(servers) || [];
   const { data: subscriptionData } = useSubscription(SERVERS_SUBSCRIPTION, {
-    variables: { server_ids: fetchedServerIds, user_id: null },
+    variables: { server_ids: fetchedServerIds, user_id: user?.id },
     skip: fetchedServerIds.length === 0
   });
 
@@ -206,6 +207,14 @@ export const ServerProvider = (props: ProviderProps) => {
 
     // Please add the missing cases
     switch (type) {
+      case ServerEvents.serverUpdated:
+        {
+        }
+        break;
+      case ServerEvents.serverDeleted:
+        {
+        }
+        break;
       case ServerEvents.userStatusChanged:
         dispatchLoad.push({
           type: ServerActions.UPDATE_STATUS,
@@ -382,9 +391,100 @@ export const ServerProvider = (props: ProviderProps) => {
         break;
       case ServerEvents.channelAdded:
         dispatchLoad.push({
-          type: ServerActions.CREATE_CHANNEL,
-          payload: data
+          type: ServerActions.SET_CATEGORIES,
+          payload: servers[server_id].categories.map((category) =>
+            category.id === data.category_id
+              ? {
+                  ...category,
+                  channels: [...category.channels, data]
+                }
+              : category
+          )
         });
+        break;
+      case ServerEvents.channelUpdated:
+        {
+          let categories = [...servers[server_id].categories];
+          const channel = data;
+
+          if (Array.isArray(channel)) {
+            channel.forEach((c) => {
+              categories.forEach((category) => {
+                category.channels = category.channels.map((ch) =>
+                  ch.id === c._id ? c : ch
+                );
+              });
+            });
+          } else {
+            categories.forEach((category) => {
+              category.channels = category.channels.map((c) =>
+                c.id === channel._id ? channel : c
+              );
+            });
+          }
+
+          dispatchLoad.push({
+            type: ServerActions.SET_CATEGORIES,
+            payload: categories
+          });
+        }
+        break;
+      case ServerEvents.channelDeleted:
+        {
+          const categories = [...servers[server_id].categories];
+          const channel_id = data.channel_id;
+          categories.forEach((category) => {
+            category.channels = category.channels.filter(
+              (c) => c.id !== channel_id
+            );
+          });
+          dispatchLoad.push({
+            type: ServerActions.SET_CATEGORIES,
+            payload: categories
+          });
+        }
+        break;
+      case ServerEvents.categoryAdded:
+        dispatchLoad.push({
+          type: ServerActions.SET_CATEGORIES,
+          payload: [
+            ...servers[server_id].categories,
+            {
+              ...data,
+              channels: []
+            }
+          ]
+        });
+        break;
+      case ServerEvents.categoryUpdated:
+        {
+          let categories = [...servers[server_id].categories];
+          const category = data;
+          dispatchLoad.push({
+            type: ServerActions.SET_CATEGORIES,
+            payload: categories.map((c) =>
+              c.id === category.id ? category : c
+            )
+          });
+        }
+        break;
+      case ServerEvents.categoryDeleted:
+        {
+          const categories = [...servers[server_id].categories];
+          const category_id = data.category_id;
+          const channels = categories.find(
+            (c) => c.id === category_id
+          )?.channels;
+          const newCategories = categories.filter((c) => c.id !== category_id);
+          if (channels) {
+            newCategories[0].channels.push(...channels);
+          }
+
+          dispatchLoad.push({
+            type: ServerActions.SET_CATEGORIES,
+            payload: newCategories
+          });
+        }
         break;
       default:
         console.warn('Unknown event type:', type);
@@ -399,18 +499,18 @@ export const ServerProvider = (props: ProviderProps) => {
           payload: load.payload
         });
       });
-    } else {
-      // Else update the other servers data using the reducer
-      dispatchLoad.forEach((load) => {
-        setServers((prevServers) => ({
-          ...prevServers,
-          [server_id]: reducer(prevServers[server_id], {
-            type: load.type || ServerActions.INIT,
-            payload: load.payload
-          })
-        }));
-      });
     }
+
+    // Update the other servers data using the reducer
+    dispatchLoad.forEach((load) => {
+      setServers((prevServers) => ({
+        ...prevServers,
+        [server_id]: reducer(prevServers[server_id], {
+          type: load.type || ServerActions.INIT,
+          payload: load.payload
+        })
+      }));
+    });
   };
 
   useEffect(() => {
@@ -446,12 +546,12 @@ export const ServerProvider = (props: ProviderProps) => {
     if (servers[server_id]) return servers[server_id];
 
     try {
-      const channelsFetch = (
-        await getData(`/api/v1/servers/${server_id}/channels`)
-      )?.channels;
-      const categoriesFetch = (
-        await getData(`/api/v1/servers/${server_id}/categories`)
-      )?.categories;
+      const channelsFetch =
+        (await getData(`/api/v1/servers/${server_id}/channels`))?.channels ||
+        [];
+      const categoriesFetch =
+        (await getData(`/api/v1/servers/${server_id}/categories`))
+          ?.categories || [];
       const membersFetch = await getData(
         `/api/v1/servers/${server_id}/members`
       );
@@ -462,7 +562,7 @@ export const ServerProvider = (props: ProviderProps) => {
           return {
             id: category.id,
             name: category.name,
-            channels: channelsFetch.filter(
+            channels: channelsFetch?.filter(
               (channel: any) => channel.category_id === category.id
             ),
             position: index + 1
@@ -474,7 +574,7 @@ export const ServerProvider = (props: ProviderProps) => {
       categories.unshift({
         id: null,
         name: 'Uncategorized',
-        channels: channelsFetch.filter((channel: any) => !channel.category_id),
+        channels: channelsFetch?.filter((channel: any) => !channel.category_id),
         position: 0
       });
 
