@@ -194,6 +194,14 @@ const ChannelConversation = () => {
     handleCloseBottomSheet();
   };
 
+  const handleReply = () => {
+    setActionMode({
+      type: 'reply',
+      replyTo: modalMessage?.author.display_name || ''
+    });
+    handleCloseBottomSheet();
+  };
+
   const handleSend = () => {
     const content = convertInputToContent(chatInput);
     if (actionMode?.type === 'edit') {
@@ -206,14 +214,6 @@ const ChannelConversation = () => {
     console.log('Send', content);
     setChatInput('');
     setActionMode(null);
-  };
-
-  const handleReply = () => {
-    setActionMode({
-      type: 'reply',
-      replyTo: modalMessage?.author.display_name || ''
-    });
-    handleCloseBottomSheet();
   };
 
   return (
