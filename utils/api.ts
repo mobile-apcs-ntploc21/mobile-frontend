@@ -43,6 +43,10 @@ export const postData = async (
       throw new Error(e.message);
     }
 
+    if (response.status === 204) {
+      return {};
+    }
+
     return await response.json();
   } catch (err: any) {
     console.error(err);
