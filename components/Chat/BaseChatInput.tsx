@@ -83,21 +83,20 @@ const BaseChatInput = (props: BaseChatInputProps) => {
         .sort((a, b) => b.length - a.length);
       const emojiPatterns = props.emojis.map((emoji) => `:${emoji}:`);
 
-      // mentions and channels should be surrounded by whitespace or at the beginning/end of the text
       const mentionRegex = new RegExp(
-        `(?<=^|\\s)(${mentionPatterns
+        `(${mentionPatterns
           .map((mention) => mention.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'))
-          .join('|')})(?=\\s|$)`,
-        'g'
-      );
-      const channelRegex = new RegExp(
-        `(?<=^|\\s)(${channelPatterns
-          .map((channel) => channel.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'))
-          .join('|')})(?=\\s|$)`,
+          .join('|')})`,
         'g'
       );
 
-      // emojis don't need to be surrounded by whitespace
+      const channelRegex = new RegExp(
+        `(${channelPatterns
+          .map((channel) => channel.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'))
+          .join('|')})`,
+        'g'
+      );
+
       const emojiRegex = new RegExp(
         `(${emojiPatterns
           .map((emoji) => emoji.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'))
