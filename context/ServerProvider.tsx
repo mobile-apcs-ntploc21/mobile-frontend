@@ -176,8 +176,8 @@ export const ServerProvider = (props: ProviderProps) => {
   const [state, dispatch] = useReducer(reducer, initialState);
   const fetchedServerIds = Object.keys(servers);
   const { data: subscriptionData } = useSubscription(SERVER_SUBSCRIPTION, {
-    variables: { server_id: fetchedServerIds },
-    skip: fetchedServerIds.length === 0
+    variables: { server_id: state.server_id },
+    skip: !state.server_id
   });
 
   const getServerProfile = useCallback(
@@ -205,6 +205,7 @@ export const ServerProvider = (props: ProviderProps) => {
   useEffect(() => {
     if (!subscriptionData) return;
     const { serverUpdated } = subscriptionData;
+    console.log(serverUpdated);
     switch (serverUpdated.type) {
       case ServerEvents.userStatusChanged:
         dispatch({
