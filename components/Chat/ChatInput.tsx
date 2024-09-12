@@ -36,6 +36,7 @@ const IconButton = ({
 interface ChatInputProps {
   value?: string;
   onChange?: (text: string) => void;
+  onSend?: () => void;
   mentions?: string[];
   emojis?: string[];
   channels?: string[];
@@ -169,7 +170,7 @@ const ChatInput = (props: ChatInputProps) => {
         {props.value?.length === 0 ? (
           <IconButton icon={MicIcon} size={32} />
         ) : (
-          <IconButton icon={SendIcon} size={32} />
+          <IconButton icon={SendIcon} size={32} onPress={props.onSend} />
         )}
       </View>
       <EmojiPicker

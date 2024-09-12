@@ -28,6 +28,11 @@ const reducer = (
         conversations: [...state.conversations, payload.conversation],
         focusId: payload.focus ? payload.conversation.id : state.focusId
       };
+    case ConversationsTypes.AddConversations:
+      return {
+        ...state,
+        conversations: [...state.conversations, ...payload.conversations]
+      };
     case ConversationsTypes.RemoveConversation:
       return {
         ...state,

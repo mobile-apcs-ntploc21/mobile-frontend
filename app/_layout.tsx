@@ -62,8 +62,8 @@ function RootLayoutNav() {
             <StatusProvider>
               <UserProvider>
                 <GlobalProvider>
-                  <ServersProvider>
-                    <ConversationsProvider>
+                  <ConversationsProvider>
+                    <ServersProvider>
                       <SafeAreaView style={{ flex: 1 }}>
                         <Stack>
                           <Stack.Screen
@@ -84,8 +84,8 @@ function RootLayoutNav() {
                           />
                         </Stack>
                       </SafeAreaView>
-                    </ConversationsProvider>
-                  </ServersProvider>
+                    </ServersProvider>
+                  </ConversationsProvider>
                 </GlobalProvider>
               </UserProvider>
             </StatusProvider>
