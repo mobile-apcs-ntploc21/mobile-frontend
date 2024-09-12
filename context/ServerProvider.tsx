@@ -211,6 +211,18 @@ export const ServerProvider = (props: ProviderProps) => {
     switch (type) {
       case ServerEvents.serverUpdated:
         {
+          // const newServers = [...serverList];
+          // const index = newServers.findIndex(
+          //   (server) => server.id === server_id
+          // );
+          // newServers[index] = {
+          //   ...newServers[index],
+          //   ...data
+          // };
+          // serversDispatch({
+          //   type: ServersActions.SET_SERVERS,
+          //   payload: newServers
+          // });
         }
         break;
       case ServerEvents.serverDeleted:
@@ -561,16 +573,25 @@ export const ServerProvider = (props: ProviderProps) => {
     if (servers[server_id]) return servers[server_id];
 
     try {
-      const channelsFetch =
-        (await getData(`/api/v1/servers/${server_id}/channels`))?.channels ||
-        [];
-      const categoriesFetch =
-        (await getData(`/api/v1/servers/${server_id}/categories`))
-          ?.categories || [];
-      const membersFetch = await getData(
-        `/api/v1/servers/${server_id}/members`
-      );
-      // const rolesFetch = await getData(`/api/v1/servers/${server_id}/roles`);
+      // Using Promise.all to fetch all the data at once
+      const [channelsFetch, categoriesFetch, membersFetch, roles, emojis] =
+        await Promise.all([
+          getData(`/api/v1/servers/${server_id}/channels`).then(
+            (res) => res?.channels || []
+          ),
+          getData(`/api/v1/servers/${server_id}/categories`).then(
+            (res) => res?.categories || []
+          ),
+          getData(`/api/v1/servers/${server_id}/members`) || [],
+          getData(`/api/v1/servers/${server_id}/roles`).then(
+            (res) => res?.roles || []
+          ),
+          getData(`/api/v1/servers/${server_id}/emojis`).then(
+            (res) => res?.emojis || []
+          )
+        ]).catch((err) => {
+          throw new Error(err.message);
+        });
 
       const categories: Category[] = categoriesFetch.map(
         (category: any, index: number) => {
@@ -636,9 +657,6 @@ export const ServerProvider = (props: ProviderProps) => {
         });
       });
 
-      const roles: Role[] = (
-        await getData(`/api/v1/servers/${server_id}/roles`)
-      ).roles;
       let defaultRole: Role | null = null;
       const customRoles: Role[] = [];
       roles.forEach((role: Role) => {
@@ -657,10 +675,6 @@ export const ServerProvider = (props: ProviderProps) => {
           )
           .filter((role: any) => role)
       }));
-
-      const emojis: Emoji[] = await getData(
-        `/api/v1/servers/${server_id}/emojis`
-      );
 
       const updatedServer = {
         latestAction: ServerActions.INIT,
