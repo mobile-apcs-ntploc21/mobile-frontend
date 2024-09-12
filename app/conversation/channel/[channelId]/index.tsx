@@ -23,7 +23,7 @@ import { TextStyles } from '@/styles/TextStyles';
 import { NativeStackHeaderProps } from '@react-navigation/native-stack';
 import GlobalStyles from '@/styles/GlobalStyles';
 import { TextInput } from 'react-native-gesture-handler';
-import ChatInput from '@/components/Chat/ChatInput';
+import BaseChatInput from '@/components/Chat/BaseChatInput';
 import useServer from '@/hooks/useServer';
 import { Channel } from '@/types/server';
 import IconWithSize from '@/components/IconWithSize';
@@ -35,6 +35,7 @@ import ServerChatItem from '@/components/Chat/ServerChatItem';
 import MyBottomSheetModal from '@/components/modal/MyBottomSheetModal';
 import ButtonListText from '@/components/ButtonList/ButtonListText';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
+import ServerChatInput from '@/components/Chat/ServerChatInput';
 
 const ChannelConversation = () => {
   const navigation = useNavigation();
@@ -171,7 +172,7 @@ const ChannelConversation = () => {
         keyExtractor={(item, index) => index.toString()}
         inverted
       />
-      <ChatInput
+      <ServerChatInput
         value={chatInput}
         onChange={setChatInput}
         onSend={handleSend}

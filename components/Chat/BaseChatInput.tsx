@@ -33,7 +33,7 @@ const IconButton = ({
   );
 };
 
-interface ChatInputProps {
+export interface BaseChatInputProps {
   value?: string;
   onChange?: (text: string) => void;
   onSend?: () => void;
@@ -42,7 +42,7 @@ interface ChatInputProps {
   channels?: string[];
 }
 
-const ChatInput = (props: ChatInputProps) => {
+const BaseChatInput = (props: BaseChatInputProps) => {
   const inputRef = useRef<TextInput>(null);
   const [isIconHidden, setIsIconHidden] = useState(false);
   const [emojiPickerVisible, setEmojiPickerVisible] = useState(false);
@@ -182,7 +182,7 @@ const ChatInput = (props: ChatInputProps) => {
   );
 };
 
-export default ChatInput;
+export default BaseChatInput;
 
 const styles = StyleSheet.create({
   container: {
