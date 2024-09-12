@@ -50,8 +50,7 @@
     "expo-image": "~1.12.15",
     "reanimated-color-picker": "^3.0.4",
     "toggle-switch-react-native": "^3.3.0",
-    "yup": "^1.4.0",
-    "expo-image": "~1.12.15"
+    "expo-crypto": "~13.0.2"
   },
   "devDependencies": {
     "@babel/core": "^7.20.0",
