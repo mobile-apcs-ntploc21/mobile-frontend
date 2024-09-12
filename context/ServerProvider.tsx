@@ -205,6 +205,8 @@ export const ServerProvider = (props: ProviderProps) => {
       payload: any;
     }[] = [];
 
+    const server = servers[server_id];
+
     // Please add the missing cases
     switch (type) {
       case ServerEvents.serverUpdated:
@@ -235,14 +237,14 @@ export const ServerProvider = (props: ProviderProps) => {
 
           dispatchLoad.push({
             type: ServerActions.SET_MEMBERS,
-            payload: [...state.members, profileAndStatus]
+            payload: [...server.members, profileAndStatus]
           });
         })();
         break;
       case ServerEvents.memberLeft:
         dispatchLoad.push({
           type: ServerActions.SET_MEMBERS,
-          payload: state.members.filter(
+          payload: server.members.filter(
             (member) => member.user_id !== data.user_id
           )
         });
@@ -259,26 +261,26 @@ export const ServerProvider = (props: ProviderProps) => {
           );
           dispatchLoad.push({
             type: ServerActions.SET_MEMBERS,
-            payload: [...state.members, ...profileAndStatus]
+            payload: [...server.members, ...profileAndStatus]
           });
         })();
         break;
       case ServerEvents.memberRemoved:
         dispatchLoad.push({
           type: ServerActions.SET_MEMBERS,
-          payload: state.members.filter(
+          payload: server.members.filter(
             (member) => !data.includes(member.user_id)
           )
         });
         break;
       case ServerEvents.userRoleAdded:
         {
-          const members = [...state.members];
+          const members = [...server.members];
           members.forEach(
             (member) =>
               member.user_id === data.user_id &&
               member.roles.push(
-                state.customRoles.find((role) => role.id === data.role_id)!
+                server.customRoles.find((role) => role.id === data.role_id)!
               )
           );
           // Set the members with the updated roles
@@ -289,7 +291,7 @@ export const ServerProvider = (props: ProviderProps) => {
           // Increment the role count
           dispatchLoad.push({
             type: ServerActions.SET_ROLES,
-            payload: servers[server_id].roles.map((role) =>
+            payload: server.roles.map((role) =>
               role.id === data.role_id
                 ? { ...role, number_of_users: role.number_of_users + 1 }
                 : role
@@ -299,7 +301,7 @@ export const ServerProvider = (props: ProviderProps) => {
         break;
       case ServerEvents.userRoleDeleted:
         {
-          const members = [...state.members];
+          const members = [...server.members];
           members.forEach(
             (member) =>
               member.user_id === data.user_id &&
@@ -313,7 +315,7 @@ export const ServerProvider = (props: ProviderProps) => {
           // Decrement the role count
           dispatchLoad.push({
             type: ServerActions.SET_ROLES,
-            payload: servers[server_id].roles.map((role) =>
+            payload: server.roles.map((role) =>
               role.id === data.role_id
                 ? { ...role, number_of_users: role.number_of_users - 1 }
                 : role
@@ -325,7 +327,7 @@ export const ServerProvider = (props: ProviderProps) => {
         dispatchLoad.push({
           type: ServerActions.SET_EMOJI,
           payload: [
-            ...servers[server_id].emojis,
+            ...server.emojis,
             {
               id: data._id,
               ...data
@@ -336,7 +338,7 @@ export const ServerProvider = (props: ProviderProps) => {
       case ServerEvents.emojiUpdated:
         dispatchLoad.push({
           type: ServerActions.SET_EMOJI,
-          payload: servers[server_id].emojis.map((emoji) =>
+          payload: server.emojis.map((emoji) =>
             emoji.id === data._id ? { ...emoji, ...data } : emoji
           )
         });
@@ -345,16 +347,14 @@ export const ServerProvider = (props: ProviderProps) => {
       case ServerEvents.emojiDeleted:
         dispatchLoad.push({
           type: ServerActions.SET_EMOJI,
-          payload: servers[server_id].emojis.filter(
-            (emoji) => emoji.id !== data._id
-          )
+          payload: server.emojis.filter((emoji) => emoji.id !== data._id)
         });
         break;
       case ServerEvents.roleAdded:
         dispatchLoad.push({
           type: ServerActions.SET_ROLES,
           payload: [
-            ...servers[server_id].roles,
+            ...server.roles,
             {
               id: data._id,
               number_of_users: 0,
@@ -366,7 +366,7 @@ export const ServerProvider = (props: ProviderProps) => {
       case ServerEvents.roleUpdated:
         dispatchLoad.push({
           type: ServerActions.SET_ROLES,
-          payload: servers[server_id].roles.map((role) =>
+          payload: server.roles.map((role) =>
             role.id === data._id ? { ...role, ...data } : role
           )
         });
@@ -374,13 +374,11 @@ export const ServerProvider = (props: ProviderProps) => {
       case ServerEvents.roleDeleted:
         dispatchLoad.push({
           type: ServerActions.SET_ROLES,
-          payload: servers[server_id].roles.filter(
-            (role) => role.id !== data._id
-          )
+          payload: server.roles.filter((role) => role.id !== data._id)
         });
 
         // Remove the role from the members
-        const members = [...servers[server_id].members];
+        const members = [...server.members];
         members.forEach((member) => {
           member.roles = member.roles.filter((role) => role.id !== data._id);
         });
@@ -392,11 +390,17 @@ export const ServerProvider = (props: ProviderProps) => {
       case ServerEvents.channelAdded:
         dispatchLoad.push({
           type: ServerActions.SET_CATEGORIES,
-          payload: servers[server_id].categories.map((category) =>
+          payload: server.categories.map((category) =>
             category.id === data.category_id
               ? {
                   ...category,
-                  channels: [...category.channels, data]
+                  channels: [
+                    ...category.channels,
+                    {
+                      id: data._id,
+                      ...data
+                    }
+                  ]
                 }
               : category
           )
@@ -404,34 +408,39 @@ export const ServerProvider = (props: ProviderProps) => {
         break;
       case ServerEvents.channelUpdated:
         {
-          let categories = [...servers[server_id].categories];
+          let newCategories = [...server.categories];
           const channel = data;
 
           if (Array.isArray(channel)) {
             channel.forEach((c) => {
-              categories.forEach((category) => {
+              newCategories.forEach((category) => {
                 category.channels = category.channels.map((ch) =>
                   ch.id === c._id ? c : ch
                 );
               });
             });
           } else {
-            categories.forEach((category) => {
+            newCategories.forEach((category) => {
               category.channels = category.channels.map((c) =>
-                c.id === channel._id ? channel : c
+                c.id === channel._id
+                  ? {
+                      ...c,
+                      ...channel
+                    }
+                  : c
               );
             });
           }
 
           dispatchLoad.push({
             type: ServerActions.SET_CATEGORIES,
-            payload: categories
+            payload: newCategories
           });
         }
         break;
       case ServerEvents.channelDeleted:
         {
-          const categories = [...servers[server_id].categories];
+          const categories = [...server.categories];
           const channel_id = data.channel_id;
           categories.forEach((category) => {
             category.channels = category.channels.filter(
@@ -448,8 +457,9 @@ export const ServerProvider = (props: ProviderProps) => {
         dispatchLoad.push({
           type: ServerActions.SET_CATEGORIES,
           payload: [
-            ...servers[server_id].categories,
+            ...server.categories,
             {
+              id: data._id,
               ...data,
               channels: []
             }
@@ -458,19 +468,24 @@ export const ServerProvider = (props: ProviderProps) => {
         break;
       case ServerEvents.categoryUpdated:
         {
-          let categories = [...servers[server_id].categories];
+          let categories = [...server.categories];
           const category = data;
           dispatchLoad.push({
             type: ServerActions.SET_CATEGORIES,
             payload: categories.map((c) =>
-              c.id === category.id ? category : c
+              c.id === category.id
+                ? {
+                    ...c,
+                    ...category
+                  }
+                : c
             )
           });
         }
         break;
       case ServerEvents.categoryDeleted:
         {
-          const categories = [...servers[server_id].categories];
+          const categories = [...server.categories];
           const category_id = data.category_id;
           const channels = categories.find(
             (c) => c.id === category_id
