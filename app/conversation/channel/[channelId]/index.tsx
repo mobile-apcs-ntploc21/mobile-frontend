@@ -156,7 +156,18 @@ const ChannelConversation = () => {
     return content;
   };
 
-  const convertInputToContent = (input: string) => {};
+  const convertInputToContent = (input: string) => {
+    members.forEach((member) => {
+      input = input.replace(`@${member.username}`, `<@${member.user_id}>`);
+    });
+    roles.forEach((role) => {
+      input = input.replace(`@${role.name}`, `<@&${role.id}>`);
+    });
+    channels.forEach((channel) => {
+      input = input.replace(`#${channel.name}`, `<#${channel.id}>`);
+    });
+    return input;
+  };
 
   const [actionMode, setActionMode] = useState<
     | {
@@ -180,6 +191,20 @@ const ChannelConversation = () => {
     setChatInput(convertContentToInput(modalMessage?.content || ''));
     setActionMode({ type: 'edit' });
     handleCloseBottomSheet();
+  };
+
+  const handleSend = () => {
+    const content = convertInputToContent(chatInput);
+    if (actionMode?.type === 'edit') {
+      console.log('Edit', content);
+      setChatInput('');
+      setActionMode(null);
+      return;
+    }
+    console.log('Replying to', actionMode?.replyTo || 'no one');
+    console.log('Send', content);
+    setChatInput('');
+    setActionMode(null);
   };
 
   const handleReply = () => {
@@ -235,6 +260,7 @@ const ChannelConversation = () => {
         onChange={setChatInput}
         mode={actionMode}
         onCancelMode={handleCancelMode}
+        onSend={handleSend}
       />
     </View>
   );
