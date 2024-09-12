@@ -2,7 +2,7 @@ import { StyleSheet, Text, TextInput, View } from 'react-native';
 import React from 'react';
 import { colors, fonts } from '@/constants/theme';
 
-interface CustomTextInputProps {
+interface CustomTextInputProps extends React.ComponentProps<typeof TextInput> {
   title?: string;
   placeholder?: string;
   value?: string;
@@ -24,7 +24,8 @@ const CustomTextInput = ({
   onChangeText,
   secureTextEntry = false,
   errorMessage,
-  keyboardType = 'default'
+  keyboardType = 'default',
+  ...props
 }: CustomTextInputProps) => {
   return (
     <View style={styles.container}>
@@ -46,6 +47,7 @@ const CustomTextInput = ({
           onChangeText={onChangeText}
           secureTextEntry={secureTextEntry}
           keyboardType={keyboardType}
+          {...props}
         />
       </View>
       {errorMessage && <Text style={styles.errorMessage}>{errorMessage}</Text>}

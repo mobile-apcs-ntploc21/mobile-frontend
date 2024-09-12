@@ -1,12 +1,19 @@
 export interface Channel {
   id: string;
   name: string;
+  description: string;
+  position: number;
+  conversation_id: string;
+
+  is_archived: boolean;
+  is_nsfw: boolean;
 }
 
 export interface Category {
-  id: string;
+  id: string | null;
   name: string;
   channels: Channel[];
+  position: number;
 }
 
 export interface Role {

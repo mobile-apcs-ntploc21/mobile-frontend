@@ -110,7 +110,6 @@ export default function Login() {
                         ? errors.password
                         : undefined
                     }
-                    keyboardType="visible-password"
                   />
                   <Link
                     href="/"

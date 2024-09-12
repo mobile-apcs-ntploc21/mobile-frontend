@@ -9,8 +9,12 @@ import {
   ReactNode,
   useCallback,
   useEffect,
-  useReducer
+  useReducer,
+  useRef,
+  useState
 } from 'react';
+import { useConversations } from './ConversationsProvider';
+import { Conversation, ConversationsTypes, Message } from '@/types/chat';
 
 export enum ServerActions {
   INIT = 'INIT',
@@ -19,7 +23,10 @@ export enum ServerActions {
   SET_ROLES = 'SET_ROLES',
   SET_EMOJI = 'SET_EMOJI',
   UPDATE_STATUS = 'UPDATE_STATUS',
-  UPDATE_PROFILE = 'UPDATE_PROFILE'
+  UPDATE_PROFILE = 'UPDATE_PROFILE',
+  CREATE_CHANNEL = 'CREATE_CHANNEL',
+  UPDATE_CHANNEL = 'UPDATE_CHANNEL',
+  CREATE_CATEGORY = 'CREATE_CATEGORY'
 }
 
 type ServerState = {
@@ -121,6 +128,35 @@ const handlers: Record<
         member.user_id === profile.user_id ? { ...member, ...profile } : member
       )
     };
+  },
+  [ServerActions.CREATE_CHANNEL]: (state, { payload }) => {
+    const newState = { ...state };
+
+    if (newState.categories[0].id === null) {
+      newState.categories[0].channels.push(payload);
+    } else {
+      console.log('What happen here?');
+      throw new Error('Something is wrong and we cannot find it.');
+    }
+
+    return {
+      ...newState,
+      latestAction: ServerActions.CREATE_CHANNEL
+    };
+  },
+  [ServerActions.CREATE_CATEGORY]: (state, { payload }) => {
+    return {
+      ...state,
+      latestAction: ServerActions.CREATE_CATEGORY,
+      categories: [...state.categories, payload]
+    };
+  },
+  [ServerActions.UPDATE_CHANNEL]: (state, { payload }) => {
+    return {
+      ...state,
+      latestAction: ServerActions.UPDATE_CHANNEL,
+      categories: payload
+    };
   }
 };
 
@@ -139,7 +175,11 @@ export const ServerContext = createContext<IContext>({
 });
 
 export const ServerProvider = (props: ProviderProps) => {
+  const activeServerIdRef = useRef<String | null>(null);
+  const [servers, setServers] = useState<Record<string, ServerState>>({});
   const [state, dispatch] = useReducer(reducer, initialState);
+  const { dispatch: conversationDispatch } = useConversations();
+  const fetchedServerIds = Object.keys(servers);
   const { data: subscriptionData } = useSubscription(SERVER_SUBSCRIPTION, {
     variables: { server_id: state.server_id },
     skip: !state.server_id
@@ -170,6 +210,7 @@ export const ServerProvider = (props: ProviderProps) => {
   useEffect(() => {
     if (!subscriptionData) return;
     const { serverUpdated } = subscriptionData;
+    console.log(serverUpdated);
     switch (serverUpdated.type) {
       case ServerEvents.userStatusChanged:
         dispatch({
@@ -360,20 +401,89 @@ export const ServerProvider = (props: ProviderProps) => {
     }
   }, [subscriptionData, dispatch]);
 
-  const setServer = async (id: string) => {
-    try {
-      // fetch server with id provided
-      const categories: Category[] = Array.from({ length: 5 }, (_, i) => ({
-        id: i.toString(),
-        name: i ? `Category ${i}` : `Uncategorized`,
-        channels: Array.from({ length: 5 }, (_, j) => ({
-          id: j.toString(),
-          name: `Channel ${j}`
-        }))
-      }));
+  // Fetch server data
+  const fetchServerData = async (server_id: string) => {
+    if (servers[server_id]) return servers[server_id];
 
-      const roles: Role[] = (await getData(`/api/v1/servers/${id}/roles`))
-        .roles;
+    try {
+      const channelsFetch = (
+        await getData(`/api/v1/servers/${server_id}/channels`)
+      )?.channels;
+      const categoriesFetch = (
+        await getData(`/api/v1/servers/${server_id}/categories`)
+      )?.categories;
+      const membersFetch = await getData(
+        `/api/v1/servers/${server_id}/members`
+      );
+      // const rolesFetch = await getData(`/api/v1/servers/${server_id}/roles`);
+
+      const categories: Category[] = categoriesFetch.map(
+        (category: any, index: number) => {
+          return {
+            id: category.id,
+            name: category.name,
+            channels: channelsFetch.filter(
+              (channel: any) => channel.category_id === category.id
+            ),
+            position: index + 1
+          };
+        }
+      );
+
+      // Add a separate category for uncategorized channels
+      categories.unshift({
+        id: null,
+        name: 'Uncategorized',
+        channels: channelsFetch.filter((channel: any) => !channel.category_id),
+        position: 0
+      });
+
+      // Initialize conversations
+      conversationDispatch({
+        type: ConversationsTypes.AddConversations,
+        payload: {
+          conversations: channelsFetch.map(
+            (channel: any) =>
+              ({
+                id: channel.conversation_id,
+                type: 'channel',
+                number_of_unread_mentions: channel.number_of_unread_mentions,
+                has_new_message: channel.has_new_message,
+                messages: []
+              } as Conversation)
+          )
+        }
+      });
+
+      channelsFetch.forEach((channel: any) => {
+        conversationDispatch({
+          type: ConversationsTypes.AddConversationMessage,
+          payload: {
+            conversationId: channel.conversation_id,
+            // Mock message for server `nhanbin sv`
+            message: {
+              id: '1',
+              sender_id: '6690983e2a505b6209cc1c21',
+              author: {
+                user_id: '6690983e2a505b6209cc1c21',
+                username: 'nhanbin',
+                display_name: 'Bin',
+                avatar_url: 'https://i.pravatar.cc/300'
+              },
+              content:
+                'Hi, I am <@6690983e2a505b6209cc1c21>, I have role <@&66d194165078560ffa0ad056> and I am in my favorite channel <#66e02c81aef35e1bf5f8844e> and I am using emoji <:echphat:66dd25ab4b008670bee60422>',
+              replied_message: null,
+              is_modified: false,
+              createdAt: new Date().toISOString(),
+              reactions: []
+            } as Message
+          }
+        });
+      });
+
+      const roles: Role[] = (
+        await getData(`/api/v1/servers/${server_id}/roles`)
+      ).roles;
       let defaultRole: Role | null = null;
       const customRoles: Role[] = [];
       roles.forEach((role: Role) => {
@@ -384,38 +494,70 @@ export const ServerProvider = (props: ProviderProps) => {
         }
       });
 
-      const members = (await getData(`/api/v1/servers/${id}/members`)).map(
-        (member: any) => ({
-          ...member,
-          roles: member.roleIds
-            .map((roleId: string) =>
-              customRoles.find((role: Role) => role.id === roleId)
-            )
-            .filter((role: any) => role)
-        })
+      const members: ServerProfile[] = membersFetch.map((member: any) => ({
+        ...member,
+        roles: member.roleIds
+          .map((roleId: string) =>
+            customRoles.find((role: Role) => role.id === roleId)
+          )
+          .filter((role: any) => role)
+      }));
+
+      const emojis: Emoji[] = await getData(
+        `/api/v1/servers/${server_id}/emojis`
       );
 
-      const emojis: Emoji[] = await getData(`/api/v1/servers/${id}/emojis`);
+      const updatedServer = {
+        latestAction: ServerActions.INIT,
+        server_id: server_id,
+        categories: categories,
+        members: members,
+        roles: roles,
+        defaultRole: defaultRole,
+        customRoles: customRoles,
+        emojis: emojis
+      };
 
-      dispatch({
-        type: ServerActions.INIT,
-        payload: {
-          server_id: id,
-          categories,
-          members,
-          defaultRole,
-          customRoles,
-          roles,
-          emojis
+      setServers((prevServers) => ({
+        ...prevServers,
+        [server_id]: updatedServer
+      }));
+
+      return updatedServer;
+    } catch (err: any) {
+      throw new Error(err.message);
+    }
+  };
+
+  const setServer = async (server_id: string) => {
+    // Dispatch an action to reset the state
+    dispatch({
+      type: ServerActions.INIT,
+      payload: initialState
+    });
+
+    try {
+      // Fetch server data and update the state
+      const currentServer = await fetchServerData(server_id);
+
+      if (String(activeServerIdRef.current).match(server_id)) {
+        if (server_id !== state.server_id) {
+          dispatch({
+            type: ServerActions.INIT,
+            payload: currentServer
+          });
         }
-      });
+      }
     } catch (err: any) {
       throw new Error(err.message);
     }
   };
 
   useEffect(() => {
-    if (props.server_id) setServer(props.server_id);
+    if (props.server_id) {
+      activeServerIdRef.current = props.server_id;
+      setServer(props.server_id);
+    }
   }, [props.server_id]);
 
   return (
