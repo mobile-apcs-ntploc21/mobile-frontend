@@ -105,7 +105,11 @@ export const ServersProvider = ({ children }: ServersProviderProps) => {
         dispatch
       }}
     >
-      <ServerProvider server_id={state.currentServerId}>
+      <ServerProvider
+        server_id={state.currentServerId}
+        serversList={state.servers}
+        dispatch={dispatch}
+      >
         {children}
       </ServerProvider>
     </ServersContext.Provider>
