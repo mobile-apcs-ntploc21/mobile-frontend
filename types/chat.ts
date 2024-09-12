@@ -45,10 +45,13 @@ export type Conversation = ChannelConversation | DirectConversation;
 export enum ConversationsTypes {
   SetFocus = 'SET_FOCUS',
   AddConversation = 'ADD_CONVERSATION',
+  SetConversation = 'SET_CONVERSATION',
   AddConversations = 'ADD_CONVERSATIONS',
   RemoveConversation = 'REMOVE_CONVERSATION',
   AddConversationMessage = 'ADD_CONVERSATION_MESSAGE',
   AddConversationMessageHistory = 'ADD_CONVERSATION_MESSAGE_HISTORY',
+  SetConversationMessage = 'SET_CONVERSATION_MESSAGE',
+  SetConversationMessages = 'SET_CONVERSATION_MESSAGES',
   DeleteConversationMessage = 'REMOVE_CONVERSATION_MESSAGE',
   AddMessageReaction = 'ADD_MESSAGE_REACTION',
   RemoveMessageReaction = 'REMOVE_MESSAGE_REACTION',
@@ -67,6 +70,13 @@ export type AddConversationAction = {
   payload: {
     conversation: Conversation;
     focus: boolean;
+  };
+};
+
+export type SetConversationAction = {
+  type: ConversationsTypes.SetConversation;
+  payload: {
+    conversation: Conversation;
   };
 };
 
@@ -94,6 +104,22 @@ export type AddConversationMessageAction = {
 
 export type AddConversationMessageHistoryAction = {
   type: ConversationsTypes.AddConversationMessageHistory;
+  payload: {
+    conversationId: string;
+    messages: Message[];
+  };
+};
+
+export type SetConversationMessageAction = {
+  type: ConversationsTypes.SetConversationMessage;
+  payload: {
+    conversationId: string;
+    message: Message;
+  };
+};
+
+export type SetConversationMessagesAction = {
+  type: ConversationsTypes.SetConversationMessages;
   payload: {
     conversationId: string;
     messages: Message[];
@@ -138,10 +164,13 @@ export type EditConversationMessageAction = {
 export type ConversationsAction =
   | SetFocusAction
   | AddConversationAction
+  | SetConversationAction
   | AddConversationsAction
   | RemoveConversationAction
   | AddConversationMessageAction
   | AddConversationMessageHistoryAction
+  | SetConversationMessageAction
+  | SetConversationMessagesAction
   | RemoveConversationMessageAction
   | AddMessageReactionAction
   | RemoveMessageReactionAction

@@ -1,4 +1,5 @@
 import {
+  ActivityIndicator,
   FlatList,
   Keyboard,
   KeyboardAvoidingView,
@@ -36,9 +37,12 @@ import MyBottomSheetModal from '@/components/modal/MyBottomSheetModal';
 import ButtonListText from '@/components/ButtonList/ButtonListText';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
 import ServerChatInput from '@/components/Chat/ServerChatInput';
+import { getData, postData } from '@/utils/api';
+import useServers from '@/hooks/useServers';
 
 const ChannelConversation = () => {
   const navigation = useNavigation();
+  const { currentServerId } = useServers();
   const { categories, roles, members } = useServer();
   const channels = useMemo(() => {
     return categories.map((category) => category.channels).flat();
@@ -82,33 +86,46 @@ const ChannelConversation = () => {
     });
   });
 
-  // Mock get history
-  useEffect(() => {
+  const [loading, setLoading] = useState(false);
+
+  const fetchMessages = async () => {
     if (!conversation) return;
-    if (conversation.messages.length > 10) return;
+    if (conversation.messages.length === 0) return;
+    setLoading(true);
+    const response = await getData(
+      `/api/v1/servers/${currentServerId}/channels/${channelId}/messages`,
+      {},
+      {
+        before: conversation.messages.at(-1)?.id,
+        limit: 10
+      }
+    );
     conversationDispatch({
       type: ConversationsTypes.AddConversationMessageHistory,
       payload: {
         conversationId: conversation.id,
-        messages: Array.from({ length: 10 }).map((_, i) => {
-          return {
-            id: (i + 1).toString(),
-            content: `Message ${i}`,
-            sender_id: '1',
-            author: {
-              user_id: '1',
-              username: 'JohnDoe',
-              display_name: 'John Doe',
-              avatar_url: 'https://i.pravatar.cc/150?img=1'
-            },
-            replied_message: null,
-            is_modified: true,
-            createdAt: new Date().toISOString(),
-            reactions: []
-          };
-        })
+        messages: response.messages
       }
     });
+    setLoading(false);
+  };
+
+  useEffect(() => {
+    conversationDispatch({
+      type: ConversationsTypes.SetFocus,
+      payload: {
+        conversationId: channel?.conversation_id || ''
+      }
+    });
+    if (conversation && conversation.messages.length < 10) fetchMessages();
+    return () => {
+      conversationDispatch({
+        type: ConversationsTypes.SetFocus,
+        payload: {
+          conversationId: ''
+        }
+      });
+    };
   }, []);
 
   const [chatInput, setChatInput] = useState('');
@@ -202,18 +219,24 @@ const ChannelConversation = () => {
     handleCloseBottomSheet();
   };
 
-  const handleSend = () => {
+  const handleSend = async () => {
     const content = convertInputToContent(chatInput);
     if (actionMode?.type === 'edit') {
-      console.log('Edit', content);
       setChatInput('');
       setActionMode(null);
+      console.log('Edit', content);
       return;
     }
-    console.log('Replying to', actionMode?.replyTo || 'no one');
-    console.log('Send', content);
     setChatInput('');
     setActionMode(null);
+    const response = await postData(
+      `/api/v1/servers/${currentServerId}/channels/${channelId}/messages`,
+      {
+        content,
+        replied_message_id:
+          actionMode?.type === 'reply' ? modalMessage?.id : undefined
+      }
+    );
   };
 
   return (
@@ -255,6 +278,8 @@ const ChannelConversation = () => {
         )}
         keyExtractor={(item, index) => index.toString()}
         inverted
+        ListFooterComponent={loading ? <ActivityIndicator /> : null}
+        onEndReached={fetchMessages}
       />
       <ServerChatInput
         value={chatInput}

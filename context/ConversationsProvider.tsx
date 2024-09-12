@@ -28,6 +28,15 @@ const reducer = (
         conversations: [...state.conversations, payload.conversation],
         focusId: payload.focus ? payload.conversation.id : state.focusId
       };
+    case ConversationsTypes.SetConversation:
+      return {
+        ...state,
+        conversations: state.conversations.map((conversation) =>
+          conversation.id === payload.conversation.id
+            ? payload.conversation
+            : conversation
+        )
+      };
     case ConversationsTypes.AddConversations:
       return {
         ...state,
@@ -61,6 +70,32 @@ const reducer = (
             ? {
                 ...conversation,
                 messages: [...conversation.messages, ...payload.messages]
+              }
+            : conversation
+        )
+      };
+    case ConversationsTypes.SetConversationMessage:
+      return {
+        ...state,
+        conversations: state.conversations.map((conversation) =>
+          conversation.id === payload.conversationId
+            ? {
+                ...conversation,
+                messages: conversation.messages.map((message) =>
+                  message.id === payload.message.id ? payload.message : message
+                )
+              }
+            : conversation
+        )
+      };
+    case ConversationsTypes.SetConversationMessages:
+      return {
+        ...state,
+        conversations: state.conversations.map((conversation) =>
+          conversation.id === payload.conversationId
+            ? {
+                ...conversation,
+                messages: payload.messages
               }
             : conversation
         )

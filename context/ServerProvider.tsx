@@ -176,7 +176,11 @@ export const ServerProvider = (props: ProviderProps) => {
   const activeServerIdRef = useRef<String | null>(null);
   const [servers, setServers] = useState<Record<string, ServerState>>({});
   const [state, dispatch] = useReducer(reducer, initialState);
-  const { dispatch: conversationDispatch } = useConversations();
+  const {
+    dispatch: conversationDispatch,
+    focusId,
+    conversations
+  } = useConversations();
   const fetchedServerIds = Object.keys(servers);
   const { data: subscriptionData } = useSubscription(SERVER_SUBSCRIPTION, {
     variables: { server_id: state.server_id },
@@ -208,7 +212,6 @@ export const ServerProvider = (props: ProviderProps) => {
   useEffect(() => {
     if (!subscriptionData) return;
     const { serverUpdated } = subscriptionData;
-    console.log(serverUpdated);
     switch (serverUpdated.type) {
       case ServerEvents.userStatusChanged:
         dispatch({
@@ -330,6 +333,32 @@ export const ServerProvider = (props: ProviderProps) => {
           )
         });
         break;
+      case ServerEvents.messageAdded:
+        conversationDispatch({
+          type: ConversationsTypes.AddConversationMessage,
+          payload: {
+            conversationId: serverUpdated.data.conversation_id,
+            message: serverUpdated.data.message
+          }
+        });
+        if (serverUpdated.data.conversation_id !== focusId) {
+          const conversation = conversations.find(
+            (conversation) =>
+              conversation.id === serverUpdated.data.conversation_id
+          );
+          if (!conversation) break;
+          conversationDispatch({
+            type: ConversationsTypes.SetConversation,
+            payload: {
+              conversation: {
+                ...conversation,
+                type: 'channel',
+                has_new_message: true
+              }
+            }
+          });
+        }
+        break;
       default:
         console.warn('Unknown event type:', serverUpdated.type);
         console.log(serverUpdated);
@@ -391,29 +420,14 @@ export const ServerProvider = (props: ProviderProps) => {
       });
 
       channelsFetch.forEach((channel: any) => {
-        conversationDispatch({
-          type: ConversationsTypes.AddConversationMessage,
-          payload: {
-            conversationId: channel.conversation_id,
-            // Mock message for server `nhanbin sv`
-            message: {
-              id: '1',
-              sender_id: '6690983e2a505b6209cc1c21',
-              author: {
-                user_id: '6690983e2a505b6209cc1c21',
-                username: 'nhanbin',
-                display_name: 'Bin',
-                avatar_url: 'https://i.pravatar.cc/300'
-              },
-              content:
-                'Hi, I am <@6690983e2a505b6209cc1c21>, I have role <@&66d194165078560ffa0ad056> and I am in my favorite channel <#66e02c81aef35e1bf5f8844e> and I am using emoji <:echphat:66dd25ab4b008670bee60422>',
-              replied_message: null,
-              is_modified: false,
-              createdAt: new Date().toISOString(),
-              reactions: []
-            } as Message
-          }
-        });
+        if (channel.last_message)
+          conversationDispatch({
+            type: ConversationsTypes.AddConversationMessage,
+            payload: {
+              conversationId: channel.conversation_id,
+              message: channel.last_message
+            }
+          });
       });
 
       const roles: Role[] = (
