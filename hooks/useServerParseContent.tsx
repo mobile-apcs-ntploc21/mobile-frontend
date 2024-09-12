@@ -1,4 +1,4 @@
-import { useCallback, useMemo } from 'react';
+import React, { useCallback, useMemo } from 'react';
 import useServer from './useServer';
 import { Image, StyleSheet, Text } from 'react-native';
 import { colors, fonts } from '@/constants/theme';
@@ -25,40 +25,46 @@ const useServerParseContent = () => {
 
       const parts = content.split(regex);
 
-      return parts.map((part) => {
-        let match;
-        if ((match = /<@!?([a-f0-9]{24})>/g.exec(part))) {
-          const userId = match[1];
-          const member = members.find((member) => member.user_id === userId);
-          return (
-            <Text style={styles.highlightText}>@{member?.display_name}</Text>
-          );
-        }
-        if ((match = /<@&([a-f0-9]{24})>/g.exec(part))) {
-          const roleId = match[1];
-          const role = roles.find((role) => role.id === roleId);
-          if (role?.default) {
-            return <Text style={styles.highlightText}>@everyone</Text>;
+      return parts
+        .map((part) => {
+          let match;
+          if ((match = /<@!?([a-f0-9]{24})>/g.exec(part))) {
+            const userId = match[1];
+            const member = members.find((member) => member.user_id === userId);
+            return (
+              <Text style={styles.highlightText}>@{member?.display_name}</Text>
+            );
           }
-          return <Text style={styles.highlightText}>@{role?.name}</Text>;
-        }
-        if ((match = /<#([a-f0-9]{24})>/g.exec(part))) {
-          const channelId = match[1];
-          const channel = channels.find((channel) => channel.id === channelId);
-          return <Text style={styles.highlightText}>#{channel?.name}</Text>;
-        }
-        if ((match = /<:(?:.*?):([a-f0-9]{24})>/g.exec(part))) {
-          const emojiId = match[1];
-          const emoji = emojis.find((emoji) => emoji.id === emojiId);
-          return (
-            <Image
-              source={{ uri: emoji?.image_url }}
-              style={{ width: 20, height: 20 }}
-            />
-          );
-        }
-        return <Text>{part}</Text>;
-      });
+          if ((match = /<@&([a-f0-9]{24})>/g.exec(part))) {
+            const roleId = match[1];
+            const role = roles.find((role) => role.id === roleId);
+            if (role?.default) {
+              return <Text style={styles.highlightText}>@everyone</Text>;
+            }
+            return <Text style={styles.highlightText}>@{role?.name}</Text>;
+          }
+          if ((match = /<#([a-f0-9]{24})>/g.exec(part))) {
+            const channelId = match[1];
+            const channel = channels.find(
+              (channel) => channel.id === channelId
+            );
+            return <Text style={styles.highlightText}>#{channel?.name}</Text>;
+          }
+          if ((match = /<:(?:.*?):([a-f0-9]{24})>/g.exec(part))) {
+            const emojiId = match[1];
+            const emoji = emojis.find((emoji) => emoji.id === emojiId);
+            return (
+              <Image
+                source={{ uri: emoji?.image_url }}
+                style={{ width: 20, height: 20 }}
+              />
+            );
+          }
+          return <Text>{part}</Text>;
+        })
+        .map((part, index) => (
+          <React.Fragment key={index}>{part}</React.Fragment>
+        ));
     },
     [emojis, members, roles, channels]
   );
