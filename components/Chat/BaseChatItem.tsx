@@ -5,6 +5,7 @@ import MyText from '../MyText';
 import { colors } from '@/constants/theme';
 import { TextStyles } from '@/styles/TextStyles';
 import { TouchableOpacity } from 'react-native-gesture-handler';
+import { DefaultProfileImage } from '@/constants/images';
 
 export interface ChatItemProps {
   message: Message;
@@ -25,7 +26,11 @@ const BaseChatItem = (props: ChatItemProps) => {
     <TouchableOpacity style={styles.container} onLongPress={props.onLongPress}>
       <View style={styles.messageContainer}>
         <Image
-          source={{ uri: props.message.author.avatar_url }}
+          source={
+            props.message.author.avatar_url
+              ? { uri: props.message.author.avatar_url }
+              : DefaultProfileImage
+          }
           style={styles.avatarImg}
         />
         <View style={styles.innerContainer}>
