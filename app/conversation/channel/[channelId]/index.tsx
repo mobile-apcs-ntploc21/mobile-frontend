@@ -39,16 +39,16 @@ import ServerChatInput from '@/components/Chat/ServerChatInput';
 
 const ChannelConversation = () => {
   const navigation = useNavigation();
-  const { categories } = useServer();
+  const { categories, roles, members } = useServer();
+  const channels = useMemo(() => {
+    return categories.map((category) => category.channels).flat();
+  }, [categories]);
   const { channelId } = useLocalSearchParams<{
     channelId: string;
   }>();
   const channel: Channel | undefined = useMemo(() => {
-    return categories
-      .map((category) => category.channels)
-      .flat()
-      .find((channel) => channel.id === channelId);
-  }, [categories, channelId]);
+    return channels.find((channel) => channel.id === channelId);
+  }, [channels, channelId]);
   const { conversations, dispatch: conversationDispatch } = useConversations();
   const conversation = useMemo(() => {
     return conversations.find((conv) => conv.id === channel?.conversation_id);
@@ -128,6 +128,36 @@ const ChannelConversation = () => {
     messageBottomSheetRef.current?.dismiss();
   }, [messageBottomSheetRef]);
 
+  const convertContentToInput = (content: string) => {
+    const userPattern = /<@!?([a-f0-9]{24})>/g;
+    const rolePattern = /<@&([a-f0-9]{24})>/g;
+    const channelPattern = /<#([a-f0-9]{24})>/g;
+    const emojiPattern = /<:(.*?):(?:[a-f0-9]{24})>/g;
+
+    content = content.replace(userPattern, (match, userId) => {
+      const member = members.find((member) => member.user_id === userId);
+      return `@${member?.username}`;
+    });
+
+    content = content.replace(rolePattern, (match, roleId) => {
+      const role = roles.find((role) => role.id === roleId);
+      return `@${role?.name}`;
+    });
+
+    content = content.replace(channelPattern, (match, channelId) => {
+      const channel = channels.find((channel) => channel.id === channelId);
+      return `#${channel?.name}`;
+    });
+
+    content = content.replace(emojiPattern, (match, emojiName) => {
+      return `:${emojiName}:`;
+    });
+
+    return content;
+  };
+
+  const convertInputToContent = (input: string) => {};
+
   const [actionMode, setActionMode] = useState<
     | {
         type: 'edit';
@@ -147,7 +177,7 @@ const ChannelConversation = () => {
   };
 
   const handleEdit = () => {
-    setChatInput(modalMessage?.content || '');
+    setChatInput(convertContentToInput(modalMessage?.content || ''));
     setActionMode({ type: 'edit' });
     handleCloseBottomSheet();
   };
