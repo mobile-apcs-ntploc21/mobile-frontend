@@ -1,5 +1,5 @@
 import { SERVERS_SUBSCRIPTION } from '@/services/graphql/subscriptions';
-import { ServerEvents, ServerProfile } from '@/types';
+import { Server, ServerEvents, ServerProfile } from '@/types';
 import { Conversation, ConversationsTypes, Message } from '@/types/chat';
 import { Category, Emoji, Role } from '@/types/server';
 import { getData } from '@/utils/api';
@@ -53,6 +53,8 @@ interface IContext extends ServerState {
 
 interface ProviderProps {
   server_id: string | null;
+  serversList?: Server[];
+  dispatch?: any;
   children: ReactNode;
 }
 
@@ -211,22 +213,38 @@ export const ServerProvider = (props: ProviderProps) => {
     switch (type) {
       case ServerEvents.serverUpdated:
         {
-          // const newServers = [...serverList];
-          // const index = newServers.findIndex(
-          //   (server) => server.id === server_id
-          // );
-          // newServers[index] = {
-          //   ...newServers[index],
-          //   ...data
-          // };
-          // serversDispatch({
-          //   type: ServersActions.SET_SERVERS,
-          //   payload: newServers
-          // });
+          const newServers = [...props.serversList!];
+          const index = newServers.findIndex(
+            (server) => server.id === server_id
+          );
+          newServers[index] = {
+            ...newServers[index],
+            ...data
+          };
+          if (props.dispatch) {
+            props.dispatch({
+              type: 'SET_SERVERS',
+              payload: newServers
+            });
+          }
         }
         break;
       case ServerEvents.serverDeleted:
         {
+          // Remove the server from the list
+          const newServers = props.serversList?.filter(
+            (server) => server.id !== server_id
+          );
+          if (props.dispatch) {
+            props.dispatch({
+              type: 'SET_SERVERS',
+              payload: newServers
+            });
+          }
+
+          // Remove the server from the state
+          const { [server_id]: _, ...newState } = servers;
+          setServers(newState);
         }
         break;
       case ServerEvents.userStatusChanged:
