@@ -36,7 +36,9 @@ const ServerChatItem = (props: ServerChatItemProps) => {
       if ((match = /<@!?([a-f0-9]{24})>/g.exec(part))) {
         const userId = match[1];
         const member = members.find((member) => member.user_id === userId);
-        return <Text style={styles.highlightText}>@{member?.username}</Text>;
+        return (
+          <Text style={styles.highlightText}>@{member?.display_name}</Text>
+        );
       }
       if ((match = /<@&([a-f0-9]{24})>/g.exec(part))) {
         const roleId = match[1];
