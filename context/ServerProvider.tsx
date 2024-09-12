@@ -101,7 +101,9 @@ const handlers: Record<
     return {
       ...state,
       latestAction: ServerActions.SET_ROLES,
-      roles: payload
+      roles: payload,
+      customRoles: payload.filter((role: Role) => !role.default),
+      defaultRole: payload.find((role: Role) => role.default) || null
     };
   },
   [ServerActions.UPDATE_STATUS]: (state, { payload }) => {
@@ -283,6 +285,17 @@ export const ServerProvider = (props: ProviderProps) => {
             type: ServerActions.SET_MEMBERS,
             payload: members
           });
+          dispatch({
+            type: ServerActions.SET_ROLES,
+            payload: state.roles.map((role) =>
+              role.id === serverUpdated.data.role_id
+                ? {
+                    ...role,
+                    number_of_users: role.number_of_users + 1
+                  }
+                : role
+            )
+          });
         }
         break;
       case ServerEvents.userRoleDeleted:
@@ -297,6 +310,17 @@ export const ServerProvider = (props: ProviderProps) => {
           dispatch({
             type: ServerActions.SET_MEMBERS,
             payload: members
+          });
+          dispatch({
+            type: ServerActions.SET_ROLES,
+            payload: state.roles.map((role) =>
+              role.id === serverUpdated.data.role_id
+                ? {
+                    ...role,
+                    number_of_users: role.number_of_users - 1
+                  }
+                : role
+            )
           });
         }
         break;
@@ -327,6 +351,47 @@ export const ServerProvider = (props: ProviderProps) => {
           type: ServerActions.SET_EMOJI,
           payload: state.emojis.filter(
             (emoji) => emoji.id !== serverUpdated.data._id
+          )
+        });
+        break;
+      case ServerEvents.roleAdded:
+        dispatch({
+          type: ServerActions.SET_ROLES,
+          payload: [
+            ...state.roles,
+            {
+              id: serverUpdated.data._id,
+              number_of_users: 0,
+              ...serverUpdated.data
+            }
+          ]
+        });
+        break;
+      case ServerEvents.roleDeleted:
+        dispatch({
+          type: ServerActions.SET_ROLES,
+          payload: state.roles.filter(
+            (role) => role.id !== serverUpdated.data._id
+          )
+        });
+        const members = [...state.members];
+        members.forEach((member) => {
+          member.roles = member.roles.filter(
+            (role) => role.id !== serverUpdated.data._id
+          );
+        });
+        dispatch({
+          type: ServerActions.SET_MEMBERS,
+          payload: members
+        });
+        break;
+      case ServerEvents.roleUpdated:
+        dispatch({
+          type: ServerActions.SET_ROLES,
+          payload: state.roles.map((role) =>
+            role.id === serverUpdated.data._id
+              ? { ...role, ...serverUpdated.data }
+              : role
           )
         });
         break;

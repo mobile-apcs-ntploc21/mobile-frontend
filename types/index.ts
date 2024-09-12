@@ -72,5 +72,9 @@ export enum ServerEvents {
   memberRemoved = 'MEMBER_REMOVED',
 
   userRoleAdded = 'ADD_USER_TO_ROLE',
-  userRoleDeleted = 'REMOVE_USER_FROM_ROLE'
+  userRoleDeleted = 'REMOVE_USER_FROM_ROLE',
+
+  roleAdded = 'ROLE_ADDED',
+  roleDeleted = 'ROLE_DELETED',
+  roleUpdated = 'ROLE_UPDATED'
 }

@@ -1,7 +1,7 @@
 import { Alert, StyleSheet, Text, View } from 'react-native';
 import React, { useLayoutEffect, useRef } from 'react';
 import { NativeStackHeaderProps } from '@react-navigation/native-stack';
-import { useNavigation } from 'expo-router';
+import { router, useNavigation } from 'expo-router';
 import MyHeader from '@/components/MyHeader';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import { Formik, FormikProps } from 'formik';
@@ -15,6 +15,10 @@ import ColorizeIcon from '@/assets/icons/ColorizeIcon';
 import MyBottomSheetModal from '@/components/modal/MyBottomSheetModal';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
 import MyColorPicker from '@/components/MyColorPicker';
+import useServers from '@/hooks/useServers';
+import { postData } from '@/utils/api';
+import useServer from '@/hooks/useServer';
+import { ServerActions } from '@/context/ServerProvider';
 
 type FormProps = {
   roleTitle: string;
@@ -22,6 +26,8 @@ type FormProps = {
 };
 
 const AddRole = () => {
+  const { currentServerId } = useServers();
+  const { roles, dispatch } = useServer();
   const navigation = useNavigation();
   const formRef = useRef<FormikProps<FormProps>>(null);
 
@@ -78,13 +84,24 @@ const AddRole = () => {
     bottomSheetRef.current?.dismiss();
   };
 
-  const handleSubmit = (
+  const handleSubmit = async (
     values: FormProps,
     setErrors: (field: string, message: string | undefined) => void
   ) => {
-    console.log(values);
     try {
-      // handle create here
+      const response = await postData(
+        `/api/v1/servers/${currentServerId}/roles`,
+        {
+          name: values.roleTitle,
+          color: values.roleColor
+        }
+      );
+      router.replace({
+        pathname: `./${response.id}`,
+        params: {
+          roleTitle: response.name
+        }
+      });
     } catch (e) {
       setErrors('roleTitle', 'Invalid role name');
     }

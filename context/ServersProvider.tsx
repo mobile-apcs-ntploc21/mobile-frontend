@@ -75,6 +75,16 @@ const reducer = (state: ServersState, action: ServerAction) => {
   return handler(state, action);
 };
 
+// const fetchRoles = async (serverId: string) => {
+//   try {
+//     const response = await getData(`/api/v1/servers/${serverId}/roles`);
+//     return response;
+//   } catch (e: any) {
+//     console.error(e.message);
+//     return [];
+//   }
+// };
+
 // Provider
 export const ServersProvider = ({ children }: ServersProviderProps) => {
   const [state, dispatch] = useReducer(reducer, initialState);

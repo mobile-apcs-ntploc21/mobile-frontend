@@ -1,6 +1,9 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 
-interface GlobalContextValue {}
+interface GlobalContextValue {
+  callback: (...args: any[]) => void;
+  setCallback: (callback: (...args: any[]) => void) => void;
+}
 
 const GlobalContext = createContext<GlobalContextValue | undefined>(undefined);
 
@@ -17,13 +20,19 @@ interface GlobalProviderProps {
 }
 
 export default function GlobalProvider({ children }: GlobalProviderProps) {
-  const [state, setState] = useState<GlobalContextValue>({});
-
+  const [callback, setCallback] = useState(() => () => {});
   useEffect(() => {
     // Your code here
   }, []);
 
   return (
-    <GlobalContext.Provider value={state}>{children}</GlobalContext.Provider>
+    <GlobalContext.Provider
+      value={{
+        callback,
+        setCallback
+      }}
+    >
+      {children}
+    </GlobalContext.Provider>
   );
 }

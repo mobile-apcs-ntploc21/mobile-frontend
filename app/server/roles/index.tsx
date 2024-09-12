@@ -1,5 +1,5 @@
 import { Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import React, { useLayoutEffect } from 'react';
+import React, { useEffect, useLayoutEffect, useMemo, useState } from 'react';
 import { router, useNavigation } from 'expo-router';
 import MyHeader from '@/components/MyHeader';
 import MyText from '@/components/MyText';
@@ -13,8 +13,16 @@ import { ScrollView } from 'react-native-gesture-handler';
 import ButtonListBase from '@/components/ButtonList/ButtonListBase';
 import IconWithSize from '@/components/IconWithSize';
 import RoleIcon from '@/assets/icons/RoleIcon';
+import RoleItem from '@/components/userManagment/RoleItem';
+import useServers from '@/hooks/useServers';
+import { frequencyMatch } from '@/utils/search';
+import { getData } from '@/utils/api';
+import useServer from '@/hooks/useServer';
+import { ServerActions } from '@/context/ServerProvider';
 
 const Roles = () => {
+  const { currentServerId } = useServers();
+  const { customRoles: roles, dispatch } = useServer();
   const navigation = useNavigation();
   useLayoutEffect(() => {
     navigation.setOptions({
@@ -31,6 +39,31 @@ const Roles = () => {
       )
     });
   }, []);
+
+  // useEffect(() => {
+  //   (async () => {
+  //     try {
+  //       const response = await getData(
+  //         `/api/v1/servers/${currentServerId}/roles`
+  //       );
+  //       // console.log(response);
+  //       // console.log(responseToRoles(response));
+  //       dispatch({
+  //         type: ServerActions.SET_ROLES,
+  //         payload: responseToRoles(response)
+  //       });
+  //     } catch (e: any) {
+  //       console.error(e.message);
+  //     }
+  //   })();
+  // }, []);
+
+  const [searchText, setSearchText] = useState('');
+
+  const filteredRoles = useMemo(() => {
+    return roles.filter((role) => frequencyMatch(role.name, searchText));
+  }, [roles, searchText]);
+
   return (
     <View style={{ flex: 1, backgroundColor: colors.gray04 }}>
       <View style={styles.headerContainer}>
@@ -38,32 +71,33 @@ const Roles = () => {
           items={[
             {
               text: 'Default Permissions',
-              onPress: () => {}
+              onPress: async () => {
+                const response = await getData(
+                  `/api/v1/servers/${currentServerId}/roles`
+                );
+                const defaultRoleId = response.roles.find(
+                  (role: any) => role.default === true
+                ).id;
+                console.log(defaultRoleId);
+                if (defaultRoleId) {
+                  router.navigate(`./default/permissions`);
+                }
+              }
             }
           ]}
         />
-        <SearchBar />
+        <SearchBar value={searchText} onChangeText={setSearchText} />
       </View>
       <ScrollView contentContainerStyle={styles.scrollView}>
         <ButtonListBase
-          heading={`(10) Roles`}
-          items={Array.from({ length: 10 }, (_, index) => ({
-            itemComponent: (
-              <View style={styles.roleItem}>
-                <View style={styles.roleIcon}>
-                  <View style={styles.iconWrapper}>
-                    <RoleIcon color={colors.primary} />
-                  </View>
-                  <Text style={styles.memberCount}>10</Text>
-                </View>
-                <Text style={styles.roleTitle}>{`Role ${index + 1}`}</Text>
-              </View>
-            ),
+          heading={`(${filteredRoles.length}) Roles`}
+          items={filteredRoles.map((role, index) => ({
+            itemComponent: <RoleItem role={role} />,
             onPress: () =>
               router.navigate({
-                pathname: `./${index}`,
+                pathname: `./${role.id}`,
                 params: {
-                  roleTitle: `Role ${index + 1}`
+                  roleTitle: role.name
                 }
               })
           }))}
@@ -87,31 +121,5 @@ const styles = StyleSheet.create({
   scrollView: {
     paddingHorizontal: 16,
     paddingBottom: 16
-  },
-  roleItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 16
-  },
-  roleIcon: {
-    justifyContent: 'center',
-    alignItems: 'center',
-    width: 40,
-    height: 40
-  },
-  iconWrapper: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0
-  },
-  memberCount: {
-    ...TextStyles.bodyS,
-    color: colors.black
-  },
-  roleTitle: {
-    ...TextStyles.bodyXL,
-    color: colors.black
   }
 });
