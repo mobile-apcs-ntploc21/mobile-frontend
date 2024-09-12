@@ -342,21 +342,7 @@ export const ServerProvider = (props: ProviderProps) => {
           }
         });
         if (serverUpdated.data.conversation_id !== focusId) {
-          const conversation = conversations.find(
-            (conversation) =>
-              conversation.id === serverUpdated.data.conversation_id
-          );
-          if (!conversation) break;
-          conversationDispatch({
-            type: ConversationsTypes.SetConversation,
-            payload: {
-              conversation: {
-                ...conversation,
-                type: 'channel',
-                has_new_message: true
-              }
-            }
-          });
+          // Mark the conversation as having a new message
         }
         break;
       default:
