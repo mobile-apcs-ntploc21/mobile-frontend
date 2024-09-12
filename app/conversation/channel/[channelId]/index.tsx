@@ -112,10 +112,6 @@ const ChannelConversation = () => {
   }, []);
 
   const [chatInput, setChatInput] = useState('');
-  const handleSend = () => {
-    console.log('Send:', chatInput);
-    setChatInput('');
-  };
 
   const messageBottomSheetRef = useRef<BottomSheetModal>(null);
   const [modalMessage, setModalMessage] = useState<Message | null>(null);
@@ -132,6 +128,38 @@ const ChannelConversation = () => {
     messageBottomSheetRef.current?.dismiss();
   }, [messageBottomSheetRef]);
 
+  const [actionMode, setActionMode] = useState<
+    | {
+        type: 'edit';
+      }
+    | {
+        type: 'reply';
+        replyTo: string;
+      }
+    | null
+  >(null);
+
+  const handleCancelMode = () => {
+    if (actionMode?.type === 'edit') {
+      setChatInput('');
+    }
+    setActionMode(null);
+  };
+
+  const handleEdit = () => {
+    setChatInput(modalMessage?.content || '');
+    setActionMode({ type: 'edit' });
+    handleCloseBottomSheet();
+  };
+
+  const handleReply = () => {
+    setActionMode({
+      type: 'reply',
+      replyTo: modalMessage?.author.display_name || ''
+    });
+    handleCloseBottomSheet();
+  };
+
   return (
     <View style={GlobalStyles.screen}>
       <MyBottomSheetModal
@@ -146,11 +174,11 @@ const ChannelConversation = () => {
             },
             {
               text: 'Edit',
-              onPress: () => {}
+              onPress: handleEdit
             },
             {
               text: 'Reply',
-              onPress: () => {}
+              onPress: handleReply
             },
             {
               text: 'Delete',
@@ -175,7 +203,8 @@ const ChannelConversation = () => {
       <ServerChatInput
         value={chatInput}
         onChange={setChatInput}
-        onSend={handleSend}
+        mode={actionMode}
+        onCancelMode={handleCancelMode}
       />
     </View>
   );
