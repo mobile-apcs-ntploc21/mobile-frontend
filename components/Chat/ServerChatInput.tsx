@@ -168,21 +168,21 @@ const ServerChatInput = (props: ServerChatInputProps) => {
         style={styles.suggestionsList}
       />
       {props.mode && (
-        <View style={styles.modeContainer}>
-          {props.mode.type === 'edit' ? (
-            <MyText style={styles.modeText}>Editing</MyText>
-          ) : (
-            <Text>
-              <MyText style={styles.modeText}>Replying to </MyText>
-              <MyText style={{ fontFamily: fonts.bold }}>
-                {props.mode.replyTo}
-              </MyText>
-            </Text>
-          )}
-          <TouchableOpacity onPress={props.onCancelMode}>
+        <TouchableOpacity onPress={props.onCancelMode}>
+          <View style={styles.modeContainer}>
+            {props.mode.type === 'edit' ? (
+              <MyText style={styles.modeText}>Editing</MyText>
+            ) : (
+              <Text>
+                <MyText style={styles.modeText}>Replying to </MyText>
+                <MyText style={{ fontFamily: fonts.bold }}>
+                  {props.mode.replyTo}
+                </MyText>
+              </Text>
+            )}
             <IconWithSize icon={CrossIcon} size={16} />
-          </TouchableOpacity>
-        </View>
+          </View>
+        </TouchableOpacity>
       )}
       <BaseChatInput
         {...props}
