@@ -333,6 +333,16 @@ export const ServerProvider = (props: ProviderProps) => {
             (role) => role.id !== serverUpdated.data._id
           )
         });
+        const members = [...state.members];
+        members.forEach((member) => {
+          member.roles = member.roles.filter(
+            (role) => role.id !== serverUpdated.data._id
+          );
+        });
+        dispatch({
+          type: ServerActions.SET_MEMBERS,
+          payload: members
+        });
         break;
       case ServerEvents.roleUpdated:
         dispatch({
