@@ -120,6 +120,7 @@ const ChannelConversation = () => {
     (message: Message) => {
       setModalMessage(message);
       messageBottomSheetRef.current?.present();
+      Keyboard.dismiss();
     },
     [messageBottomSheetRef]
   );
