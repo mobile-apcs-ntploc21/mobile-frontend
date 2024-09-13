@@ -37,7 +37,7 @@ import MyBottomSheetModal from '@/components/modal/MyBottomSheetModal';
 import ButtonListText from '@/components/ButtonList/ButtonListText';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
 import ServerChatInput from '@/components/Chat/ServerChatInput';
-import { getData, postData } from '@/utils/api';
+import { getData, postData, putData } from '@/utils/api';
 import useServers from '@/hooks/useServers';
 import debounce from '@/utils/debounce';
 
@@ -250,7 +250,12 @@ const ChannelConversation = () => {
     if (actionMode?.type === 'edit') {
       setChatInput('');
       setActionMode(null);
-      console.log('Edit', content);
+      const response = await putData(
+        `/api/v1/servers/${currentServerId}/channels/${channelId}/messages/${modalMessage?.id}`,
+        {
+          content
+        }
+      );
       return;
     }
     setChatInput('');
