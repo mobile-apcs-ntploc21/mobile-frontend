@@ -11,27 +11,21 @@ import { Emoji } from '@/types/server';
 import SearchBar from '../SearchBar';
 import { colors, fonts } from '@/constants/theme';
 import MyText from '../MyText';
+import useServer from '@/hooks/useServer';
+import { TouchableOpacity } from 'react-native-gesture-handler';
 
 interface EmojiPickerProps {
   visible: boolean;
   handleClose: () => void;
   height: number;
+  onSelect: (emoji: Emoji) => void;
 }
 
 // This should not be mistaken for the ReactionPicker component
 const EmojiPicker = (props: EmojiPickerProps) => {
   const [searchQuery, setSearchQuery] = useState('');
 
-  const emojis = useMemo<Emoji[]>(
-    () =>
-      Array.from({ length: 69 }).map((_, index) => ({
-        id: index.toString(),
-        name: `emoji-${index}`,
-        image_url: `https://via.assets.so/game.png?id=1`,
-        uploader_id: '0'
-      })),
-    []
-  );
+  const { emojis } = useServer();
 
   const filteredEmojis = useMemo<Emoji[]>(() => {
     const query = searchQuery.trim().toLowerCase();
@@ -62,11 +56,12 @@ const EmojiPicker = (props: EmojiPickerProps) => {
         <MyText style={styles.heading}>Server Emoji</MyText>
         <View style={styles.emojis}>
           {filteredEmojis.map((emoji) => (
-            <Image
-              style={styles.emoji}
+            <TouchableOpacity
+              onPress={() => props.onSelect(emoji)}
               key={emoji.id}
-              source={{ uri: emoji.image_url }}
-            />
+            >
+              <Image style={styles.emoji} source={{ uri: emoji.image_url }} />
+            </TouchableOpacity>
           ))}
         </View>
       </ScrollView>

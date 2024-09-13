@@ -1,5 +1,5 @@
 import { Image, StyleSheet, Text, View } from 'react-native';
-import React, { ReactNode } from 'react';
+import React, { ReactNode, useEffect } from 'react';
 import { Message } from '@/types/chat';
 import MyText from '../MyText';
 import { colors, fonts } from '@/constants/theme';
@@ -51,6 +51,12 @@ const BaseChatItem = (props: ChatItemProps) => {
       </MyText>
     );
   };
+
+  useEffect(() => {
+    props.parseContent(props.message.content).forEach((node) => {
+      console.log(node);
+    });
+  }, [props.parseContent]);
 
   return (
     <TouchableOpacity style={styles.container} onLongPress={props.onLongPress}>

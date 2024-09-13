@@ -176,6 +176,11 @@ const BaseChatInput = (props: BaseChatInputProps) => {
         visible={emojiPickerVisible}
         handleClose={() => setEmojiPickerVisible(false)}
         height={keyboardHeight}
+        onSelect={(emoji) => {
+          const text = props.value || '';
+          const newText = `${text}:${emoji.name}:`;
+          onChange(newText);
+        }}
       />
     </View>
   );
