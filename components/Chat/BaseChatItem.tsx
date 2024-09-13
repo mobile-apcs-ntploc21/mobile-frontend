@@ -52,12 +52,6 @@ const BaseChatItem = (props: ChatItemProps) => {
     );
   };
 
-  useEffect(() => {
-    props.parseContent(props.message.content).forEach((node) => {
-      console.log(node);
-    });
-  }, [props.parseContent]);
-
   return (
     <TouchableOpacity style={styles.container} onLongPress={props.onLongPress}>
       {props.message.replied_message && (
