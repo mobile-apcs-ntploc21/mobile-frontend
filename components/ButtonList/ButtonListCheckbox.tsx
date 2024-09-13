@@ -30,7 +30,7 @@ const ButtonListCheckbox = <T,>(props: ButtonListTextProps<T>) => {
   return (
     <ButtonListBase
       {...props}
-      items={props.data.map((item) => {
+      items={props.data?.map((item) => {
         return {
           itemComponent: (
             <View style={styles.radioContainer} key={props.keyExtractor(item)}>
