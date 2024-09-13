@@ -127,7 +127,7 @@ const handlers: Record<
     return {
       ...state,
       latestAction: ServerActions.UPDATE_PROFILE,
-      members: state.members.map((member) =>
+      members: state?.members.map((member) =>
         member.user_id === profile.user_id ? { ...member, ...profile } : member
       )
     };
