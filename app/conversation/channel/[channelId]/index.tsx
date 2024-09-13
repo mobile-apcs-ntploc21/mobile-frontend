@@ -262,7 +262,7 @@ const ChannelConversation = () => {
       setActionMessage(null);
     }
     deleteData(
-      `/api/v1/servers/${currentServerId}/channels/${channelId}/messages/${actionMessage?.id}`
+      `/api/v1/servers/${currentServerId}/channels/${channelId}/messages/${modalMessage?.id}`
     );
     handleCloseBottomSheet();
   };
