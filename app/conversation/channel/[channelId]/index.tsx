@@ -44,7 +44,7 @@ import debounce from '@/utils/debounce';
 const ChannelConversation = () => {
   const navigation = useNavigation();
   const { currentServerId } = useServers();
-  const { categories, roles, members } = useServer();
+  const { categories, roles, members, emojis } = useServer();
   const channels = useMemo(() => {
     return categories.map((category) => category.channels).flat();
   }, [categories]);
@@ -194,7 +194,8 @@ const ChannelConversation = () => {
     });
 
     content = content.replace(emojiPattern, (match, emojiName) => {
-      return `:${emojiName}:`;
+      const emoji = emojis.find((emoji) => emoji.name === emojiName);
+      return `:${emoji?.name}:`;
     });
 
     return content;
@@ -202,13 +203,19 @@ const ChannelConversation = () => {
 
   const convertInputToContent = (input: string) => {
     members.forEach((member) => {
-      input = input.replace(`@${member.username}`, `<@${member.user_id}>`);
+      input = input.replaceAll(`@${member.username}`, `<@${member.user_id}>`);
     });
     roles.forEach((role) => {
-      input = input.replace(`@${role.name}`, `<@&${role.id}>`);
+      input = input.replaceAll(`@${role.name}`, `<@&${role.id}>`);
     });
     channels.forEach((channel) => {
-      input = input.replace(`#${channel.name}`, `<#${channel.id}>`);
+      input = input.replaceAll(`#${channel.name}`, `<#${channel.id}>`);
+    });
+    emojis.forEach((emoji) => {
+      input = input.replaceAll(
+        `:${emoji.name}:`,
+        `<:${emoji.name}:${emoji.id}>`
+      );
     });
     return input;
   };
