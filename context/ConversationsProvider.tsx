@@ -37,6 +37,31 @@ const reducer = (
             : conversation
         )
       };
+    case ConversationsTypes.PatchConversation:
+      return {
+        ...state,
+        conversations: state.conversations.map((conversation) =>
+          conversation.id === payload.conversationId
+            ? {
+                ...conversation,
+                ...payload.patch
+              }
+            : conversation
+        )
+      };
+    case ConversationsTypes.IncrementUnreadMentions:
+      return {
+        ...state,
+        conversations: state.conversations.map((conversation) =>
+          conversation.id === payload.conversationId
+            ? {
+                ...conversation,
+                number_of_unread_mentions:
+                  conversation.number_of_unread_mentions + payload.number
+              }
+            : conversation
+        )
+      };
     case ConversationsTypes.AddConversations:
       return {
         ...state,

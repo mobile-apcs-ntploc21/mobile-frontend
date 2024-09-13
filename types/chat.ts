@@ -46,6 +46,8 @@ export enum ConversationsTypes {
   SetFocus = 'SET_FOCUS',
   AddConversation = 'ADD_CONVERSATION',
   SetConversation = 'SET_CONVERSATION',
+  PatchConversation = 'PATCH_CONVERSATION',
+  IncrementUnreadMentions = 'INCREMENT_UNREAD_MENTIONS',
   AddConversations = 'ADD_CONVERSATIONS',
   RemoveConversation = 'REMOVE_CONVERSATION',
   AddConversationMessage = 'ADD_CONVERSATION_MESSAGE',
@@ -70,6 +72,22 @@ export type AddConversationAction = {
   payload: {
     conversation: Conversation;
     focus: boolean;
+  };
+};
+
+export type PatchConversationAction = {
+  type: ConversationsTypes.PatchConversation;
+  payload: {
+    conversationId: string;
+    patch: Partial<Conversation>;
+  };
+};
+
+export type IncrementUnreadMentionsAction = {
+  type: ConversationsTypes.IncrementUnreadMentions;
+  payload: {
+    conversationId: string;
+    number: number;
   };
 };
 
@@ -165,6 +183,8 @@ export type ConversationsAction =
   | SetFocusAction
   | AddConversationAction
   | SetConversationAction
+  | PatchConversationAction
+  | IncrementUnreadMentionsAction
   | AddConversationsAction
   | RemoveConversationAction
   | AddConversationMessageAction

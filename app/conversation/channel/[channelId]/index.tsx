@@ -39,6 +39,7 @@ import { BottomSheetModal } from '@gorhom/bottom-sheet';
 import ServerChatInput from '@/components/Chat/ServerChatInput';
 import { getData, postData } from '@/utils/api';
 import useServers from '@/hooks/useServers';
+import debounce from '@/utils/debounce';
 
 const ChannelConversation = () => {
   const navigation = useNavigation();
@@ -56,7 +57,7 @@ const ChannelConversation = () => {
   const { conversations, dispatch: conversationDispatch } = useConversations();
   const conversation = useMemo(() => {
     return conversations.find((conv) => conv.id === channel?.conversation_id);
-  }, [conversations, channelId]);
+  }, [conversations, channelId])!;
 
   useLayoutEffect(() => {
     const channelName = channel?.name;
@@ -117,6 +118,16 @@ const ChannelConversation = () => {
         conversationId: channel?.conversation_id || ''
       }
     });
+    conversationDispatch({
+      type: ConversationsTypes.PatchConversation,
+      payload: {
+        conversationId: conversation.id,
+        patch: {
+          has_new_message: false,
+          number_of_unread_mentions: 0
+        }
+      }
+    });
     if (conversation && conversation.messages.length < 10) fetchMessages();
     return () => {
       conversationDispatch({
@@ -127,6 +138,21 @@ const ChannelConversation = () => {
       });
     };
   }, []);
+
+  const debouncedMarkAsRead = useMemo(() => {
+    return debounce(() => {
+      if (!conversation) return;
+      if (conversation.messages.length === 0) return;
+      postData(
+        `/api/v1/servers/${currentServerId}/channels/${channelId}/messages/read`
+      );
+    }, 1000);
+  }, []);
+
+  useEffect(() => {
+    if (!conversation) return;
+    debouncedMarkAsRead();
+  }, [conversation?.messages[0]]);
 
   const [chatInput, setChatInput] = useState('');
 

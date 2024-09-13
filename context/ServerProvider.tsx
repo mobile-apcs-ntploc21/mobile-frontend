@@ -183,7 +183,11 @@ export const ServerProvider = (props: ProviderProps) => {
   const [state, dispatch] = useReducer(reducer, initialState);
 
   const { user } = useAuth();
-  const { dispatch: conversationDispatch, focusId } = useConversations();
+  const {
+    dispatch: conversationDispatch,
+    focusId,
+    conversations
+  } = useConversations();
 
   const fetchedServerIds = Object.keys(servers) || [];
   const { data: subscriptionData } = useSubscription(SERVERS_SUBSCRIPTION, {
@@ -541,6 +545,39 @@ export const ServerProvider = (props: ProviderProps) => {
         });
         if (data.conversation_id !== focusId) {
           // Mark the conversation as having a new message
+          conversationDispatch({
+            type: ConversationsTypes.PatchConversation,
+            payload: {
+              conversationId: data.conversation_id,
+              patch: {
+                has_new_message: true
+              }
+            }
+          });
+        }
+        break;
+      case ServerEvents.messageMentionedUser:
+        if (data.conversation_id !== focusId) {
+          // Increment the number of unread mentions
+          conversationDispatch({
+            type: ConversationsTypes.IncrementUnreadMentions,
+            payload: {
+              conversationId: data.conversation_id,
+              number: 1
+            }
+          });
+        }
+        break;
+      case ServerEvents.messageMentionedRole:
+        if (data.conversation_id !== focusId) {
+          // Increment the number of unread mentions
+          conversationDispatch({
+            type: ConversationsTypes.IncrementUnreadMentions,
+            payload: {
+              conversationId: data.conversation_id,
+              number: 1
+            }
+          });
         }
         break;
       default:
