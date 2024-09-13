@@ -565,6 +565,15 @@ export const ServerProvider = (props: ProviderProps) => {
           }
         });
         break;
+      case ServerEvents.messageDeleted:
+        conversationDispatch({
+          type: ConversationsTypes.DeleteConversationMessage,
+          payload: {
+            conversationId: data.conversation_id,
+            messageId: data.message_id
+          }
+        });
+        break;
       case ServerEvents.messageMentionedUser:
         if (data.conversation_id !== focusId) {
           // Increment the number of unread mentions

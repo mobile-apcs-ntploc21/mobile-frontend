@@ -37,7 +37,7 @@ import MyBottomSheetModal from '@/components/modal/MyBottomSheetModal';
 import ButtonListText from '@/components/ButtonList/ButtonListText';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
 import ServerChatInput from '@/components/Chat/ServerChatInput';
-import { getData, postData, putData } from '@/utils/api';
+import { deleteData, getData, postData, putData } from '@/utils/api';
 import useServers from '@/hooks/useServers';
 import debounce from '@/utils/debounce';
 
@@ -223,17 +223,20 @@ const ChannelConversation = () => {
       }
     | null
   >(null);
+  const [actionMessage, setActionMessage] = useState<Message | null>(null);
 
   const handleCancelMode = () => {
     if (actionMode?.type === 'edit') {
       setChatInput('');
     }
     setActionMode(null);
+    setActionMessage(null);
   };
 
   const handleEdit = () => {
     setChatInput(convertContentToInput(modalMessage?.content || ''));
     setActionMode({ type: 'edit' });
+    setActionMessage(modalMessage);
     handleCloseBottomSheet();
   };
 
@@ -242,6 +245,18 @@ const ChannelConversation = () => {
       type: 'reply',
       replyTo: modalMessage?.author.display_name || ''
     });
+    setActionMessage(modalMessage);
+    handleCloseBottomSheet();
+  };
+
+  const handleDelete = () => {
+    if (modalMessage!.id === actionMessage?.id) {
+      setActionMode(null);
+      setActionMessage(null);
+    }
+    deleteData(
+      `/api/v1/servers/${currentServerId}/channels/${channelId}/messages/${actionMessage?.id}`
+    );
     handleCloseBottomSheet();
   };
 
@@ -251,7 +266,7 @@ const ChannelConversation = () => {
       setChatInput('');
       setActionMode(null);
       const response = await putData(
-        `/api/v1/servers/${currentServerId}/channels/${channelId}/messages/${modalMessage?.id}`,
+        `/api/v1/servers/${currentServerId}/channels/${channelId}/messages/${actionMessage?.id}`,
         {
           content
         }
@@ -265,7 +280,7 @@ const ChannelConversation = () => {
       {
         content,
         repliedMessageId:
-          actionMode?.type === 'reply' ? modalMessage?.id : undefined
+          actionMode?.type === 'reply' ? actionMessage?.id : undefined
       }
     );
   };
@@ -292,7 +307,7 @@ const ChannelConversation = () => {
             },
             {
               text: 'Delete',
-              onPress: () => {}
+              onPress: handleDelete
             }
           ]}
         />
