@@ -10,9 +10,9 @@ import Checkbox from '../Checkbox';
 
 interface ButtonListTextProps<T> extends Omit<ButtonListBaseProps, 'items'> {
   data: T[];
-  values?: T[];
-  onAdd?: (value: T) => void;
-  onRemove?: (value: T) => void;
+  values?: any[];
+  onAdd?: (value: any) => void;
+  onRemove?: (value: any) => void;
   labelExtractor: (item: T) => string;
   valueExtractor: (item: T) => any;
   keyExtractor: (item: T) => string;
@@ -21,7 +21,7 @@ interface ButtonListTextProps<T> extends Omit<ButtonListBaseProps, 'items'> {
 
 const ButtonListCheckbox = <T,>(props: ButtonListTextProps<T>) => {
   const handlePress = useCallback(
-    (value: T) => {
+    (value: any) => {
       if (props.values?.includes(value)) props.onRemove?.(value);
       else props.onAdd?.(value);
     },
@@ -36,12 +36,7 @@ const ButtonListCheckbox = <T,>(props: ButtonListTextProps<T>) => {
             <View style={styles.radioContainer} key={props.keyExtractor(item)}>
               <MyText style={styles.label}>{props.labelExtractor(item)}</MyText>
               <Checkbox
-                value={props.values?.some((sitem) =>
-                  props.compareValues(
-                    props.valueExtractor(sitem),
-                    props.valueExtractor(item)
-                  )
-                )}
+                value={props.values?.includes(props.valueExtractor(item))}
                 onChange={() => handlePress(props.valueExtractor(item))}
               />
             </View>
