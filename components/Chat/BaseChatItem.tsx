@@ -1,20 +1,22 @@
 import { Image, StyleSheet, Text, View } from 'react-native';
-import React, { ReactNode, useEffect } from 'react';
+import React, { ReactNode, useEffect, useMemo } from 'react';
 import { Message } from '@/types/chat';
 import MyText from '../MyText';
 import { colors, fonts } from '@/constants/theme';
 import { TextStyles } from '@/styles/TextStyles';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import { DefaultProfileImage } from '@/constants/images';
-import { UserProfile } from '@/types';
+import { ServerProfile, UserProfile } from '@/types';
 import IconWithSize from '../IconWithSize';
 import ReplyIcon from '@/assets/icons/ReplyIcon';
+import Avatar from '../Avatar';
+import { StatusType } from '@/types/user_status';
 
 export interface ChatItemProps {
   message: Message;
   onLongPress?: () => void;
   parseContent: (content?: string) => ReactNode[];
-  users: UserProfile[];
+  users: ServerProfile[];
 }
 
 const BaseChatItem = (props: ChatItemProps) => {
@@ -25,6 +27,10 @@ const BaseChatItem = (props: ChatItemProps) => {
       hour12: false
     });
   };
+
+  const currentUser = useMemo(() => {
+    return props.users.find((user) => user.user_id === props.message.sender_id);
+  }, [props.users, props.message.sender_id]);
 
   const renderReplyDisplayName = () => {
     if (!props.message.replied_message) return null;
@@ -69,18 +75,20 @@ const BaseChatItem = (props: ChatItemProps) => {
       )}
 
       <View style={styles.messageContainer}>
-        <Image
-          source={
-            props.message.author.avatar_url
-              ? { uri: props.message.author.avatar_url }
-              : DefaultProfileImage
+        <Avatar
+          id={''}
+          profile={currentUser}
+          onlineStatus={
+            currentUser?.status.is_online
+              ? currentUser.status.type
+              : StatusType.OFFLINE
           }
-          style={styles.avatarImg}
+          showStatus
         />
         <View style={styles.innerContainer}>
           <View style={styles.messageHeader}>
             <MyText style={styles.displayName}>
-              {props.message.author.display_name}
+              {currentUser?.display_name || '<Unknown User>'}
             </MyText>
             <MyText style={styles.timestamp}>
               {convertTimestamp(props.message.createdAt)}
