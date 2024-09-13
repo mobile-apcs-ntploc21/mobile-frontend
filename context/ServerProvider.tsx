@@ -1,20 +1,21 @@
-import { SERVER_SUBSCRIPTION } from '@/services/graphql/subscriptions';
-import { ServerEvents, ServerProfile } from '@/types';
+import { SERVERS_SUBSCRIPTION } from '@/services/graphql/subscriptions';
+import { Server, ServerEvents, ServerProfile } from '@/types';
+import { Conversation, ConversationsTypes, Message } from '@/types/chat';
 import { Category, Emoji, Role } from '@/types/server';
 import { getData } from '@/utils/api';
 import { useSubscription } from '@apollo/client';
 import {
-  createContext,
   Dispatch,
   ReactNode,
+  createContext,
   useCallback,
   useEffect,
   useReducer,
   useRef,
   useState
 } from 'react';
+import { useAuth } from './AuthProvider';
 import { useConversations } from './ConversationsProvider';
-import { Conversation, ConversationsTypes, Message } from '@/types/chat';
 
 export enum ServerActions {
   INIT = 'INIT',
@@ -52,6 +53,8 @@ interface IContext extends ServerState {
 
 interface ProviderProps {
   server_id: string | null;
+  serversList?: Server[];
+  dispatch?: any;
   children: ReactNode;
 }
 
@@ -178,12 +181,388 @@ export const ServerProvider = (props: ProviderProps) => {
   const activeServerIdRef = useRef<String | null>(null);
   const [servers, setServers] = useState<Record<string, ServerState>>({});
   const [state, dispatch] = useReducer(reducer, initialState);
+
+  const { user } = useAuth();
   const { dispatch: conversationDispatch } = useConversations();
-  const fetchedServerIds = Object.keys(servers);
-  const { data: subscriptionData } = useSubscription(SERVER_SUBSCRIPTION, {
-    variables: { server_id: state.server_id },
-    skip: !state.server_id
+
+  const fetchedServerIds = Object.keys(servers) || [];
+  const { data: subscriptionData } = useSubscription(SERVERS_SUBSCRIPTION, {
+    variables: { server_ids: fetchedServerIds, user_id: user?.id },
+    skip: fetchedServerIds.length === 0
   });
+
+  const handleSubscriptionData = async (subscriptionData: any) => {
+    console.log('Subscription data:', subscriptionData);
+    if (!subscriptionData) return;
+
+    const { serversUpdated: serverData } = subscriptionData;
+    const { type, server_id, data } = serverData;
+
+    if (!serverData) return;
+
+    // Handle the subscription data based on the event type
+    // Please assign the type and payload to the following variables
+    let dispatchLoad: {
+      type: ServerActions | null;
+      payload: any;
+    }[] = [];
+
+    const server = servers[server_id];
+
+    // Please add the missing cases
+    switch (type) {
+      case ServerEvents.serverUpdated:
+        {
+          const newServers = [...props.serversList!];
+          const index = newServers.findIndex(
+            (server) => server.id === server_id
+          );
+          newServers[index] = {
+            ...newServers[index],
+            ...data
+          };
+          if (props.dispatch) {
+            props.dispatch({
+              type: 'SET_SERVERS',
+              payload: newServers
+            });
+          }
+        }
+        break;
+      case ServerEvents.serverDeleted:
+        {
+          // Remove the server from the list
+          const newServers = props.serversList?.filter(
+            (server) => server.id !== server_id
+          );
+          if (props.dispatch) {
+            props.dispatch({
+              type: 'SET_SERVERS',
+              payload: newServers
+            });
+          }
+
+          // Remove the server from the state
+          const { [server_id]: _, ...newState } = servers;
+          setServers(newState);
+        }
+        break;
+      case ServerEvents.userStatusChanged:
+        dispatchLoad.push({
+          type: ServerActions.UPDATE_STATUS,
+          payload: data
+        });
+        break;
+      case ServerEvents.userProfileChanged:
+        dispatchLoad.push({
+          type: ServerActions.UPDATE_PROFILE,
+          payload: data
+        });
+        break;
+      case ServerEvents.memberJoined:
+        (async () => {
+          let profileAndStatus = await getServerProfile(data, true).catch(() =>
+            getServerProfile(data)
+          );
+
+          dispatchLoad.push({
+            type: ServerActions.SET_MEMBERS,
+            payload: [...server.members, profileAndStatus]
+          });
+        })();
+        break;
+      case ServerEvents.memberLeft:
+        dispatchLoad.push({
+          type: ServerActions.SET_MEMBERS,
+          payload: server.members.filter(
+            (member) => member.user_id !== data.user_id
+          )
+        });
+        break;
+      case ServerEvents.memberAdded:
+        (async () => {
+          const profileAndStatus = await Promise.all(
+            // @ts-ignore
+            serverUpdated.data.map((user_id) =>
+              getServerProfile(user_id, true).catch(() =>
+                getServerProfile(user_id)
+              )
+            )
+          );
+          dispatchLoad.push({
+            type: ServerActions.SET_MEMBERS,
+            payload: [...server.members, ...profileAndStatus]
+          });
+        })();
+        break;
+      case ServerEvents.memberRemoved:
+        dispatchLoad.push({
+          type: ServerActions.SET_MEMBERS,
+          payload: server.members.filter(
+            (member) => !data.includes(member.user_id)
+          )
+        });
+        break;
+      case ServerEvents.userRoleAdded:
+        {
+          const members = [...server.members];
+          members.forEach(
+            (member) =>
+              member.user_id === data.user_id &&
+              member.roles.push(
+                server.customRoles.find((role) => role.id === data.role_id)!
+              )
+          );
+          // Set the members with the updated roles
+          dispatchLoad.push({
+            type: ServerActions.SET_MEMBERS,
+            payload: members
+          });
+          // Increment the role count
+          dispatchLoad.push({
+            type: ServerActions.SET_ROLES,
+            payload: server.roles.map((role) =>
+              role.id === data.role_id
+                ? { ...role, number_of_users: role.number_of_users + 1 }
+                : role
+            )
+          });
+        }
+        break;
+      case ServerEvents.userRoleDeleted:
+        {
+          const members = [...server.members];
+          members.forEach(
+            (member) =>
+              member.user_id === data.user_id &&
+              member.roles.filter((role) => role.id !== data.role_id)
+          );
+          // Set the members with the updated roles
+          dispatchLoad.push({
+            type: ServerActions.SET_MEMBERS,
+            payload: members
+          });
+          // Decrement the role count
+          dispatchLoad.push({
+            type: ServerActions.SET_ROLES,
+            payload: server.roles.map((role) =>
+              role.id === data.role_id
+                ? { ...role, number_of_users: role.number_of_users - 1 }
+                : role
+            )
+          });
+        }
+        break;
+      case ServerEvents.emojiAdded:
+        dispatchLoad.push({
+          type: ServerActions.SET_EMOJI,
+          payload: [
+            ...server.emojis,
+            {
+              id: data._id,
+              ...data
+            }
+          ]
+        });
+        break;
+      case ServerEvents.emojiUpdated:
+        dispatchLoad.push({
+          type: ServerActions.SET_EMOJI,
+          payload: server.emojis.map((emoji) =>
+            emoji.id === data._id ? { ...emoji, ...data } : emoji
+          )
+        });
+
+        break;
+      case ServerEvents.emojiDeleted:
+        dispatchLoad.push({
+          type: ServerActions.SET_EMOJI,
+          payload: server.emojis.filter((emoji) => emoji.id !== data._id)
+        });
+        break;
+      case ServerEvents.roleAdded:
+        dispatchLoad.push({
+          type: ServerActions.SET_ROLES,
+          payload: [
+            ...server.roles,
+            {
+              id: data._id,
+              number_of_users: 0,
+              ...data
+            }
+          ]
+        });
+        break;
+      case ServerEvents.roleUpdated:
+        dispatchLoad.push({
+          type: ServerActions.SET_ROLES,
+          payload: server.roles.map((role) =>
+            role.id === data._id ? { ...role, ...data } : role
+          )
+        });
+        break;
+      case ServerEvents.roleDeleted:
+        dispatchLoad.push({
+          type: ServerActions.SET_ROLES,
+          payload: server.roles.filter((role) => role.id !== data._id)
+        });
+
+        // Remove the role from the members
+        const members = [...server.members];
+        members.forEach((member) => {
+          member.roles = member.roles.filter((role) => role.id !== data._id);
+        });
+        dispatchLoad.push({
+          type: ServerActions.SET_MEMBERS,
+          payload: members
+        });
+        break;
+      case ServerEvents.channelAdded:
+        dispatchLoad.push({
+          type: ServerActions.SET_CATEGORIES,
+          payload: server.categories.map((category) =>
+            category.id === data.category_id
+              ? {
+                  ...category,
+                  channels: [
+                    ...category.channels,
+                    {
+                      id: data._id,
+                      ...data
+                    }
+                  ]
+                }
+              : category
+          )
+        });
+        break;
+      case ServerEvents.channelUpdated:
+        {
+          let newCategories = [...server.categories];
+          const channel = data;
+
+          if (Array.isArray(channel)) {
+            channel.forEach((c) => {
+              newCategories.forEach((category) => {
+                category.channels = category.channels.map((ch) =>
+                  ch.id === c._id ? c : ch
+                );
+              });
+            });
+          } else {
+            newCategories.forEach((category) => {
+              category.channels = category.channels.map((c) =>
+                c.id === channel._id
+                  ? {
+                      ...c,
+                      ...channel
+                    }
+                  : c
+              );
+            });
+          }
+
+          dispatchLoad.push({
+            type: ServerActions.SET_CATEGORIES,
+            payload: newCategories
+          });
+        }
+        break;
+      case ServerEvents.channelDeleted:
+        {
+          const categories = [...server.categories];
+          const channel_id = data.channel_id;
+          categories.forEach((category) => {
+            category.channels = category.channels.filter(
+              (c) => c.id !== channel_id
+            );
+          });
+          dispatchLoad.push({
+            type: ServerActions.SET_CATEGORIES,
+            payload: categories
+          });
+        }
+        break;
+      case ServerEvents.categoryAdded:
+        dispatchLoad.push({
+          type: ServerActions.SET_CATEGORIES,
+          payload: [
+            ...server.categories,
+            {
+              id: data._id,
+              ...data,
+              channels: []
+            }
+          ]
+        });
+        break;
+      case ServerEvents.categoryUpdated:
+        {
+          let categories = [...server.categories];
+          const category = data;
+          dispatchLoad.push({
+            type: ServerActions.SET_CATEGORIES,
+            payload: categories.map((c) =>
+              c.id === category.id
+                ? {
+                    ...c,
+                    ...category
+                  }
+                : c
+            )
+          });
+        }
+        break;
+      case ServerEvents.categoryDeleted:
+        {
+          const categories = [...server.categories];
+          const category_id = data.category_id;
+          const channels = categories.find(
+            (c) => c.id === category_id
+          )?.channels;
+          const newCategories = categories.filter((c) => c.id !== category_id);
+          if (channels) {
+            newCategories[0].channels.push(...channels);
+          }
+
+          dispatchLoad.push({
+            type: ServerActions.SET_CATEGORIES,
+            payload: newCategories
+          });
+        }
+        break;
+      default:
+        console.warn('Unknown event type:', type);
+        console.log(type, server_id, data);
+    }
+
+    // Dispatch the action if the server is active
+    if (activeServerIdRef.current === server_id) {
+      dispatchLoad.forEach((load) => {
+        dispatch({
+          type: load.type || ServerActions.INIT,
+          payload: load.payload
+        });
+      });
+    }
+
+    // Update the other servers data using the reducer
+    dispatchLoad.forEach((load) => {
+      setServers((prevServers) => ({
+        ...prevServers,
+        [server_id]: reducer(prevServers[server_id], {
+          type: load.type || ServerActions.INIT,
+          payload: load.payload
+        })
+      }));
+    });
+  };
+
+  useEffect(() => {
+    if (subscriptionData) {
+      handleSubscriptionData(subscriptionData);
+    }
+  }, [subscriptionData, dispatch]);
 
   const getServerProfile = useCallback(
     async (id: string, fromServer?: boolean) => {
@@ -207,222 +586,37 @@ export const ServerProvider = (props: ProviderProps) => {
     [state.server_id]
   );
 
-  useEffect(() => {
-    if (!subscriptionData) return;
-    const { serverUpdated } = subscriptionData;
-    console.log(serverUpdated);
-    switch (serverUpdated.type) {
-      case ServerEvents.userStatusChanged:
-        dispatch({
-          type: ServerActions.UPDATE_STATUS,
-          payload: serverUpdated.data
-        });
-        break;
-      case ServerEvents.userProfileChanged:
-        dispatch({
-          type: ServerActions.UPDATE_PROFILE,
-          payload: serverUpdated.data
-        });
-        break;
-      case ServerEvents.memberJoined:
-        (async () => {
-          let profileAndStatus = await getServerProfile(
-            serverUpdated.data,
-            true
-          ).catch(() => getServerProfile(serverUpdated.data));
-          dispatch({
-            type: ServerActions.SET_MEMBERS,
-            payload: [...state.members, profileAndStatus]
-          });
-        })();
-        break;
-      case ServerEvents.memberLeft:
-        dispatch({
-          type: ServerActions.SET_MEMBERS,
-          payload: state.members.filter(
-            (member) => member.user_id !== serverUpdated.data.user_id
-          )
-        });
-        break;
-      case ServerEvents.memberAdded:
-        (async () => {
-          const profileAndStatus = await Promise.all(
-            // @ts-ignore
-            serverUpdated.data.map((user_id) =>
-              getServerProfile(user_id, true).catch(() =>
-                getServerProfile(user_id)
-              )
-            )
-          );
-          dispatch({
-            type: ServerActions.SET_MEMBERS,
-            payload: [...state.members, ...profileAndStatus]
-          });
-        })();
-        break;
-      case ServerEvents.memberRemoved:
-        // @ts-ignore
-        dispatch({
-          type: ServerActions.SET_MEMBERS,
-          payload: state.members.filter(
-            (member) => !serverUpdated.data.includes(member.user_id)
-          )
-        });
-        break;
-      case ServerEvents.userRoleAdded:
-        {
-          const members = [...state.members];
-          members.forEach(
-            (member) =>
-              member.user_id === serverUpdated.data.user_id &&
-              member.roles.push(
-                state.customRoles.find(
-                  (role) => role.id === serverUpdated.data.role_id
-                )!
-              )
-          );
-          dispatch({
-            type: ServerActions.SET_MEMBERS,
-            payload: members
-          });
-          dispatch({
-            type: ServerActions.SET_ROLES,
-            payload: state.roles.map((role) =>
-              role.id === serverUpdated.data.role_id
-                ? {
-                    ...role,
-                    number_of_users: role.number_of_users + 1
-                  }
-                : role
-            )
-          });
-        }
-        break;
-      case ServerEvents.userRoleDeleted:
-        {
-          const members = [...state.members];
-          members.forEach((member) => {
-            if (member.user_id === serverUpdated.data.user_id)
-              member.roles = member.roles.filter(
-                (role) => role.id !== serverUpdated.data.role_id
-              );
-          });
-          dispatch({
-            type: ServerActions.SET_MEMBERS,
-            payload: members
-          });
-          dispatch({
-            type: ServerActions.SET_ROLES,
-            payload: state.roles.map((role) =>
-              role.id === serverUpdated.data.role_id
-                ? {
-                    ...role,
-                    number_of_users: role.number_of_users - 1
-                  }
-                : role
-            )
-          });
-        }
-        break;
-      case ServerEvents.emojiAdded:
-        dispatch({
-          type: ServerActions.SET_EMOJI,
-          payload: [
-            ...state.emojis,
-            {
-              id: serverUpdated.data._id,
-              ...serverUpdated.data
-            }
-          ]
-        });
-        break;
-      case ServerEvents.emojiUpdated:
-        dispatch({
-          type: ServerActions.SET_EMOJI,
-          payload: state.emojis.map((emoji) =>
-            emoji.id === serverUpdated.data._id
-              ? { ...emoji, ...serverUpdated.data }
-              : emoji
-          )
-        });
-        break;
-      case ServerEvents.emojiDeleted:
-        dispatch({
-          type: ServerActions.SET_EMOJI,
-          payload: state.emojis.filter(
-            (emoji) => emoji.id !== serverUpdated.data._id
-          )
-        });
-        break;
-      case ServerEvents.roleAdded:
-        dispatch({
-          type: ServerActions.SET_ROLES,
-          payload: [
-            ...state.roles,
-            {
-              id: serverUpdated.data._id,
-              number_of_users: 0,
-              ...serverUpdated.data
-            }
-          ]
-        });
-        break;
-      case ServerEvents.roleDeleted:
-        dispatch({
-          type: ServerActions.SET_ROLES,
-          payload: state.roles.filter(
-            (role) => role.id !== serverUpdated.data._id
-          )
-        });
-        const members = [...state.members];
-        members.forEach((member) => {
-          member.roles = member.roles.filter(
-            (role) => role.id !== serverUpdated.data._id
-          );
-        });
-        dispatch({
-          type: ServerActions.SET_MEMBERS,
-          payload: members
-        });
-        break;
-      case ServerEvents.roleUpdated:
-        dispatch({
-          type: ServerActions.SET_ROLES,
-          payload: state.roles.map((role) =>
-            role.id === serverUpdated.data._id
-              ? { ...role, ...serverUpdated.data }
-              : role
-          )
-        });
-        break;
-      default:
-        console.warn('Unknown event type:', serverUpdated.type);
-        console.log(serverUpdated);
-    }
-  }, [subscriptionData, dispatch]);
-
   // Fetch server data
   const fetchServerData = async (server_id: string) => {
     if (servers[server_id]) return servers[server_id];
 
     try {
-      const channelsFetch = (
-        await getData(`/api/v1/servers/${server_id}/channels`)
-      )?.channels;
-      const categoriesFetch = (
-        await getData(`/api/v1/servers/${server_id}/categories`)
-      )?.categories;
-      const membersFetch = await getData(
-        `/api/v1/servers/${server_id}/members`
-      );
-      // const rolesFetch = await getData(`/api/v1/servers/${server_id}/roles`);
+      // Using Promise.all to fetch all the data at once
+      const [channelsFetch, categoriesFetch, membersFetch, roles, emojis] =
+        await Promise.all([
+          getData(`/api/v1/servers/${server_id}/channels`).then(
+            (res) => res?.channels || []
+          ),
+          getData(`/api/v1/servers/${server_id}/categories`).then(
+            (res) => res?.categories || []
+          ),
+          getData(`/api/v1/servers/${server_id}/members`) || [],
+          getData(`/api/v1/servers/${server_id}/roles`).then(
+            (res) => res?.roles || []
+          ),
+          getData(`/api/v1/servers/${server_id}/emojis`).then(
+            (res) => res?.emojis || []
+          )
+        ]).catch((err) => {
+          throw new Error(err.message);
+        });
 
       const categories: Category[] = categoriesFetch.map(
         (category: any, index: number) => {
           return {
             id: category.id,
             name: category.name,
-            channels: channelsFetch.filter(
+            channels: channelsFetch?.filter(
               (channel: any) => channel.category_id === category.id
             ),
             position: index + 1
@@ -434,7 +628,7 @@ export const ServerProvider = (props: ProviderProps) => {
       categories.unshift({
         id: null,
         name: 'Uncategorized',
-        channels: channelsFetch.filter((channel: any) => !channel.category_id),
+        channels: channelsFetch?.filter((channel: any) => !channel.category_id),
         position: 0
       });
 
@@ -481,9 +675,6 @@ export const ServerProvider = (props: ProviderProps) => {
         });
       });
 
-      const roles: Role[] = (
-        await getData(`/api/v1/servers/${server_id}/roles`)
-      ).roles;
       let defaultRole: Role | null = null;
       const customRoles: Role[] = [];
       roles.forEach((role: Role) => {
@@ -502,10 +693,6 @@ export const ServerProvider = (props: ProviderProps) => {
           )
           .filter((role: any) => role)
       }));
-
-      const emojis: Emoji[] = await getData(
-        `/api/v1/servers/${server_id}/emojis`
-      );
 
       const updatedServer = {
         latestAction: ServerActions.INIT,
