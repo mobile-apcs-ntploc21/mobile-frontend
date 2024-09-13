@@ -27,8 +27,18 @@ export const USER_PROFILE_SUBSCRIPTION = gql`
 `;
 
 export const SERVER_SUBSCRIPTION = gql`
-  subscription OnServerUpdated($server_id: ID!) {
-    serverUpdated(server_id: $server_id) {
+  subscription OnServerUpdated($server_id: ID!, $user_id: ID) {
+    serverUpdated(server_id: $server_id, user_id: $user_id) {
+      server_id
+      type
+      data
+    }
+  }
+`;
+
+export const SERVERS_SUBSCRIPTION = gql`
+  subscription OnServersUpdated($server_ids: [ID!]!, $user_id: ID) {
+    serversUpdated(server_ids: $server_ids, user_id: $user_id) {
       server_id
       type
       data

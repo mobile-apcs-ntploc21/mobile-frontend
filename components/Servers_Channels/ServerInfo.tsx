@@ -1,6 +1,7 @@
 import { Image } from 'expo-image';
 import { useCallback, useMemo, useState } from 'react';
 import { Animated, Dimensions, StyleSheet, View, Text } from 'react-native';
+import * as Crypto from 'expo-crypto';
 
 import AddFriendIcon from '@/assets/icons/AddFriendIcon';
 import DotsIcon from '@/assets/icons/DotsIcon';
@@ -76,17 +77,21 @@ const ServerInfo = (props: ServerInfoProps) => {
       // Uncategorized channels
       if (category.id === null)
         return category.channels.length > 0 ? (
-          <View key={category.id} style={styles.newsWrapper}>
+          <View key={Crypto.randomUUID()} style={styles.newsWrapper}>
             {category.channels.map((channel) => (
-              <ChannelItem key={channel.id} channel={channel} />
+              <ChannelItem key={Crypto.randomUUID()} channel={channel} />
             ))}
           </View>
         ) : null;
       // Categorized channels
       return (
-        <Accordion key={category.id} heading={category.name} defaultOpen>
+        <Accordion
+          key={Crypto.randomUUID()}
+          heading={category.name}
+          defaultOpen
+        >
           {category.channels.map((channel) => (
-            <ChannelItem key={channel.id} channel={channel} />
+            <ChannelItem key={Crypto.randomUUID()} channel={channel} />
           ))}
         </Accordion>
       );

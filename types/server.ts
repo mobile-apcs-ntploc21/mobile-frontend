@@ -34,3 +34,10 @@ export interface Emoji {
   image_url: string;
   uploader_id: string;
 }
+
+export interface Member {
+  id: string;
+  username: string;
+  display_name: string;
+  avatar: string;
+}

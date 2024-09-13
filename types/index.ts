@@ -74,6 +74,18 @@ export enum ServerEvents {
   userRoleAdded = 'ADD_USER_TO_ROLE',
   userRoleDeleted = 'REMOVE_USER_FROM_ROLE',
 
+  channelAdded = 'CHANNEL_ADDED',
+  channelDeleted = 'CHANNEL_DELETED',
+  channelUpdated = 'CHANNEL_UPDATED',
+
+  categoryAdded = 'CATEGORY_ADDED',
+  categoryDeleted = 'CATEGORY_DELETED',
+  categoryUpdated = 'CATEGORY_UPDATED',
+
+  roleAdded = 'ROLE_ADDED',
+  roleDeleted = 'ROLE_DELETED',
+  roleUpdated = 'ROLE_UPDATED',
+
   messageAdded = 'NEW_MESSAGE',
   messageDeleted = 'MESSAGE_DELETED',
   messageEdited = 'MESSAGE_MODIFIED',
