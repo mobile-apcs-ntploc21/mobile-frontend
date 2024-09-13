@@ -63,11 +63,11 @@ const Members = () => {
     else
       setFilteredMembers(
         filteredMembers
-          .map((ps) => {
+          ?.map((ps) => {
             const member = members.find((m) => m.user_id === ps.user_id);
             return member || null;
           })
-          .filter((m) => m !== null)
+          .filter((m): m is ServerProfile => m !== null)
       );
   }, [members]);
 
@@ -101,7 +101,7 @@ const Members = () => {
         <View style={[GlobalStyles.subcontainer, { paddingBottom: 16 }]}>
           <ButtonListBase
             heading={`${filteredMembers.length} Members`}
-            items={filteredMembers.map((member) => ({
+            items={filteredMembers?.map((member) => ({
               itemComponent: (
                 <MemberItem key={member.user_id} profile={member} />
               ),

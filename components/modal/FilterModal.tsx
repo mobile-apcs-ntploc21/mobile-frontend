@@ -14,6 +14,8 @@ import { colors } from '@/constants/theme';
 import GlobalStyles from '@/styles/GlobalStyles';
 import { MyButtonText } from '../MyButton';
 import ButtonListCheckbox from '../ButtonList/ButtonListCheckbox';
+import useServer from '@/hooks/useServer';
+import { Role } from '@/types/server';
 
 export interface FilterModalProps {
   visible: boolean;
@@ -21,7 +23,8 @@ export interface FilterModalProps {
 }
 
 const FilterModal = (props: FilterModalProps) => {
-  const [selectedRoles, setSelectedRoles] = useState<string[]>([]);
+  const { customRoles } = useServer();
+  const [selectedRoles, setSelectedRoles] = useState<Role[]>([]);
 
   return (
     <Modal
@@ -51,20 +54,21 @@ const FilterModal = (props: FilterModalProps) => {
               >
                 <ButtonListCheckbox
                   heading="Select Roles"
-                  items={Array.from({ length: 7 }, (_, index) => ({
-                    value: `role-${index}`,
-                    label: `Moderator`
-                  }))}
+                  data={customRoles}
+                  keyExtractor={(role: Role) => role.id}
+                  labelExtractor={(role: Role) => role.name}
+                  valueExtractor={(role: Role) => role}
+                  compareValues={(a: Role, b: Role) => a.id === b.id}
                   scrollable
                   values={selectedRoles}
-                  onAdd={(value: string) =>
-                    setSelectedRoles([...selectedRoles, value])
-                  }
-                  onRemove={(value: string) =>
+                  onAdd={(value: Role) => {
+                    setSelectedRoles([...selectedRoles, value]);
+                  }}
+                  onRemove={(value: Role) => {
                     setSelectedRoles(
                       selectedRoles.filter((role) => role !== value)
-                    )
-                  }
+                    );
+                  }}
                 />
               </View>
               <MyButtonText
