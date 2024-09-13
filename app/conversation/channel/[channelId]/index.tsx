@@ -259,7 +259,7 @@ const ChannelConversation = () => {
       `/api/v1/servers/${currentServerId}/channels/${channelId}/messages`,
       {
         content,
-        replied_message_id:
+        repliedMessageId:
           actionMode?.type === 'reply' ? modalMessage?.id : undefined
       }
     );
@@ -302,6 +302,7 @@ const ChannelConversation = () => {
             onLongPress={() => handleOpenBottomSheet(item)}
           />
         )}
+        contentContainerStyle={{ gap: 8 }}
         keyExtractor={(item, index) => index.toString()}
         inverted
         ListFooterComponent={loading ? <ActivityIndicator /> : null}

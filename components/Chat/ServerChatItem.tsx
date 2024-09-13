@@ -3,18 +3,17 @@ import React, { useCallback, useMemo } from 'react';
 import BaseChatItem, { ChatItemProps } from './BaseChatItem';
 import { colors, fonts } from '@/constants/theme';
 import useServerParseContent from '@/hooks/useServerParseContent';
+import useServer from '@/hooks/useServer';
 
 interface ServerChatItemProps
-  extends Omit<ChatItemProps, 'displayedContents'> {}
+  extends Omit<ChatItemProps, 'displayedContents' | 'users' | 'parseContent'> {}
 
 const ServerChatItem = (props: ServerChatItemProps) => {
+  const { members } = useServer();
   const parseContent = useServerParseContent();
 
   return (
-    <BaseChatItem
-      {...props}
-      displayedContents={parseContent(props.message.content)}
-    />
+    <BaseChatItem {...props} users={members} parseContent={parseContent} />
   );
 };
 

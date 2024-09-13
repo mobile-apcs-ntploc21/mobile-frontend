@@ -2,15 +2,19 @@ import { Image, StyleSheet, Text, View } from 'react-native';
 import React, { ReactNode } from 'react';
 import { Message } from '@/types/chat';
 import MyText from '../MyText';
-import { colors } from '@/constants/theme';
+import { colors, fonts } from '@/constants/theme';
 import { TextStyles } from '@/styles/TextStyles';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import { DefaultProfileImage } from '@/constants/images';
+import { UserProfile } from '@/types';
+import IconWithSize from '../IconWithSize';
+import ReplyIcon from '@/assets/icons/ReplyIcon';
 
 export interface ChatItemProps {
   message: Message;
   onLongPress?: () => void;
-  displayedContents: ReactNode[];
+  parseContent: (content?: string) => ReactNode[];
+  users: UserProfile[];
 }
 
 const BaseChatItem = (props: ChatItemProps) => {
@@ -22,8 +26,48 @@ const BaseChatItem = (props: ChatItemProps) => {
     });
   };
 
+  const renderReplyDisplayName = () => {
+    if (!props.message.replied_message) return null;
+    const repliedUser = props.users.find(
+      (user) => user.user_id === props.message.replied_message!.sender_id
+    );
+    if (!repliedUser) {
+      return (
+        <MyText
+          style={[
+            styles.replyDisplayName,
+            {
+              fontFamily: fonts.regular
+            }
+          ]}
+        >
+          {'<Unknown User>'}
+        </MyText>
+      );
+    }
+    return (
+      <MyText style={styles.replyDisplayName}>
+        {repliedUser.display_name}
+      </MyText>
+    );
+  };
+
   return (
     <TouchableOpacity style={styles.container} onLongPress={props.onLongPress}>
+      {props.message.replied_message && (
+        <View style={styles.replyContainer}>
+          <IconWithSize icon={ReplyIcon} size={24} color={colors.gray01} />
+          {renderReplyDisplayName()}
+          <MyText
+            style={styles.replyMessage}
+            numberOfLines={1}
+            ellipsizeMode="tail"
+          >
+            {props.parseContent(props.message.replied_message.content)}
+          </MyText>
+        </View>
+      )}
+
       <View style={styles.messageContainer}>
         <Image
           source={
@@ -44,9 +88,7 @@ const BaseChatItem = (props: ChatItemProps) => {
           </View>
           <View style={styles.messageContent}>
             <MyText style={styles.message}>
-              {props.displayedContents.map((content, index) => (
-                <React.Fragment key={index}>{content}</React.Fragment>
-              ))}
+              {props.parseContent(props.message.content)}
               {props.message.is_modified && (
                 <Text style={styles.editedText}> (edited)</Text>
               )}
@@ -67,8 +109,8 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'flex-start',
     gap: 8,
-    marginHorizontal: 16,
-    marginVertical: 8
+    paddingHorizontal: 16,
+    paddingVertical: 8
   },
   avatarImg: {
     width: 44,
@@ -100,5 +142,22 @@ const styles = StyleSheet.create({
     ...TextStyles.bodyS,
     color: colors.gray02
   },
-  reactionsContainer: {}
+  reactionsContainer: {},
+  replyContainer: {
+    paddingLeft: 24,
+    paddingRight: 8,
+    gap: 8,
+    flexDirection: 'row',
+    alignItems: 'center',
+    opacity: 0.6
+  },
+  replyDisplayName: {
+    fontSize: 14,
+    fontFamily: fonts.bold
+  },
+  replyMessage: {
+    fontSize: 14,
+    fontFamily: fonts.regular,
+    flex: 1
+  }
 });
