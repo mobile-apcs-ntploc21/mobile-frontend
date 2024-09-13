@@ -206,6 +206,9 @@ const ChannelConversation = () => {
       input = input.replaceAll(`@${member.username}`, `<@${member.user_id}>`);
     });
     roles.forEach((role) => {
+      if (role.default) {
+        input = input.replaceAll(`@everyone`, `<@&${role.id}>`);
+      }
       input = input.replaceAll(`@${role.name}`, `<@&${role.id}>`);
     });
     channels.forEach((channel) => {
