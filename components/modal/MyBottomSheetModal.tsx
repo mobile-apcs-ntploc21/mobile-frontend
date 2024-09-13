@@ -13,6 +13,7 @@ interface MyBottomSheetModalProps {
   onClose: () => void;
   heading?: string;
   children?: React.ReactNode;
+  backgroundColor?: string;
 }
 type Ref = BottomSheetModal;
 
@@ -35,9 +36,8 @@ const MyBottomSheetModal = forwardRef<Ref, MyBottomSheetModalProps>(
         ref={ref}
         enableDynamicSizing={true}
         backdropComponent={renderBackdrop}
-        // contentStyle={{ backgroundColor: colors.gray03 }}
         backgroundStyle={{
-          backgroundColor: colors.gray03,
+          backgroundColor: props.backgroundColor || colors.gray03,
           borderTopLeftRadius: 30,
           borderTopRightRadius: 30
         }}

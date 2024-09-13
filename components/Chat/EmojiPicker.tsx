@@ -13,19 +13,21 @@ import { colors, fonts } from '@/constants/theme';
 import MyText from '../MyText';
 import useServer from '@/hooks/useServer';
 import { TouchableOpacity } from 'react-native-gesture-handler';
+import useServers from '@/hooks/useServers';
 
 interface EmojiPickerProps {
   visible: boolean;
   handleClose: () => void;
   height: number;
   onSelect: (emoji: Emoji) => void;
+  emojis: Emoji[];
 }
 
 // This should not be mistaken for the ReactionPicker component
 const EmojiPicker = (props: EmojiPickerProps) => {
-  const [searchQuery, setSearchQuery] = useState('');
+  const { emojis } = props;
 
-  const { emojis } = useServer();
+  const [searchQuery, setSearchQuery] = useState('');
 
   const filteredEmojis = useMemo<Emoji[]>(() => {
     const query = searchQuery.trim().toLowerCase();
@@ -84,8 +86,8 @@ const styles = StyleSheet.create({
     fontFamily: fonts.bold
   },
   emoji: {
-    width: 24,
-    height: 24,
+    width: 32,
+    height: 32,
     margin: 8
   },
   emojis: {

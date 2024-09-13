@@ -18,6 +18,7 @@ import Animated from 'react-native-reanimated';
 import ArrowForwardIcon from '@/assets/icons/ArrowForwardIcon';
 import SendIcon from '@/assets/icons/SendIcon';
 import EmojiPicker from './EmojiPicker';
+import { Emoji } from '@/types/server';
 
 const IconButton = ({
   icon,
@@ -40,6 +41,7 @@ export interface BaseChatInputProps {
   mentions?: string[];
   emojis?: string[];
   channels?: string[];
+  emojiImports: Emoji[];
 }
 
 const BaseChatInput = (props: BaseChatInputProps) => {
@@ -181,6 +183,7 @@ const BaseChatInput = (props: BaseChatInputProps) => {
           const newText = `${text}:${emoji.name}:`;
           onChange(newText);
         }}
+        emojis={props.emojiImports}
       />
     </View>
   );

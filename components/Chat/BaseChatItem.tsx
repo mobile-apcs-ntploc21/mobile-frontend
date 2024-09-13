@@ -1,6 +1,6 @@
 import { Image, StyleSheet, Text, View } from 'react-native';
 import React, { ReactNode, useEffect, useMemo } from 'react';
-import { Message } from '@/types/chat';
+import { Message, Reaction } from '@/types/chat';
 import MyText from '../MyText';
 import { colors, fonts } from '@/constants/theme';
 import { TextStyles } from '@/styles/TextStyles';
@@ -11,12 +11,69 @@ import IconWithSize from '../IconWithSize';
 import ReplyIcon from '@/assets/icons/ReplyIcon';
 import Avatar from '../Avatar';
 import { StatusType } from '@/types/user_status';
+import { Emoji } from '@/types/server';
+import { useAuth } from '@/context/AuthProvider';
+import { deleteData, postData } from '@/utils/api';
+import useServers from '@/hooks/useServers';
+import { useConversations } from '@/context/ConversationsProvider';
+
+const ReactionItem = (props: {
+  reaction: Reaction;
+  emoji: Emoji;
+  message: Message;
+  channel_id: string;
+  conversation_id: string;
+}) => {
+  const { user } = useAuth();
+  const { currentServerId } = useServers();
+  const { dispatch } = useConversations();
+  const isReacted = useMemo(() => {
+    return props.reaction.reactors.includes(user?.id || '');
+  }, [props.reaction.reactors, user]);
+
+  const handleReactionPress = () => {
+    if (isReacted) {
+      deleteData(
+        `/api/v1/servers/${currentServerId}/channels/${props.channel_id}/messages/${props.message.id}/reactions`,
+        {
+          emoji_id: props.emoji.id
+        }
+      );
+    } else {
+      postData(
+        `/api/v1/servers/${currentServerId}/channels/${props.channel_id}/messages/${props.message.id}/reactions`,
+        {
+          emoji_id: props.emoji.id
+        }
+      );
+    }
+  };
+
+  return (
+    <TouchableOpacity
+      style={[
+        styles.reactionContainer,
+        isReacted && styles.highlightedReactionContainer
+      ]}
+      onPress={handleReactionPress}
+    >
+      <Image
+        source={{ uri: props.emoji.image_url }}
+        style={styles.reactionEmoji}
+      />
+      <MyText style={TextStyles.bodyM}>{props.reaction.count}</MyText>
+    </TouchableOpacity>
+  );
+};
 
 export interface ChatItemProps {
   message: Message;
+  channel_id: string;
   onLongPress?: () => void;
   parseContent: (content?: string) => ReactNode[];
   users: ServerProfile[];
+  emojis: Emoji[];
+  conversation_id: string;
 }
 
 const BaseChatItem = (props: ChatItemProps) => {
@@ -102,7 +159,20 @@ const BaseChatItem = (props: ChatItemProps) => {
               )}
             </MyText>
           </View>
-          <View style={styles.reactionsContainer}></View>
+          <View style={styles.reactionsContainer}>
+            {props.message.reactions.map((reaction, index) => (
+              <ReactionItem
+                key={index}
+                reaction={reaction}
+                emoji={
+                  props.emojis.find((emoji) => emoji.id === reaction.emoji_id)!
+                }
+                message={props.message}
+                channel_id={props.channel_id}
+                conversation_id={props.conversation_id}
+              />
+            ))}
+          </View>
         </View>
       </View>
     </TouchableOpacity>
@@ -150,7 +220,11 @@ const styles = StyleSheet.create({
     ...TextStyles.bodyS,
     color: colors.gray02
   },
-  reactionsContainer: {},
+  reactionsContainer: {
+    flexWrap: 'wrap',
+    flexDirection: 'row',
+    gap: 8
+  },
   replyContainer: {
     paddingLeft: 24,
     paddingRight: 8,
@@ -167,5 +241,24 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontFamily: fonts.regular,
     flex: 1
+  },
+  reactionContainer: {
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 8,
+    gap: 8,
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: colors.gray04,
+    borderWidth: 1,
+    borderColor: colors.gray02
+  },
+  highlightedReactionContainer: {
+    backgroundColor: colors.secondary,
+    borderColor: colors.primary
+  },
+  reactionEmoji: {
+    width: 24,
+    height: 24
   }
 });

@@ -1,4 +1,4 @@
-import { Conversation, ConversationsTypes } from '@/types/chat';
+import { Conversation, ConversationsTypes, Reaction } from '@/types/chat';
 import { ConversationsAction } from '@/types/chat';
 import { createContext, Dispatch, useContext, useReducer } from 'react';
 
@@ -139,7 +139,7 @@ const reducer = (
             : conversation
         )
       };
-    case ConversationsTypes.AddMessageReaction:
+    case ConversationsTypes.SetMessageReaction:
       return {
         ...state,
         conversations: state.conversations.map((conversation) =>
@@ -150,28 +150,29 @@ const reducer = (
                   message.id === payload.messageId
                     ? {
                         ...message,
-                        reactions: [...message.reactions, payload.reaction]
-                      }
-                    : message
-                )
-              }
-            : conversation
-        )
-      };
-    case ConversationsTypes.RemoveMessageReaction:
-      return {
-        ...state,
-        conversations: state.conversations.map((conversation) =>
-          conversation.id === payload.conversationId
-            ? {
-                ...conversation,
-                messages: conversation.messages.map((message) =>
-                  message.id === payload.messageId
-                    ? {
-                        ...message,
-                        reactions: message.reactions.filter(
-                          (reaction) => reaction.id !== payload.reactionId
-                        )
+                        reactions: payload.reactions.reduce((acc, reaction) => {
+                          const found = acc.find(
+                            (r) => r.emoji_id === reaction.emoji_id
+                          );
+                          if (found) {
+                            found.count++;
+                            found.reactors = [
+                              ...found.reactors,
+                              // @ts-ignore
+                              reaction.sender_id
+                            ];
+                            return acc;
+                          }
+                          return [
+                            ...acc,
+                            {
+                              ...reaction,
+                              count: 1,
+                              // @ts-ignore
+                              reactors: [reaction.sender_id]
+                            }
+                          ];
+                        }, [] as Reaction[])
                       }
                     : message
                 )

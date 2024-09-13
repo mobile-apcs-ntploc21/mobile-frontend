@@ -598,6 +598,26 @@ export const ServerProvider = (props: ProviderProps) => {
           });
         }
         break;
+      case ServerEvents.messageReactionAdded:
+        conversationDispatch({
+          type: ConversationsTypes.SetMessageReaction,
+          payload: {
+            conversationId: data.conversation_id,
+            messageId: data.message_id,
+            reactions: data.reactions
+          }
+        });
+        break;
+      case ServerEvents.messageReactionRemoved:
+        conversationDispatch({
+          type: ConversationsTypes.SetMessageReaction,
+          payload: {
+            conversationId: data.conversation_id,
+            messageId: data.message_id,
+            reactions: data.reactions
+          }
+        });
+        break;
       default:
         console.warn('Unknown event type:', type);
         console.log(type, server_id, data);

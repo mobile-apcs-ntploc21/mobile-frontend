@@ -6,14 +6,22 @@ import useServerParseContent from '@/hooks/useServerParseContent';
 import useServer from '@/hooks/useServer';
 
 interface ServerChatItemProps
-  extends Omit<ChatItemProps, 'displayedContents' | 'users' | 'parseContent'> {}
+  extends Omit<
+    ChatItemProps,
+    'displayedContents' | 'users' | 'parseContent' | 'emojis'
+  > {}
 
 const ServerChatItem = (props: ServerChatItemProps) => {
-  const { members } = useServer();
+  const { members, emojis } = useServer();
   const parseContent = useServerParseContent();
 
   return (
-    <BaseChatItem {...props} users={members} parseContent={parseContent} />
+    <BaseChatItem
+      {...props}
+      users={members}
+      parseContent={parseContent}
+      emojis={emojis}
+    />
   );
 };
 

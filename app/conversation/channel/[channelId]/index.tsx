@@ -26,7 +26,7 @@ import GlobalStyles from '@/styles/GlobalStyles';
 import { TextInput } from 'react-native-gesture-handler';
 import BaseChatInput from '@/components/Chat/BaseChatInput';
 import useServer from '@/hooks/useServer';
-import { Channel } from '@/types/server';
+import { Channel, Emoji } from '@/types/server';
 import IconWithSize from '@/components/IconWithSize';
 import InfoIcon from '@/assets/icons/InfoIcon';
 import { colors } from '@/constants/theme';
@@ -40,6 +40,7 @@ import ServerChatInput from '@/components/Chat/ServerChatInput';
 import { deleteData, getData, postData, putData } from '@/utils/api';
 import useServers from '@/hooks/useServers';
 import debounce from '@/utils/debounce';
+import EmojiPicker from '@/components/Chat/EmojiPicker';
 
 const ChannelConversation = () => {
   const navigation = useNavigation();
@@ -159,7 +160,7 @@ const ChannelConversation = () => {
   const messageBottomSheetRef = useRef<BottomSheetModal>(null);
   const [modalMessage, setModalMessage] = useState<Message | null>(null);
 
-  const handleOpenBottomSheet = useCallback(
+  const handleOpenMessageBottomSheet = useCallback(
     (message: Message) => {
       setModalMessage(message);
       messageBottomSheetRef.current?.present();
@@ -168,9 +169,29 @@ const ChannelConversation = () => {
     [messageBottomSheetRef]
   );
 
-  const handleCloseBottomSheet = useCallback(() => {
+  const handleCloseMessageBottomSheet = useCallback(() => {
     messageBottomSheetRef.current?.dismiss();
   }, [messageBottomSheetRef]);
+
+  const reactionBottomSheetRef = useRef<BottomSheetModal>(null);
+
+  const handleOpenReactionBottomSheet = useCallback(() => {
+    reactionBottomSheetRef.current?.present();
+  }, [reactionBottomSheetRef]);
+
+  const handleCloseReactionBottomSheet = useCallback(() => {
+    reactionBottomSheetRef.current?.dismiss();
+  }, [reactionBottomSheetRef]);
+
+  const handleSelectReaction = (emoji: Emoji) => {
+    postData(
+      `/api/v1/servers/${currentServerId}/channels/${channelId}/messages/${modalMessage?.id}/reactions`,
+      {
+        emoji_id: emoji.id
+      }
+    );
+    handleCloseReactionBottomSheet();
+  };
 
   const convertContentToInput = (content: string) => {
     const userPattern = /<@!?([a-f0-9]{24})>/g;
@@ -243,11 +264,16 @@ const ChannelConversation = () => {
     setActionMessage(null);
   };
 
+  const handleReact = () => {
+    handleCloseMessageBottomSheet();
+    handleOpenReactionBottomSheet();
+  };
+
   const handleEdit = () => {
     setChatInput(convertContentToInput(modalMessage?.content || ''));
     setActionMode({ type: 'edit' });
     setActionMessage(modalMessage);
-    handleCloseBottomSheet();
+    handleCloseMessageBottomSheet();
   };
 
   const handleReply = () => {
@@ -256,7 +282,7 @@ const ChannelConversation = () => {
       replyTo: modalMessage?.author.display_name || ''
     });
     setActionMessage(modalMessage);
-    handleCloseBottomSheet();
+    handleCloseMessageBottomSheet();
   };
 
   const handleDelete = () => {
@@ -267,7 +293,7 @@ const ChannelConversation = () => {
     deleteData(
       `/api/v1/servers/${currentServerId}/channels/${channelId}/messages/${modalMessage?.id}`
     );
-    handleCloseBottomSheet();
+    handleCloseMessageBottomSheet();
   };
 
   const handleSend = async () => {
@@ -299,13 +325,13 @@ const ChannelConversation = () => {
     <View style={GlobalStyles.screen}>
       <MyBottomSheetModal
         ref={messageBottomSheetRef}
-        onClose={handleCloseBottomSheet}
+        onClose={handleCloseMessageBottomSheet}
       >
         <ButtonListText
           items={[
             {
               text: 'React',
-              onPress: () => {}
+              onPress: handleReact
             },
             {
               text: 'Edit',
@@ -322,14 +348,31 @@ const ChannelConversation = () => {
           ]}
         />
       </MyBottomSheetModal>
+      <MyBottomSheetModal
+        ref={reactionBottomSheetRef}
+        backgroundColor={colors.gray04}
+        onClose={handleCloseReactionBottomSheet}
+      >
+        <View style={{ width: '100%' }}>
+          <EmojiPicker
+            onSelect={handleSelectReaction}
+            visible
+            handleClose={() => {}}
+            height={600}
+            emojis={emojis}
+          />
+        </View>
+      </MyBottomSheetModal>
       <FlatList
         keyboardShouldPersistTaps="always"
         data={conversation?.messages || []}
         renderItem={({ item, index }) => (
           <ServerChatItem
+            channel_id={channelId!}
             key={index}
             message={item}
-            onLongPress={() => handleOpenBottomSheet(item)}
+            onLongPress={() => handleOpenMessageBottomSheet(item)}
+            conversation_id={conversation.id}
           />
         )}
         contentContainerStyle={{ gap: 8 }}
@@ -344,6 +387,7 @@ const ChannelConversation = () => {
         mode={actionMode}
         onCancelMode={handleCancelMode}
         onSend={handleSend}
+        emojiImports={emojis}
       />
     </View>
   );
