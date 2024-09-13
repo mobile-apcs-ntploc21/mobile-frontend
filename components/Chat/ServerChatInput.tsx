@@ -164,7 +164,7 @@ const ServerChatInput = (props: ServerChatInputProps) => {
             {item.component}
           </TouchableOpacity>
         )}
-        keyExtractor={(item) => item.name}
+        keyExtractor={(item, index) => index.toString()}
         style={styles.suggestionsList}
       />
       {props.mode && (
