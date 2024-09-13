@@ -52,8 +52,6 @@ const EmojiPicker = (props: EmojiPickerProps) => {
     return () => backHandler.remove();
   }, [props.visible]);
 
-  console.log(props.height);
-
   if (!props.visible) return null;
   return (
     <View style={{ height: props.height, backgroundColor: colors.gray04 }}>
