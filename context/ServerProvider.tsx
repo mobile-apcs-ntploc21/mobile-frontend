@@ -605,7 +605,7 @@ export const ServerProvider = (props: ProviderProps) => {
             (res) => res?.roles || []
           ),
           getData(`/api/v1/servers/${server_id}/emojis`).then(
-            (res) => res?.emojis || []
+            (res) => res || []
           )
         ]).catch((err) => {
           throw new Error(err.message);
