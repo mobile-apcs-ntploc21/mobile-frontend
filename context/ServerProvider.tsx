@@ -288,7 +288,7 @@ export const ServerProvider = (props: ProviderProps) => {
         });
         break;
       case ServerEvents.memberJoined:
-        (async () => {
+        {
           let profileAndStatus = await getServerProfile(data, true).catch(() =>
             getServerProfile(data)
           );
@@ -297,7 +297,7 @@ export const ServerProvider = (props: ProviderProps) => {
             type: ServerActions.SET_MEMBERS,
             payload: [...server.members, profileAndStatus]
           });
-        })();
+        }
         break;
       case ServerEvents.memberLeft:
         dispatchLoad.push({
@@ -308,19 +308,25 @@ export const ServerProvider = (props: ProviderProps) => {
         });
         break;
       case ServerEvents.memberAdded:
-        (async () => {
-          const profileAndStatus = await Promise.all(
-            data.map((user_id: string) =>
-              getServerProfile(user_id, true).catch(() =>
-                getServerProfile(user_id)
-              )
-            )
+        {
+          const membersFetch = await getData(
+            `/api/v1/servers/${server_id}/members`
           );
+
+          const members: ServerProfile[] = membersFetch.map((member: any) => ({
+            ...member,
+            roles: member.roleIds
+              .map((roleId: string) =>
+                server.customRoles.find((role: Role) => role.id === roleId)
+              )
+              .filter((role: any) => role)
+          }));
+
           dispatchLoad.push({
             type: ServerActions.SET_MEMBERS,
-            payload: [...server.members, ...profileAndStatus]
+            payload: members
           });
-        })();
+        }
         break;
       case ServerEvents.memberRemoved:
         dispatchLoad.push({
