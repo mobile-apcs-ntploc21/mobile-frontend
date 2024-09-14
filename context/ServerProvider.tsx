@@ -556,6 +556,7 @@ export const ServerProvider = (props: ProviderProps) => {
         {
           let categories = [...server.categories];
           const category = data;
+
           dispatchLoad.push({
             type: ServerActions.SET_CATEGORIES,
             payload: categories.map((c) =>
@@ -739,20 +740,20 @@ export const ServerProvider = (props: ProviderProps) => {
         emojis,
         permissionsFetched
       ] = await Promise.all([
-        getData(`/api/v1/servers/${server_id}/channels`).then(
-          (res) => res?.channels || []
-        ),
-        getData(`/api/v1/servers/${server_id}/categories`).then(
-          (res) => res?.categories || []
-        ),
-        getData(`/api/v1/servers/${server_id}/members`) || [],
-        getData(`/api/v1/servers/${server_id}/roles`).then(
-          (res) => res?.roles || []
-        ),
+        getData(`/api/v1/servers/${server_id}/channels`)
+          .then((res) => res?.channels || [])
+          .catch((err) => []),
+        getData(`/api/v1/servers/${server_id}/categories`)
+          .then((res) => res?.categories || [])
+          .catch((err) => []),
+        getData(`/api/v1/servers/${server_id}/members`).catch((err) => []),
+        getData(`/api/v1/servers/${server_id}/roles`)
+          .then((res) => res?.roles || [])
+          .catch((err) => []),
         getData(`/api/v1/servers/${server_id}/emojis`).then((res) => res || []),
-        getData(`/api/v1/servers/${server_id}/members/self/permissions`).then(
-          (res) => res || {}
-        )
+        getData(`/api/v1/servers/${server_id}/members/self/permissions`)
+          .then((res) => res || {})
+          .catch((err) => [])
       ]).catch((err) => {
         throw new Error(err.message);
       });
