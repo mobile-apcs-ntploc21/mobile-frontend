@@ -6,7 +6,7 @@ import { MaterialIcons } from '@expo/vector-icons';
 
 const TabArr = [
   { name: 'servers', iconType: MaterialIcons, iconName: 'dashboard' },
-  { name: 'dm', iconType: MaterialIcons, iconName: 'question-answer' },
+  { name: 'dm', iconType: MaterialIcons, iconName: 'group' },
   { name: 'notifications', iconType: MaterialIcons, iconName: 'notifications' },
   { name: 'user', iconType: MaterialIcons, iconName: 'account-circle' }
 ];
@@ -25,6 +25,7 @@ export default function TabLayout() {
           key={index}
           name={tab.name}
           options={{
+            href: tab.name !== 'notifications' ? `/${tab.name}` : null,
             headerShown: false,
             tabBarShowLabel: false,
             tabBarIcon: ({ color }) => (
