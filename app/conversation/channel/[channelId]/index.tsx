@@ -3,6 +3,7 @@ import {
   FlatList,
   Keyboard,
   KeyboardAvoidingView,
+  Platform,
   ScrollView,
   StyleSheet,
   Text,
@@ -41,6 +42,7 @@ import { deleteData, getData, postData, putData } from '@/utils/api';
 import useServers from '@/hooks/useServers';
 import debounce from '@/utils/debounce';
 import EmojiPicker from '@/components/Chat/EmojiPicker';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 const ChannelConversation = () => {
   const navigation = useNavigation();
@@ -59,6 +61,8 @@ const ChannelConversation = () => {
   const conversation = useMemo(() => {
     return conversations.find((conv) => conv.id === channel?.conversation_id);
   }, [conversations, channelId])!;
+
+  const insets = useSafeAreaInsets();
 
   useLayoutEffect(() => {
     const channelName = channel?.name;
@@ -364,7 +368,7 @@ const ChannelConversation = () => {
         </View>
       </MyBottomSheetModal>
       <FlatList
-        keyboardShouldPersistTaps="always"
+        keyboardShouldPersistTaps="never"
         data={conversation?.messages || []}
         renderItem={({ item, index }) => (
           <ServerChatItem
@@ -381,14 +385,19 @@ const ChannelConversation = () => {
         ListFooterComponent={loading ? <ActivityIndicator /> : null}
         onEndReached={fetchMessages}
       />
-      <ServerChatInput
-        value={chatInput}
-        onChange={setChatInput}
-        mode={actionMode}
-        onCancelMode={handleCancelMode}
-        onSend={handleSend}
-        emojiImports={emojis}
-      />
+      <KeyboardAvoidingView
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        keyboardVerticalOffset={Platform.OS === 'ios' ? 96 + insets.bottom : 0}
+      >
+        <ServerChatInput
+          value={chatInput}
+          onChange={setChatInput}
+          mode={actionMode}
+          onCancelMode={handleCancelMode}
+          onSend={handleSend}
+          emojiImports={emojis}
+        />
+      </KeyboardAvoidingView>
     </View>
   );
 };

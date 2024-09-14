@@ -127,7 +127,7 @@ const handlers: Record<
     return {
       ...state,
       latestAction: ServerActions.UPDATE_PROFILE,
-      members: state.members.map((member) =>
+      members: state?.members.map((member) =>
         member.user_id === profile.user_id ? { ...member, ...profile } : member
       )
     };
@@ -309,38 +309,43 @@ export const ServerProvider = (props: ProviderProps) => {
         break;
       case ServerEvents.userRoleAdded:
         {
-          const members = [...server.members];
-          members.forEach(
-            (member) =>
-              member.user_id === data.user_id &&
-              member.roles.push(
-                server.customRoles.find((role) => role.id === data.role_id)!
-              )
+          // Increment the role count
+          const newRoles = server.roles.map((role) =>
+            role.id === data.role_id
+              ? { ...role, number_of_users: role.number_of_users + 1 }
+              : role
           );
+          dispatchLoad.push({
+            type: ServerActions.SET_ROLES,
+            payload: newRoles
+          });
+
           // Set the members with the updated roles
+          const members = [...server.members];
+          members.forEach((member) => {
+            if (member.user_id === data.user_id) {
+              member.roles.push(
+                newRoles.find((role) => role.id === data.role_id)!
+              );
+            }
+          });
           dispatchLoad.push({
             type: ServerActions.SET_MEMBERS,
             payload: members
-          });
-          // Increment the role count
-          dispatchLoad.push({
-            type: ServerActions.SET_ROLES,
-            payload: server.roles.map((role) =>
-              role.id === data.role_id
-                ? { ...role, number_of_users: role.number_of_users + 1 }
-                : role
-            )
           });
         }
         break;
       case ServerEvents.userRoleDeleted:
         {
           const members = [...server.members];
-          members.forEach(
-            (member) =>
-              member.user_id === data.user_id &&
-              member.roles.filter((role) => role.id !== data.role_id)
-          );
+          members.forEach((member) => {
+            if (member.user_id === data.user_id) {
+              member.roles = member.roles.filter(
+                (role) => role.id !== data.role_id
+              );
+            }
+          });
+
           // Set the members with the updated roles
           dispatchLoad.push({
             type: ServerActions.SET_MEMBERS,

@@ -1,5 +1,12 @@
 import { useLocalSearchParams, useNavigation } from 'expo-router';
-import { useCallback, useLayoutEffect, useMemo, useRef, useState } from 'react';
+import {
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  useState
+} from 'react';
 import {
   Alert,
   Pressable,
@@ -54,8 +61,16 @@ const EditMember = () => {
   const currentRoles = useMemo(() => {
     const tmp = members.find((member) => member.user_id === uid)!.roles;
     if (!tmp) return [];
+
     return tmp;
   }, [members, uid]);
+
+  // Set the formik to the current roles
+  useEffect(() => {
+    formikRef.current?.setValues({
+      roles: currentRoles
+    });
+  }, [currentRoles]);
 
   const actions = useMemo(
     () => [
