@@ -50,17 +50,17 @@ const CreateChannel = () => {
         throw new Error('Failed to create channel');
       }
 
-      // Add the new channel to the list of channels
-      dispatch({
-        type: ServerActions.CREATE_CHANNEL,
-        payload: {
-          category_id: null,
-          id: response.id,
-          name: response.name,
-          description: response.description,
-          position: categories[0].channels.length
-        }
-      });
+      // // Add the new channel to the list of channels
+      // dispatch({
+      //   type: ServerActions.CREATE_CHANNEL,
+      //   payload: {
+      //     category_id: null,
+      //     id: response.id,
+      //     name: response.name,
+      //     description: response.description,
+      //     position: categories[0].channels.length
+      //   }
+      // });
 
       router.replace({
         pathname: `./edit_channel/${response.id}`,

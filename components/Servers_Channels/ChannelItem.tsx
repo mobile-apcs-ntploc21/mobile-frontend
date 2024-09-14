@@ -23,6 +23,9 @@ const ChannelItem = (props: ChannelItemProps) => {
     )!;
   }, [conversations, props.channel.conversation_id]);
 
+  // console.log('conversation', conversation);
+  // console.log('channel', props.channel);
+
   const parseContent = useServerParseContent();
 
   const getTimeDifference = (timestamp: string) => {
@@ -59,18 +62,18 @@ const ChannelItem = (props: ChannelItemProps) => {
             numberOfLines={1}
             ellipsizeMode="tail"
           >
-            {parseContent(conversation.messages[0]?.content)}
+            {parseContent(conversation?.messages[0]?.content)}
           </MyText>
         </View>
       </View>
       <View style={styles.infoContainer}>
         <MyText style={TextStyles.bodyM}>
-          {getTimeDifference(conversation.messages[0]?.createdAt)}
+          {getTimeDifference(conversation?.messages[0]?.createdAt)}
         </MyText>
         {conversation.number_of_unread_mentions > 0 ? (
           <View style={styles.unreadContainer}>
             <MyText style={{ color: colors.white }}>
-              {convertUnreadCount(conversation.number_of_unread_mentions)}
+              {convertUnreadCount(conversation?.number_of_unread_mentions)}
             </MyText>
           </View>
         ) : conversation.has_new_message ? (

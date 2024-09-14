@@ -1,29 +1,25 @@
-import {
-  ActivityIndicator,
-  Alert,
-  ScrollView,
-  StyleSheet,
-  Text,
-  View
-} from 'react-native';
-import React, {
-  useCallback,
-  useEffect,
-  useLayoutEffect,
-  useState
-} from 'react';
-import { colors } from '@/constants/theme';
-import { TextStyles } from '@/styles/TextStyles';
-import { router, useNavigation } from 'expo-router';
-import { NativeStackHeaderProps } from '@react-navigation/native-stack';
-import MyHeader from '@/components/MyHeader';
+import ButtonListText from '@/components/ButtonList/ButtonListText';
 import { MyButtonText } from '@/components/MyButton';
 import MyButtonPress from '@/components/MyButton/MyButtonPress';
+import MyHeader from '@/components/MyHeader';
+import { colors } from '@/constants/theme';
 import { useAuth } from '@/context/AuthProvider';
-import ButtonListText from '@/components/ButtonList/ButtonListText';
+import { useConversations } from '@/context/ConversationsProvider';
+import useServer from '@/hooks/useServer';
+import useServers from '@/hooks/useServers';
+import { TextStyles } from '@/styles/TextStyles';
+import { NativeStackHeaderProps } from '@react-navigation/native-stack';
+import { router, useNavigation } from 'expo-router';
+import { useCallback, useLayoutEffect } from 'react';
+import { Alert, ScrollView, StyleSheet, View } from 'react-native';
+import { Conversation, ConversationsTypes } from '@/types/chat';
 
 const Settings = () => {
   const { logout } = useAuth();
+  const { dispatch: serversDispatch } = useServers();
+  const { dispatch: conversationsDispatch } = useConversations();
+  const { unsubscribeServer } = useServer();
+
   const navigation = useNavigation();
 
   const handleLogout = useCallback(() => {
@@ -36,7 +32,21 @@ const Settings = () => {
         text: 'Log Out',
         style: 'destructive',
         onPress: () => {
-          logout().finally(() => router.dismissAll());
+          (async () => {
+            // Log out user and navigate to login screen
+            await logout();
+            router.dismissAll();
+
+            // Delete all data
+            serversDispatch({ type: 'SET_SERVERS', payload: [] });
+            unsubscribeServer(null);
+            conversationsDispatch({
+              type: ConversationsTypes.SetConversation,
+              payload: {
+                conversation: [] as unknown as Conversation
+              }
+            });
+          })().catch(console.error);
         }
       }
     ]);

@@ -53,7 +53,7 @@ type ServerAction = {
 interface IContext extends ServerState {
   setServer: (id: string) => Promise<void>;
   dispatch: Dispatch<ServerAction>;
-  unsubscribeServer: (server_id: string) => void;
+  unsubscribeServer: (server_id: string | null) => void;
 }
 
 interface ProviderProps {
@@ -210,13 +210,22 @@ export const ServerProvider = (props: ProviderProps) => {
     skip: fetchedServerIds.length === 0
   });
 
-  const unsubscribeServer = async (server_id: string) => {
-    // Unsubscribe from the server with the given ID
-    setServers((prevServers) => {
-      const newServers = { ...prevServers };
-      delete newServers[server_id];
-      return newServers;
-    });
+  const unsubscribeServer = async (server_id: string | null) => {
+    if (server_id) {
+      // Unsubscribe from the server with the given ID
+      setServers((prevServers) => {
+        const newServers = { ...prevServers };
+        delete newServers[server_id];
+        return newServers;
+      });
+    } else {
+      // Unsubscribe from all servers
+      setServers({});
+      dispatch({
+        type: ServerActions.INIT,
+        payload: initialState
+      });
+    }
   };
 
   const handleSubscriptionData = async (subscriptionData: any) => {
@@ -456,23 +465,41 @@ export const ServerProvider = (props: ProviderProps) => {
         });
         break;
       case ServerEvents.channelAdded:
-        dispatchLoad.push({
-          type: ServerActions.SET_CATEGORIES,
-          payload: server.categories.map((category) =>
-            category.id === data.category_id
-              ? {
-                  ...category,
-                  channels: [
-                    ...category.channels,
-                    {
-                      id: data._id,
-                      ...data
-                    }
-                  ]
-                }
-              : category
-          )
-        });
+        {
+          conversationDispatch({
+            type: ConversationsTypes.AddConversations,
+            payload: {
+              conversations: [
+                {
+                  id: data.conversation_id,
+                  type: 'channel',
+                  number_of_unread_mentions: 0,
+                  has_new_message: false,
+                  messages: []
+                } as Conversation
+              ]
+            }
+          });
+
+          data.category_id = null;
+          dispatchLoad.push({
+            type: ServerActions.SET_CATEGORIES,
+            payload: server.categories.map((category) =>
+              category.id === data.category_id
+                ? {
+                    ...category,
+                    channels: [
+                      ...category.channels,
+                      {
+                        id: data._id,
+                        ...data
+                      }
+                    ]
+                  }
+                : category
+            )
+          });
+        }
         break;
       case ServerEvents.channelUpdated:
         {
@@ -538,10 +565,11 @@ export const ServerProvider = (props: ProviderProps) => {
         {
           let categories = [...server.categories];
           const category = data;
+
           dispatchLoad.push({
             type: ServerActions.SET_CATEGORIES,
             payload: categories.map((c) =>
-              c.id === category.id
+              c.id === category._id
                 ? {
                     ...c,
                     ...category
@@ -721,20 +749,20 @@ export const ServerProvider = (props: ProviderProps) => {
         emojis,
         permissionsFetched
       ] = await Promise.all([
-        getData(`/api/v1/servers/${server_id}/channels`).then(
-          (res) => res?.channels || []
-        ),
-        getData(`/api/v1/servers/${server_id}/categories`).then(
-          (res) => res?.categories || []
-        ),
-        getData(`/api/v1/servers/${server_id}/members`) || [],
-        getData(`/api/v1/servers/${server_id}/roles`).then(
-          (res) => res?.roles || []
-        ),
+        getData(`/api/v1/servers/${server_id}/channels`)
+          .then((res) => res?.channels || [])
+          .catch((err) => []),
+        getData(`/api/v1/servers/${server_id}/categories`)
+          .then((res) => res?.categories || [])
+          .catch((err) => []),
+        getData(`/api/v1/servers/${server_id}/members`).catch((err) => []),
+        getData(`/api/v1/servers/${server_id}/roles`)
+          .then((res) => res?.roles || [])
+          .catch((err) => []),
         getData(`/api/v1/servers/${server_id}/emojis`).then((res) => res || []),
-        getData(`/api/v1/servers/${server_id}/members/self/permissions`).then(
-          (res) => res || {}
-        )
+        getData(`/api/v1/servers/${server_id}/members/self/permissions`)
+          .then((res) => res || {})
+          .catch((err) => [])
       ]).catch((err) => {
         throw new Error(err.message);
       });
