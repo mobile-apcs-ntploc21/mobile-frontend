@@ -270,7 +270,7 @@ const UserById = () => {
   return (
     <View style={GlobalStyles.screen}>
       <MyBottomSheetModal
-        heading={userId?.toString()}
+        heading={userData?.username}
         ref={bottomSheetRef}
         onClose={handleCloseBottomSheet}
       >
