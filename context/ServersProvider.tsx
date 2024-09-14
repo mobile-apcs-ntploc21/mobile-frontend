@@ -8,6 +8,10 @@ import {
   useRef
 } from 'react';
 import { ServerProvider } from './ServerProvider';
+import { useSubscription } from '@apollo/client';
+import { DUMMY_SUBSCRIPTION } from '@/services/graphql/subscriptions';
+import { useAuth } from './AuthProvider';
+import { getData } from '@/utils/api';
 
 // Types
 export enum ServersActions {
@@ -88,6 +92,67 @@ const reducer = (state: ServersState, action: ServerAction) => {
 // Provider
 export const ServersProvider = ({ children }: ServersProviderProps) => {
   const [state, dispatch] = useReducer(reducer, initialState);
+  const { user } = useAuth();
+
+  const { data: userSubData } = useSubscription(DUMMY_SUBSCRIPTION, {
+    variables: { user_id: user?.id },
+    skip: !user?.id
+  });
+
+  const handleUserSubscription = async (subscriptionData: any) => {
+    console.log('subscriptionData', subscriptionData);
+    if (!subscriptionData) return;
+
+    const { _: userData } = subscriptionData;
+    const { type, data } = userData;
+
+    if (!userData) return;
+
+    switch (type) {
+      case 'SERVER_ADDED':
+      case 'SERVER_REMOVED':
+        {
+          const response = await getData('/api/v1/servers/list'); // return JSON array of servers
+
+          if (!response) {
+            dispatch({ type: ServersActions.SET_SERVERS, payload: [] }); // Set empty array if no servers
+            return;
+          }
+
+          const servers = await Promise.all(
+            Object.values(response).map(async (server: any, index: number) => {
+              return {
+                id: server.id,
+                owner_id: server.owner,
+                name: server.name,
+                is_favorite: server.is_favorite,
+                avatar: server.avatar_url,
+                banner: server.banner_url,
+                position: server.position || index
+              };
+            })
+          );
+
+          if (Array.isArray(servers)) {
+            console.log('servers', servers);
+            dispatch({
+              type: ServersActions.SET_SERVERS,
+              payload: servers
+            });
+          }
+        }
+        break;
+
+      default: {
+        console.warn('Unknown type', type);
+        console.log(data);
+      }
+    }
+  };
+
+  useEffect(() => {
+    handleUserSubscription(userSubData);
+  }, [userSubData]);
 
   // Set server map for quick access using its id
   state.serverMap = state.servers.reduce(
