@@ -49,6 +49,8 @@ const AddMemberModal = (props: AddMemberModalProps) => {
     } catch (error) {
       showAlert('Failed to invite this member.');
     }
+
+    props.onClose();
   }, [username, currentServerId]);
 
   return (
