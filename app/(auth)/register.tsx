@@ -56,7 +56,7 @@ const Register = () => {
 
       await register(
         value.username,
-        value.phoneNumber,
+        value.phoneNumber || undefined,
         value.email,
         value.password
       );
