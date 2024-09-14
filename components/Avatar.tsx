@@ -1,4 +1,5 @@
-import { StyleSheet, View, Image, ImageStyle } from 'react-native';
+import { StyleSheet, View, ImageStyle } from 'react-native';
+import { Image } from 'expo-image';
 import { colors } from '@/constants/theme';
 import { DefaultProfileImage } from '@/constants/images';
 import { getOnlineStatusColor } from '@/utils/user';
