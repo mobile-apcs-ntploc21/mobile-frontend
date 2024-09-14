@@ -73,7 +73,7 @@ const AddMemberModal = (props: AddMemberModalProps) => {
               />
               <View style={styles.actions}>
                 <MyButtonText
-                  title="Cancel"
+                  title="Close"
                   reverseStyle
                   containerStyle={styles.actionBtn}
                   textStyle={TextStyles.h3}
@@ -81,7 +81,7 @@ const AddMemberModal = (props: AddMemberModalProps) => {
                 />
                 <MyButtonText
                   showOutline={false}
-                  title="Confirm"
+                  title="Add"
                   textStyle={TextStyles.h3}
                   containerStyle={styles.actionBtn}
                   onPress={handleConfirm}
