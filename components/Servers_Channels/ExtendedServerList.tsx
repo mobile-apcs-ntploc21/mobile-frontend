@@ -1,26 +1,17 @@
-import {
-  FlatList,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View
-} from 'react-native';
-import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { ServerListProps } from '@/types';
-import SimpleServerItem from './SimpleServerItem';
-import ExtendedServerItem from './ExtendedServerItem';
-import Draggable from '../Draggable';
-import { useAnimatedReaction, useSharedValue } from 'react-native-reanimated';
-import useServers from '@/hooks/useServers';
 import { colors, fonts } from '@/constants/theme';
-import { FontAwesome5 } from '@expo/vector-icons';
-import MyText from '../MyText';
-import { template } from '@babel/core';
-import { BottomSheetScrollView } from '@gorhom/bottom-sheet';
-import { COL, HEIGHT, MARGIN_X, MARGIN_Y, WIDTH } from '@/utils/dragging';
-import CreateServerModal from '../modal/CreateServerModal';
-import { putData } from '@/utils/api';
 import { ServersActions } from '@/context/ServersProvider';
+import useServers from '@/hooks/useServers';
+import { putData } from '@/utils/api';
+import { COL, HEIGHT, MARGIN_X, MARGIN_Y, WIDTH } from '@/utils/dragging';
+import { FontAwesome5 } from '@expo/vector-icons';
+import { BottomSheetScrollView } from '@gorhom/bottom-sheet';
+import { useEffect, useRef, useState } from 'react';
+import { StyleSheet, TouchableOpacity, View } from 'react-native';
+import { useSharedValue } from 'react-native-reanimated';
+import Draggable from '../Draggable';
+import MyText from '../MyText';
+import CreateServerModal from '../modal/CreateServerModal';
+import ExtendedServerItem from './ExtendedServerItem';
 
 interface ExtendedServerListProps {
   swipeDown: () => void;
