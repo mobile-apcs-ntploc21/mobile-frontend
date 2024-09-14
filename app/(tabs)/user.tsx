@@ -112,7 +112,7 @@ const User = () => {
       />
       <MyButtonIcon
         icon={SettingIcon}
-        onPress={() => {}}
+        onPress={() => router.navigate('/blocked')}
         containerStyle={styles.settingsButton}
         textColor={colors.white}
       />
