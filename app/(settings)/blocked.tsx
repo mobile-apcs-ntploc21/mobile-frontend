@@ -1,15 +1,14 @@
-import { ActivityIndicator, StyleSheet, Text, View } from 'react-native';
-import React, { useEffect, useState } from 'react';
+import { ActivityIndicator, StyleSheet, View } from 'react-native';
+import React, { useEffect, useLayoutEffect, useState } from 'react';
 import GlobalStyles from '@/styles/GlobalStyles';
 import ButtonListBase from '@/components/ButtonList/ButtonListBase';
-import ButtonListText from '@/components/ButtonList/ButtonListText';
 import { colors } from '@/constants/theme';
-import UserItemBase from '@/components/UserItem/UserItemBase';
 import MyText from '@/components/MyText';
-import { MyButtonText } from '@/components/MyButton';
 import { TextStyles } from '@/styles/TextStyles';
 import { router, useNavigation } from 'expo-router';
 import { getBlockedUsers } from '@/services/friend';
+import { NativeStackHeaderProps } from '@react-navigation/native-stack';
+import MyHeader from '@/components/MyHeader';
 
 const Blocked = () => {
   const [blocked, setBlocked] = useState<any[]>([]);
@@ -39,6 +38,14 @@ const Blocked = () => {
 
     return unsubscribe;
   }, [navigation]);
+
+  useLayoutEffect(() => {
+    navigation.setOptions({
+      header: (props: NativeStackHeaderProps) => (
+        <MyHeader {...props} title="Blocked List" />
+      )
+    });
+  }, []);
 
   return (
     <View style={GlobalStyles.screen}>
