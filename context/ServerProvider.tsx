@@ -560,7 +560,7 @@ export const ServerProvider = (props: ProviderProps) => {
           dispatchLoad.push({
             type: ServerActions.SET_CATEGORIES,
             payload: categories.map((c) =>
-              c.id === category.id
+              c.id === category._id
                 ? {
                     ...c,
                     ...category
