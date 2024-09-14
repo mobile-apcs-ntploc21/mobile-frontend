@@ -27,22 +27,25 @@ export default function Servers() {
     extrapolate: 'clamp'
   });
 
-  const ServerBanner = () => {
-    return (
-      <Image
-        source={
-          thisServer?.banner ? { uri: thisServer.banner } : DefaultCoverImage
-        }
-        style={styles.coverimg}
-      />
-    );
-  };
+  const ServerBanner = useMemo(
+    () => () => {
+      return (
+        <Image
+          source={
+            thisServer?.banner ? { uri: thisServer.banner } : DefaultCoverImage
+          }
+          style={styles.coverimg}
+        />
+      );
+    },
+    [thisServer]
+  );
 
   const handleServerScreen = () => {
     if (servers && servers.length > 0 && thisServer) {
       return (
         <View style={{ flex: 1 }}>
-          <ServerBanner />
+          {ServerBanner()}
           <Animated.View
             style={{
               ...styles.container,
