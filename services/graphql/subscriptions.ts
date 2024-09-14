@@ -45,3 +45,12 @@ export const SERVERS_SUBSCRIPTION = gql`
     }
   }
 `;
+
+export const DUMMY_SUBSCRIPTION = gql`
+  subscription OnDummy($user_id: ID) {
+    _(user_id: $user_id) {
+      type
+      data
+    }
+  }
+`;
