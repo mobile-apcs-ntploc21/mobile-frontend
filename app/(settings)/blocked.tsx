@@ -1,10 +1,5 @@
-import { ActivityIndicator, Alert, StyleSheet, Text, View } from 'react-native';
-import React, {
-  useCallback,
-  useEffect,
-  useLayoutEffect,
-  useState
-} from 'react';
+import { ActivityIndicator, StyleSheet, View } from 'react-native';
+import React, { useEffect, useLayoutEffect, useState } from 'react';
 import GlobalStyles from '@/styles/GlobalStyles';
 import ButtonListBase from '@/components/ButtonList/ButtonListBase';
 import { colors } from '@/constants/theme';
@@ -14,14 +9,10 @@ import { router, useNavigation } from 'expo-router';
 import { getBlockedUsers } from '@/services/friend';
 import { NativeStackHeaderProps } from '@react-navigation/native-stack';
 import MyHeader from '@/components/MyHeader';
-import { MyButtonText } from '@/components/MyButton';
-import MyButtonPress from '@/components/MyButton/MyButtonPress';
-import { useAuth } from '@/context/AuthProvider';
 
 const Blocked = () => {
   const [blocked, setBlocked] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  const { logout } = useAuth();
 
   const navigation = useNavigation();
 
@@ -40,20 +31,6 @@ const Blocked = () => {
     setLoading(false);
   };
 
-  const handleLogout = useCallback(() => {
-    Alert.alert('Log Out', 'Are you sure you want to log out?', [
-      {
-        text: 'Cancel',
-        style: 'cancel'
-      },
-      {
-        text: 'Log Out',
-        style: 'destructive',
-        onPress: logout
-      }
-    ]);
-  }, [logout]);
-
   useEffect(() => {
     const unsubscribe = navigation.addListener('focus', () => {
       fetchData();
@@ -65,14 +42,14 @@ const Blocked = () => {
   useLayoutEffect(() => {
     navigation.setOptions({
       header: (props: NativeStackHeaderProps) => (
-        <MyHeader {...props} title="Settings" />
+        <MyHeader {...props} title="Blocked List" />
       )
     });
   }, []);
 
   return (
-    <View style={styles.container}>
-      <View style={styles.body}>
+    <View style={GlobalStyles.screen}>
+      <View style={styles.container}>
         {loading ? (
           <ActivityIndicator />
         ) : blocked.length === 0 ? (
@@ -80,7 +57,7 @@ const Blocked = () => {
         ) : (
           <ButtonListBase
             heading="Blocked List"
-            items={blocked.map((item) => ({
+            items={blocked.map((item, index) => ({
               itemComponent: (
                 <View style={styles.itemContainer}>
                   <MyText style={styles.username}>{item.id}</MyText>
@@ -91,21 +68,6 @@ const Blocked = () => {
           />
         )}
       </View>
-      <View style={{ padding: 16 }}>
-        <MyButtonPress
-          comp={(props) => (
-            <MyButtonText
-              {...props}
-              activeOpacity={1}
-              containerStyle={{ width: '100%' }}
-              title="Log Out"
-              backgroundColor={colors.semantic_red}
-              textColor={colors.white}
-              onPress={handleLogout}
-            />
-          )}
-        />
-      </View>
     </View>
   );
 };
@@ -114,11 +76,8 @@ export default Blocked;
 
 const styles = StyleSheet.create({
   container: {
-    ...GlobalStyles.screen,
-    backgroundColor: colors.gray04
-  },
-  body: {
     flex: 1,
+    backgroundColor: colors.gray04,
     padding: 16
   },
   itemContainer: {
