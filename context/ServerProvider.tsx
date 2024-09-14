@@ -16,6 +16,7 @@ import {
 } from 'react';
 import { useAuth } from './AuthProvider';
 import { useConversations } from './ConversationsProvider';
+import { responseToPermissions } from '@/utils/response';
 
 export enum ServerActions {
   INIT = 'INIT',
@@ -27,7 +28,8 @@ export enum ServerActions {
   UPDATE_PROFILE = 'UPDATE_PROFILE',
   CREATE_CHANNEL = 'CREATE_CHANNEL',
   UPDATE_CHANNEL = 'UPDATE_CHANNEL',
-  CREATE_CATEGORY = 'CREATE_CATEGORY'
+  CREATE_CATEGORY = 'CREATE_CATEGORY',
+  SET_PERMISSIONS = 'SET_PERMISSIONS'
 }
 
 type ServerState = {
@@ -39,6 +41,7 @@ type ServerState = {
   customRoles: Role[];
   roles: Role[];
   emojis: Emoji[];
+  permissions: Record<string, boolean>;
 };
 
 type ServerAction = {
@@ -67,7 +70,8 @@ const initialState: ServerState = {
   defaultRole: null,
   customRoles: [],
   roles: [],
-  emojis: []
+  emojis: [],
+  permissions: {}
 };
 
 const handlers: Record<
@@ -161,6 +165,13 @@ const handlers: Record<
       latestAction: ServerActions.UPDATE_CHANNEL,
       categories: payload
     };
+  },
+  [ServerActions.SET_PERMISSIONS]: (state, { payload }) => {
+    return {
+      ...state,
+      latestAction: ServerActions.SET_PERMISSIONS,
+      permissions: payload
+    };
   }
 };
 
@@ -185,7 +196,11 @@ export const ServerProvider = (props: ProviderProps) => {
   const [state, dispatch] = useReducer(reducer, initialState);
 
   const { user } = useAuth();
-  const { dispatch: conversationDispatch } = useConversations();
+  const {
+    dispatch: conversationDispatch,
+    focusId,
+    conversations
+  } = useConversations();
 
   const fetchedServerIds = Object.keys(servers) || [];
   const { data: subscriptionData } = useSubscription(SERVERS_SUBSCRIPTION, {
@@ -547,6 +562,89 @@ export const ServerProvider = (props: ProviderProps) => {
           });
         }
         break;
+      case ServerEvents.messageAdded:
+        conversationDispatch({
+          type: ConversationsTypes.AddConversationMessage,
+          payload: {
+            conversationId: data.conversation_id,
+            message: data.message
+          }
+        });
+        if (data.conversation_id !== focusId) {
+          // Mark the conversation as having a new message
+          conversationDispatch({
+            type: ConversationsTypes.PatchConversation,
+            payload: {
+              conversationId: data.conversation_id,
+              patch: {
+                has_new_message: true
+              }
+            }
+          });
+        }
+        break;
+      case ServerEvents.messageEdited:
+        conversationDispatch({
+          type: ConversationsTypes.SetConversationMessage,
+          payload: {
+            conversationId: data.conversation_id,
+            message: data.message
+          }
+        });
+        break;
+      case ServerEvents.messageDeleted:
+        conversationDispatch({
+          type: ConversationsTypes.DeleteConversationMessage,
+          payload: {
+            conversationId: data.conversation_id,
+            messageId: data.message_id
+          }
+        });
+        break;
+      case ServerEvents.messageMentionedUser:
+        if (data.conversation_id !== focusId) {
+          // Increment the number of unread mentions
+          conversationDispatch({
+            type: ConversationsTypes.IncrementUnreadMentions,
+            payload: {
+              conversationId: data.conversation_id,
+              number: 1
+            }
+          });
+        }
+        break;
+      case ServerEvents.messageMentionedRole:
+        if (data.conversation_id !== focusId) {
+          // Increment the number of unread mentions
+          conversationDispatch({
+            type: ConversationsTypes.IncrementUnreadMentions,
+            payload: {
+              conversationId: data.conversation_id,
+              number: 1
+            }
+          });
+        }
+        break;
+      case ServerEvents.messageReactionAdded:
+        conversationDispatch({
+          type: ConversationsTypes.SetMessageReaction,
+          payload: {
+            conversationId: data.conversation_id,
+            messageId: data.message_id,
+            reactions: data.reactions
+          }
+        });
+        break;
+      case ServerEvents.messageReactionRemoved:
+        conversationDispatch({
+          type: ConversationsTypes.SetMessageReaction,
+          payload: {
+            conversationId: data.conversation_id,
+            messageId: data.message_id,
+            reactions: data.reactions
+          }
+        });
+        break;
       default:
         console.warn('Unknown event type:', type);
         console.log(type, server_id, data);
@@ -608,24 +706,31 @@ export const ServerProvider = (props: ProviderProps) => {
 
     try {
       // Using Promise.all to fetch all the data at once
-      const [channelsFetch, categoriesFetch, membersFetch, roles, emojis] =
-        await Promise.all([
-          getData(`/api/v1/servers/${server_id}/channels`).then(
-            (res) => res?.channels || []
-          ),
-          getData(`/api/v1/servers/${server_id}/categories`).then(
-            (res) => res?.categories || []
-          ),
-          getData(`/api/v1/servers/${server_id}/members`) || [],
-          getData(`/api/v1/servers/${server_id}/roles`).then(
-            (res) => res?.roles || []
-          ),
-          getData(`/api/v1/servers/${server_id}/emojis`).then(
-            (res) => res || []
-          )
-        ]).catch((err) => {
-          throw new Error(err.message);
-        });
+      const [
+        channelsFetch,
+        categoriesFetch,
+        membersFetch,
+        roles,
+        emojis,
+        permissionsFetched
+      ] = await Promise.all([
+        getData(`/api/v1/servers/${server_id}/channels`).then(
+          (res) => res?.channels || []
+        ),
+        getData(`/api/v1/servers/${server_id}/categories`).then(
+          (res) => res?.categories || []
+        ),
+        getData(`/api/v1/servers/${server_id}/members`) || [],
+        getData(`/api/v1/servers/${server_id}/roles`).then(
+          (res) => res?.roles || []
+        ),
+        getData(`/api/v1/servers/${server_id}/emojis`).then((res) => res || []),
+        getData(`/api/v1/servers/${server_id}/members/self/permissions`).then(
+          (res) => res || {}
+        )
+      ]).catch((err) => {
+        throw new Error(err.message);
+      });
 
       const categories: Category[] = categoriesFetch.map(
         (category: any, index: number) => {
@@ -666,29 +771,14 @@ export const ServerProvider = (props: ProviderProps) => {
       });
 
       channelsFetch.forEach((channel: any) => {
-        conversationDispatch({
-          type: ConversationsTypes.AddConversationMessage,
-          payload: {
-            conversationId: channel.conversation_id,
-            // Mock message for server `nhanbin sv`
-            message: {
-              id: '1',
-              sender_id: '6690983e2a505b6209cc1c21',
-              author: {
-                user_id: '6690983e2a505b6209cc1c21',
-                username: 'nhanbin',
-                display_name: 'Bin',
-                avatar_url: 'https://i.pravatar.cc/300'
-              },
-              content:
-                'Hi, I am <@6690983e2a505b6209cc1c21>, I have role <@&66d194165078560ffa0ad056> and I am in my favorite channel <#66e02c81aef35e1bf5f8844e> and I am using emoji <:echphat:66dd25ab4b008670bee60422>',
-              replied_message: null,
-              is_modified: false,
-              createdAt: new Date().toISOString(),
-              reactions: []
-            } as Message
-          }
-        });
+        if (channel.last_message)
+          conversationDispatch({
+            type: ConversationsTypes.AddConversationMessage,
+            payload: {
+              conversationId: channel.conversation_id,
+              message: channel.last_message
+            }
+          });
       });
 
       let defaultRole: Role | null = null;
@@ -710,6 +800,8 @@ export const ServerProvider = (props: ProviderProps) => {
           .filter((role: any) => role)
       }));
 
+      const permissions = responseToPermissions(permissionsFetched);
+
       const updatedServer = {
         latestAction: ServerActions.INIT,
         server_id: server_id,
@@ -718,7 +810,8 @@ export const ServerProvider = (props: ProviderProps) => {
         roles: roles,
         defaultRole: defaultRole,
         customRoles: customRoles,
-        emojis: emojis
+        emojis: emojis,
+        permissions: permissions
       };
 
       setServers((prevServers) => ({

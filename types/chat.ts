@@ -1,6 +1,7 @@
 export type Reaction = {
-  id: string;
-  sender_id: string;
+  emoji_id: string;
+  reactors: string[];
+  count: number;
 };
 
 export type Message = {
@@ -45,13 +46,19 @@ export type Conversation = ChannelConversation | DirectConversation;
 export enum ConversationsTypes {
   SetFocus = 'SET_FOCUS',
   AddConversation = 'ADD_CONVERSATION',
+  SetConversation = 'SET_CONVERSATION',
+  PatchConversation = 'PATCH_CONVERSATION',
+  IncrementUnreadMentions = 'INCREMENT_UNREAD_MENTIONS',
   AddConversations = 'ADD_CONVERSATIONS',
   RemoveConversation = 'REMOVE_CONVERSATION',
   AddConversationMessage = 'ADD_CONVERSATION_MESSAGE',
   AddConversationMessageHistory = 'ADD_CONVERSATION_MESSAGE_HISTORY',
+  SetConversationMessage = 'SET_CONVERSATION_MESSAGE',
+  SetConversationMessages = 'SET_CONVERSATION_MESSAGES',
   DeleteConversationMessage = 'REMOVE_CONVERSATION_MESSAGE',
-  AddMessageReaction = 'ADD_MESSAGE_REACTION',
-  RemoveMessageReaction = 'REMOVE_MESSAGE_REACTION',
+  // AddMessageReaction = 'ADD_MESSAGE_REACTION',
+  // RemoveMessageReaction = 'REMOVE_MESSAGE_REACTION',
+  SetMessageReaction = 'SET_MESSAGE_REACTION',
   EditConversationMessage = 'EDIT_CONVERSATION_MESSAGE'
 }
 
@@ -67,6 +74,29 @@ export type AddConversationAction = {
   payload: {
     conversation: Conversation;
     focus: boolean;
+  };
+};
+
+export type PatchConversationAction = {
+  type: ConversationsTypes.PatchConversation;
+  payload: {
+    conversationId: string;
+    patch: Partial<Conversation>;
+  };
+};
+
+export type IncrementUnreadMentionsAction = {
+  type: ConversationsTypes.IncrementUnreadMentions;
+  payload: {
+    conversationId: string;
+    number: number;
+  };
+};
+
+export type SetConversationAction = {
+  type: ConversationsTypes.SetConversation;
+  payload: {
+    conversation: Conversation;
   };
 };
 
@@ -100,6 +130,22 @@ export type AddConversationMessageHistoryAction = {
   };
 };
 
+export type SetConversationMessageAction = {
+  type: ConversationsTypes.SetConversationMessage;
+  payload: {
+    conversationId: string;
+    message: Message;
+  };
+};
+
+export type SetConversationMessagesAction = {
+  type: ConversationsTypes.SetConversationMessages;
+  payload: {
+    conversationId: string;
+    messages: Message[];
+  };
+};
+
 export type RemoveConversationMessageAction = {
   type: ConversationsTypes.DeleteConversationMessage;
   payload: {
@@ -108,21 +154,30 @@ export type RemoveConversationMessageAction = {
   };
 };
 
-export type AddMessageReactionAction = {
-  type: ConversationsTypes.AddMessageReaction;
-  payload: {
-    conversationId: string;
-    messageId: string;
-    reaction: Reaction;
-  };
-};
+// export type AddMessageReactionAction = {
+//   type: ConversationsTypes.AddMessageReaction;
+//   payload: {
+//     conversationId: string;
+//     messageId: string;
+//     reaction: Reaction;
+//   };
+// };
 
-export type RemoveMessageReactionAction = {
-  type: ConversationsTypes.RemoveMessageReaction;
+// export type RemoveMessageReactionAction = {
+//   type: ConversationsTypes.RemoveMessageReaction;
+//   payload: {
+//     conversationId: string;
+//     messageId: string;
+//     emojiId: string;
+//   };
+// };
+
+export type SetMessageReactionAction = {
+  type: ConversationsTypes.SetMessageReaction;
   payload: {
     conversationId: string;
     messageId: string;
-    reactionId: string;
+    reactions: Reaction[];
   };
 };
 
@@ -138,11 +193,17 @@ export type EditConversationMessageAction = {
 export type ConversationsAction =
   | SetFocusAction
   | AddConversationAction
+  | SetConversationAction
+  | PatchConversationAction
+  | IncrementUnreadMentionsAction
   | AddConversationsAction
   | RemoveConversationAction
   | AddConversationMessageAction
   | AddConversationMessageHistoryAction
+  | SetConversationMessageAction
+  | SetConversationMessagesAction
   | RemoveConversationMessageAction
-  | AddMessageReactionAction
-  | RemoveMessageReactionAction
+  // | AddMessageReactionAction
+  // | RemoveMessageReactionAction
+  | SetMessageReactionAction
   | EditConversationMessageAction;

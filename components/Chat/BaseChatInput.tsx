@@ -18,6 +18,7 @@ import Animated from 'react-native-reanimated';
 import ArrowForwardIcon from '@/assets/icons/ArrowForwardIcon';
 import SendIcon from '@/assets/icons/SendIcon';
 import EmojiPicker from './EmojiPicker';
+import { Emoji } from '@/types/server';
 
 const IconButton = ({
   icon,
@@ -40,6 +41,7 @@ export interface BaseChatInputProps {
   mentions?: string[];
   emojis?: string[];
   channels?: string[];
+  emojiImports: Emoji[];
 }
 
 const BaseChatInput = (props: BaseChatInputProps) => {
@@ -83,21 +85,20 @@ const BaseChatInput = (props: BaseChatInputProps) => {
         .sort((a, b) => b.length - a.length);
       const emojiPatterns = props.emojis.map((emoji) => `:${emoji}:`);
 
-      // mentions and channels should be surrounded by whitespace or at the beginning/end of the text
       const mentionRegex = new RegExp(
-        `(?<=^|\\s)(${mentionPatterns
+        `(${mentionPatterns
           .map((mention) => mention.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'))
-          .join('|')})(?=\\s|$)`,
-        'g'
-      );
-      const channelRegex = new RegExp(
-        `(?<=^|\\s)(${channelPatterns
-          .map((channel) => channel.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'))
-          .join('|')})(?=\\s|$)`,
+          .join('|')})`,
         'g'
       );
 
-      // emojis don't need to be surrounded by whitespace
+      const channelRegex = new RegExp(
+        `(${channelPatterns
+          .map((channel) => channel.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'))
+          .join('|')})`,
+        'g'
+      );
+
       const emojiRegex = new RegExp(
         `(${emojiPatterns
           .map((emoji) => emoji.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'))
@@ -177,6 +178,12 @@ const BaseChatInput = (props: BaseChatInputProps) => {
         visible={emojiPickerVisible}
         handleClose={() => setEmojiPickerVisible(false)}
         height={keyboardHeight}
+        onSelect={(emoji) => {
+          const text = props.value || '';
+          const newText = `${text}:${emoji.name}:`;
+          onChange(newText);
+        }}
+        emojis={props.emojiImports}
       />
     </View>
   );

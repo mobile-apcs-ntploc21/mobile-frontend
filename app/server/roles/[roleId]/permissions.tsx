@@ -102,15 +102,17 @@ const Permissions = () => {
           acc[key] = value;
           return acc;
         }, {} as { [key: string]: string });
-      const permissionsResponse = await patchData(
-        `/api/v1/servers/${currentServerId}/roles/${roleId}/permissions`,
-        permissions
-      );
-      const isAdminResponse = await patchData(
-        `/api/v1/servers/${currentServerId}/roles/${roleId}`,
-        {
+      await Promise.all([
+        patchData(
+          `/api/v1/servers/${currentServerId}/roles/${roleId}/permissions`,
+          permissions
+        ),
+        patchData(`/api/v1/servers/${currentServerId}/roles/${roleId}`, {
           is_admin: values.permissions.ADMINISTRATOR ? true : false
-        }
+        })
+      ]);
+      const response = await getData(
+        `/api/v1/servers/${currentServerId}/members/self/permissions`
       );
       router.back();
     } catch (e) {}

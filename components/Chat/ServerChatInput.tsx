@@ -10,6 +10,8 @@ import { TextStyles } from '@/styles/TextStyles';
 import MyText from '../MyText';
 import { colors, fonts } from '@/constants/theme';
 import { handleError } from '@apollo/client/link/http/parseAndCheckHttpResponse';
+import IconWithSize from '../IconWithSize';
+import CrossIcon from '@/assets/icons/CrossIcon';
 
 const MemberSuggestion = ({ member }: { member: ServerProfile }) => {
   return (
@@ -63,7 +65,18 @@ const EmojiSuggestion = ({ emoji }: { emoji: Emoji }) => {
 };
 
 interface ServerChatInputProps
-  extends Omit<BaseChatInputProps, 'mentions' | 'emojis' | 'channels'> {}
+  extends Omit<BaseChatInputProps, 'mentions' | 'emojis' | 'channels'> {
+  mode:
+    | {
+        type: 'edit';
+      }
+    | {
+        type: 'reply';
+        replyTo: string;
+      }
+    | null;
+  onCancelMode?: () => void;
+}
 
 const ServerChatInput = (props: ServerChatInputProps) => {
   const { emojis, members, roles, categories } = useServer();
@@ -151,9 +164,26 @@ const ServerChatInput = (props: ServerChatInputProps) => {
             {item.component}
           </TouchableOpacity>
         )}
-        keyExtractor={(item) => item.name}
+        keyExtractor={(item, index) => index.toString()}
         style={styles.suggestionsList}
       />
+      {props.mode && (
+        <TouchableOpacity onPress={props.onCancelMode}>
+          <View style={styles.modeContainer}>
+            {props.mode.type === 'edit' ? (
+              <MyText style={styles.modeText}>Editing</MyText>
+            ) : (
+              <Text>
+                <MyText style={styles.modeText}>Replying to </MyText>
+                <MyText style={{ fontFamily: fonts.bold }}>
+                  {props.mode.replyTo}
+                </MyText>
+              </Text>
+            )}
+            <IconWithSize icon={CrossIcon} size={16} />
+          </View>
+        </TouchableOpacity>
+      )}
       <BaseChatInput
         {...props}
         // mentions both members and roles
@@ -201,5 +231,16 @@ const styles = StyleSheet.create({
   suggestionSubText: {
     fontSize: 10,
     color: colors.gray02
+  },
+  modeContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingHorizontal: 16,
+    paddingVertical: 4,
+    backgroundColor: colors.gray04
+  },
+  modeText: {
+    fontSize: 12
   }
 });

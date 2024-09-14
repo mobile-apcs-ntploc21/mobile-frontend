@@ -29,7 +29,7 @@ interface ServerInfoProps {
 
 const ServerInfo = (props: ServerInfoProps) => {
   const { servers, currentServerId, dispatch } = useServers();
-  const { server_id, categories, members } = useServer();
+  const { server_id, categories, members, permissions } = useServer();
   const [showModal, setShowModal] = useState(false);
 
   const nbOnline = useMemo(
@@ -104,12 +104,8 @@ const ServerInfo = (props: ServerInfoProps) => {
       if (category.id === null)
         return category.channels.length > 0 ? (
           <View key={Crypto.randomUUID()} style={styles.newsWrapper}>
-            {category?.channels?.map((channel) => (
-              <ChannelItem
-                key={Crypto.randomUUID()}
-                name={channel.name}
-                channel_id={channel.id}
-              />
+            {category.channels.map((channel) => (
+              <ChannelItem key={Crypto.randomUUID()} channel={channel} />
             ))}
           </View>
         ) : null;
@@ -120,12 +116,8 @@ const ServerInfo = (props: ServerInfoProps) => {
           heading={category.name}
           defaultOpen
         >
-          {category?.channels?.map((channel) => (
-            <ChannelItem
-              key={Crypto.randomUUID()}
-              name={channel.name}
-              channel_id={channel.id}
-            />
+          {category.channels.map((channel) => (
+            <ChannelItem key={Crypto.randomUUID()} channel={channel} />
           ))}
         </Accordion>
       );
@@ -224,7 +216,7 @@ const ServerInfo = (props: ServerInfoProps) => {
         scrollEventThrottle={16}
         onScroll={handleScroll}
       >
-        <HandleCategoriesView />
+        {permissions['VIEW_CHANNEL'] && <HandleCategoriesView />}
       </Animated.ScrollView>
     </View>
   );

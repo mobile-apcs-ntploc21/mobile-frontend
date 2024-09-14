@@ -30,7 +30,7 @@ const EmojiSettings = () => {
   }, []);
 
   const { currentServerId } = useServers();
-  const { emojis } = useServer();
+  const { emojis, permissions } = useServer();
 
   const [deleteModalVisible, setDeleteModalVisible] = useState(false);
   const [editModalVisible, setEditModalVisible] = useState(false);
@@ -112,45 +112,51 @@ const EmojiSettings = () => {
 
       <ScrollView>
         <View style={styles.container}>
-          <TouchableOpacity
-            style={styles.addEmojiContainer}
-            onPress={handleAddEmoji}
-          >
-            <View style={styles.addEmojiButton}>
-              <IconWithSize
-                icon={AddEmojiIcon}
-                size={56}
-                color={colors.white}
-              />
-            </View>
-            <MyText style={styles.addEmojiText}>Add Emoji</MyText>
-          </TouchableOpacity>
-          <ButtonListBase
-            heading={`All Emoji (${emojis.length}/20)`}
-            items={emojis.map((item) => ({
-              itemComponent: (
-                <View style={styles.emojiItemContainer}>
-                  <View style={styles.emojiInfoContainer}>
-                    <Image
-                      style={styles.emojiImage}
-                      source={{ uri: item.image_url }}
-                    />
-                    <MyText
-                      style={styles.emojiNameText}
-                    >{`:${item.name}:`}</MyText>
+          {permissions['CREATE_EXPRESSION'] && (
+            <TouchableOpacity
+              style={styles.addEmojiContainer}
+              onPress={handleAddEmoji}
+            >
+              <View style={styles.addEmojiButton}>
+                <IconWithSize
+                  icon={AddEmojiIcon}
+                  size={56}
+                  color={colors.white}
+                />
+              </View>
+              <MyText style={styles.addEmojiText}>Add Emoji</MyText>
+            </TouchableOpacity>
+          )}
+          {permissions['MANAGE_EXPRESSION'] && (
+            <ButtonListBase
+              heading={`All Emoji (${emojis.length}/20)`}
+              items={emojis.map((item) => ({
+                itemComponent: (
+                  <View style={styles.emojiItemContainer}>
+                    <View style={styles.emojiInfoContainer}>
+                      <Image
+                        style={styles.emojiImage}
+                        source={{ uri: item.image_url }}
+                      />
+                      <MyText
+                        style={styles.emojiNameText}
+                      >{`:${item.name}:`}</MyText>
+                    </View>
+                    <TouchableOpacity
+                      onPress={() => handleDeleteEmoji(item.id)}
+                    >
+                      <IconWithSize
+                        icon={TrashIcon}
+                        size={24}
+                        color={colors.semantic_red}
+                      />
+                    </TouchableOpacity>
                   </View>
-                  <TouchableOpacity onPress={() => handleDeleteEmoji(item.id)}>
-                    <IconWithSize
-                      icon={TrashIcon}
-                      size={24}
-                      color={colors.semantic_red}
-                    />
-                  </TouchableOpacity>
-                </View>
-              ),
-              onPress: () => handleUpdateEmoji(item.id)
-            }))}
-          />
+                ),
+                onPress: () => handleUpdateEmoji(item.id)
+              }))}
+            />
+          )}
         </View>
       </ScrollView>
     </View>

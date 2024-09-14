@@ -28,10 +28,13 @@ import { ServerProfile, UserProfile } from '@/types';
 import debounce from '@/utils/debounce';
 import useServer from '@/hooks/useServer';
 import { ServerActions } from '@/context/ServerProvider';
+import { useAuth } from '@/context/AuthProvider';
+import { isAdmin } from '@/utils/user';
 
 const Members = () => {
   const navigation = useNavigation();
   const { members } = useServer();
+  const { user } = useAuth();
   const [modalVisible, setModalVisible] = useState(false);
   const [query, setQuery] = useState('');
   const [filteredMembers, setFilteredMembers] = useState<ServerProfile[]>([]);
@@ -116,8 +119,11 @@ const Members = () => {
               itemComponent: (
                 <MemberItem key={member.user_id} profile={member} />
               ),
-              onPress: () =>
-                router.navigate(`/server/edit-member/${member.user_id}`)
+              onPress: () => {
+                if (!isAdmin(members.find((m) => m.user_id === user.id)!))
+                  return;
+                router.navigate(`/server/edit-member/${member.user_id}`);
+              }
             }))}
           />
         </View>
