@@ -2,6 +2,7 @@ import {
   FlatList,
   Keyboard,
   KeyboardAvoidingView,
+  Platform,
   ScrollView,
   StyleSheet,
   Text,
@@ -36,6 +37,7 @@ import MyBottomSheetModal from '@/components/modal/MyBottomSheetModal';
 import ButtonListText from '@/components/ButtonList/ButtonListText';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
 import ServerChatInput from '@/components/Chat/ServerChatInput';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 const ChannelConversation = () => {
   const navigation = useNavigation();
@@ -53,6 +55,8 @@ const ChannelConversation = () => {
   const conversation = useMemo(() => {
     return conversations.find((conv) => conv.id === channel?.conversation_id);
   }, [conversations, channelId]);
+
+  const insets = useSafeAreaInsets();
 
   useLayoutEffect(() => {
     const channelName = channel?.name;
@@ -160,7 +164,7 @@ const ChannelConversation = () => {
         />
       </MyBottomSheetModal>
       <FlatList
-        keyboardShouldPersistTaps="always"
+        keyboardShouldPersistTaps="never"
         data={conversation?.messages || []}
         renderItem={({ item, index }) => (
           <ServerChatItem
@@ -172,11 +176,16 @@ const ChannelConversation = () => {
         keyExtractor={(item, index) => index.toString()}
         inverted
       />
-      <ServerChatInput
-        value={chatInput}
-        onChange={setChatInput}
-        onSend={handleSend}
-      />
+      <KeyboardAvoidingView
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        keyboardVerticalOffset={Platform.OS === 'ios' ? 96 + insets.bottom : 0}
+      >
+        <ServerChatInput
+          value={chatInput}
+          onChange={setChatInput}
+          onSend={handleSend}
+        />
+      </KeyboardAvoidingView>
     </View>
   );
 };
