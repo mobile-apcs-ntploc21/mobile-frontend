@@ -35,7 +35,9 @@ const Settings = () => {
       {
         text: 'Log Out',
         style: 'destructive',
-        onPress: logout
+        onPress: () => {
+          logout().finally(() => router.dismissAll());
+        }
       }
     ]);
   }, [logout]);
