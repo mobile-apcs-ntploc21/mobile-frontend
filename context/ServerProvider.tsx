@@ -456,23 +456,41 @@ export const ServerProvider = (props: ProviderProps) => {
         });
         break;
       case ServerEvents.channelAdded:
-        dispatchLoad.push({
-          type: ServerActions.SET_CATEGORIES,
-          payload: server.categories.map((category) =>
-            category.id === data.category_id
-              ? {
-                  ...category,
-                  channels: [
-                    ...category.channels,
-                    {
-                      id: data._id,
-                      ...data
-                    }
-                  ]
-                }
-              : category
-          )
-        });
+        {
+          conversationDispatch({
+            type: ConversationsTypes.AddConversations,
+            payload: {
+              conversations: [
+                {
+                  id: data.conversation_id,
+                  type: 'channel',
+                  number_of_unread_mentions: 0,
+                  has_new_message: false,
+                  messages: []
+                } as Conversation
+              ]
+            }
+          });
+
+          data.category_id = null;
+          dispatchLoad.push({
+            type: ServerActions.SET_CATEGORIES,
+            payload: server.categories.map((category) =>
+              category.id === data.category_id
+                ? {
+                    ...category,
+                    channels: [
+                      ...category.channels,
+                      {
+                        id: data._id,
+                        ...data
+                      }
+                    ]
+                  }
+                : category
+            )
+          });
+        }
         break;
       case ServerEvents.channelUpdated:
         {
