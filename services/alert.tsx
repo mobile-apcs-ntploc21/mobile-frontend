@@ -139,30 +139,27 @@ export const useNotification = () => useContext(NotificationContext);
 
 const styles = StyleSheet.create({
   container: {
-    flexWrap: 'wrap',
-    flexDirection: 'column',
-
-    padding: 6,
-    paddingLeft: 16,
-    paddingRight: 16,
     position: 'absolute',
-    alignContent: 'center',
-    alignSelf: 'center',
-
+    left: 16,
+    right: 16,
     bottom: 0,
+    alignItems: 'center',
 
-    backgroundColor: colors.white,
-    borderRadius: 20,
-    borderWidth: 2,
-    borderColor: colors.primary,
+    backgroundColor: colors.gray04,
+    borderRadius: 8,
+    elevation: 4,
+    overflow: 'hidden',
     zIndex: 9999
   },
   textStyles: {
-    fontSize: 16
+    fontSize: 16,
+    margin: 16
   },
   progressBar: {
-    height: 2,
-    bottom: -1,
-    backgroundColor: colors.primary
+    position: 'absolute',
+    height: 4,
+    bottom: 0,
+    backgroundColor: colors.primary,
+    width: '100%'
   }
 });
