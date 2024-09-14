@@ -9,6 +9,7 @@ interface ButtonListTextProps extends Omit<ButtonListBaseProps, 'items'> {
     text: string;
     style?: TextStyle;
     onPress?: () => void;
+    isHidden?: boolean;
   }[];
 }
 
@@ -16,17 +17,19 @@ const ButtonListText = (props: ButtonListTextProps) => {
   return (
     <ButtonListBase
       {...props}
-      items={props.items?.map((item, index) => ({
-        itemComponent: (
-          <MyText
-            key={index}
-            style={StyleSheet.flatten([styles.text, item.style])}
-          >
-            {item.text}
-          </MyText>
-        ),
-        onPress: item.onPress
-      }))}
+      items={props.items
+        ?.filter((item) => !item.isHidden)
+        .map((item, index) => ({
+          itemComponent: (
+            <MyText
+              key={index}
+              style={StyleSheet.flatten([styles.text, item.style])}
+            >
+              {item.text}
+            </MyText>
+          ),
+          onPress: item.onPress
+        }))}
     />
   );
 };

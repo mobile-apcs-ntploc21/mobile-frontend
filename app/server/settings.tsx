@@ -7,23 +7,30 @@ import MyHeader from '@/components/MyHeader';
 import { ScrollView } from 'react-native-gesture-handler';
 import GlobalStyles from '@/styles/GlobalStyles';
 import ButtonListText from '@/components/ButtonList/ButtonListText';
+import useServer from '@/hooks/useServer';
 
 const Settings = () => {
   const navigation = useNavigation();
+  const { permissions } = useServer();
+  console.log(permissions);
 
   const generalActions = useMemo(
     () => [
       {
         text: 'Overview',
-        onPress: () => router.navigate('./overview')
+        onPress: () => router.navigate('./overview'),
+        isHidden: !permissions['MANAGE_SERVER']
       },
       {
         text: 'Channels',
-        onPress: () => router.navigate('./channels')
+        onPress: () => router.navigate('./channels'),
+        isHidden: !permissions['MANAGE_CHANNEL']
       },
       {
         text: 'Emoji',
-        onPress: () => router.navigate('./emoji')
+        onPress: () => router.navigate('./emoji'),
+        isHidden:
+          !permissions['CREATE_EXPRESSION'] && !permissions['MANAGE_EXPRESSION']
       },
       {
         text: 'Invite code',

@@ -43,11 +43,13 @@ import useServers from '@/hooks/useServers';
 import debounce from '@/utils/debounce';
 import EmojiPicker from '@/components/Chat/EmojiPicker';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useAuth } from '@/context/AuthProvider';
 
 const ChannelConversation = () => {
   const navigation = useNavigation();
   const { currentServerId } = useServers();
-  const { categories, roles, members, emojis } = useServer();
+  const { categories, roles, members, emojis, permissions } = useServer();
+  const { user } = useAuth();
   const channels = useMemo(() => {
     return categories.map((category) => category.channels).flat();
   }, [categories]);
@@ -335,11 +337,15 @@ const ChannelConversation = () => {
           items={[
             {
               text: 'React',
-              onPress: handleReact
+              onPress: handleReact,
+              isHidden: !permissions['ADD_REACTION']
             },
             {
               text: 'Edit',
-              onPress: handleEdit
+              onPress: handleEdit,
+              isHidden:
+                !permissions['MANAGE_MESSAGE'] &&
+                modalMessage?.sender_id !== user?.id
             },
             {
               text: 'Reply',
@@ -347,7 +353,11 @@ const ChannelConversation = () => {
             },
             {
               text: 'Delete',
-              onPress: handleDelete
+              onPress: handleDelete,
+              style: { color: colors.semantic_red },
+              isHidden:
+                !permissions['MANAGE_MESSAGE'] &&
+                modalMessage?.sender_id !== user?.id
             }
           ]}
         />
@@ -385,19 +395,23 @@ const ChannelConversation = () => {
         ListFooterComponent={loading ? <ActivityIndicator /> : null}
         onEndReached={fetchMessages}
       />
-      <KeyboardAvoidingView
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-        keyboardVerticalOffset={Platform.OS === 'ios' ? 96 + insets.bottom : 0}
-      >
-        <ServerChatInput
-          value={chatInput}
-          onChange={setChatInput}
-          mode={actionMode}
-          onCancelMode={handleCancelMode}
-          onSend={handleSend}
-          emojiImports={emojis}
-        />
-      </KeyboardAvoidingView>
+      {permissions['SEND_MESSAGE'] && (
+        <KeyboardAvoidingView
+          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+          keyboardVerticalOffset={
+            Platform.OS === 'ios' ? 96 + insets.bottom : 0
+          }
+        >
+          <ServerChatInput
+            value={chatInput}
+            onChange={setChatInput}
+            mode={actionMode}
+            onCancelMode={handleCancelMode}
+            onSend={handleSend}
+            emojiImports={emojis}
+          />
+        </KeyboardAvoidingView>
+      )}
     </View>
   );
 };

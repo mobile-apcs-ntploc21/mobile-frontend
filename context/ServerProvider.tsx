@@ -16,6 +16,7 @@ import {
 } from 'react';
 import { useAuth } from './AuthProvider';
 import { useConversations } from './ConversationsProvider';
+import { responseToPermissions } from '@/utils/response';
 
 export enum ServerActions {
   INIT = 'INIT',
@@ -27,7 +28,8 @@ export enum ServerActions {
   UPDATE_PROFILE = 'UPDATE_PROFILE',
   CREATE_CHANNEL = 'CREATE_CHANNEL',
   UPDATE_CHANNEL = 'UPDATE_CHANNEL',
-  CREATE_CATEGORY = 'CREATE_CATEGORY'
+  CREATE_CATEGORY = 'CREATE_CATEGORY',
+  SET_PERMISSIONS = 'SET_PERMISSIONS'
 }
 
 type ServerState = {
@@ -39,6 +41,7 @@ type ServerState = {
   customRoles: Role[];
   roles: Role[];
   emojis: Emoji[];
+  permissions: Record<string, boolean>;
 };
 
 type ServerAction = {
@@ -66,7 +69,8 @@ const initialState: ServerState = {
   defaultRole: null,
   customRoles: [],
   roles: [],
-  emojis: []
+  emojis: [],
+  permissions: {}
 };
 
 const handlers: Record<
@@ -159,6 +163,13 @@ const handlers: Record<
       ...state,
       latestAction: ServerActions.UPDATE_CHANNEL,
       categories: payload
+    };
+  },
+  [ServerActions.SET_PERMISSIONS]: (state, { payload }) => {
+    return {
+      ...state,
+      latestAction: ServerActions.SET_PERMISSIONS,
+      permissions: payload
     };
   }
 };
@@ -684,24 +695,31 @@ export const ServerProvider = (props: ProviderProps) => {
 
     try {
       // Using Promise.all to fetch all the data at once
-      const [channelsFetch, categoriesFetch, membersFetch, roles, emojis] =
-        await Promise.all([
-          getData(`/api/v1/servers/${server_id}/channels`).then(
-            (res) => res?.channels || []
-          ),
-          getData(`/api/v1/servers/${server_id}/categories`).then(
-            (res) => res?.categories || []
-          ),
-          getData(`/api/v1/servers/${server_id}/members`) || [],
-          getData(`/api/v1/servers/${server_id}/roles`).then(
-            (res) => res?.roles || []
-          ),
-          getData(`/api/v1/servers/${server_id}/emojis`).then(
-            (res) => res || []
-          )
-        ]).catch((err) => {
-          throw new Error(err.message);
-        });
+      const [
+        channelsFetch,
+        categoriesFetch,
+        membersFetch,
+        roles,
+        emojis,
+        permissionsFetched
+      ] = await Promise.all([
+        getData(`/api/v1/servers/${server_id}/channels`).then(
+          (res) => res?.channels || []
+        ),
+        getData(`/api/v1/servers/${server_id}/categories`).then(
+          (res) => res?.categories || []
+        ),
+        getData(`/api/v1/servers/${server_id}/members`) || [],
+        getData(`/api/v1/servers/${server_id}/roles`).then(
+          (res) => res?.roles || []
+        ),
+        getData(`/api/v1/servers/${server_id}/emojis`).then((res) => res || []),
+        getData(`/api/v1/servers/${server_id}/members/self/permissions`).then(
+          (res) => res || {}
+        )
+      ]).catch((err) => {
+        throw new Error(err.message);
+      });
 
       const categories: Category[] = categoriesFetch.map(
         (category: any, index: number) => {
@@ -771,6 +789,8 @@ export const ServerProvider = (props: ProviderProps) => {
           .filter((role: any) => role)
       }));
 
+      const permissions = responseToPermissions(permissionsFetched);
+
       const updatedServer = {
         latestAction: ServerActions.INIT,
         server_id: server_id,
@@ -779,7 +799,8 @@ export const ServerProvider = (props: ProviderProps) => {
         roles: roles,
         defaultRole: defaultRole,
         customRoles: customRoles,
-        emojis: emojis
+        emojis: emojis,
+        permissions: permissions
       };
 
       setServers((prevServers) => ({

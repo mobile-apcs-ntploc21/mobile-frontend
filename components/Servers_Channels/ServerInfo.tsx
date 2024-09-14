@@ -27,7 +27,7 @@ interface ServerInfoProps {
 
 const ServerInfo = (props: ServerInfoProps) => {
   const { servers, currentServerId } = useServers();
-  const { server_id, categories, members } = useServer();
+  const { server_id, categories, members, permissions } = useServer();
 
   const nbOnline = useMemo(
     () =>
@@ -188,7 +188,7 @@ const ServerInfo = (props: ServerInfoProps) => {
         scrollEventThrottle={16}
         onScroll={handleScroll}
       >
-        <HandleCategoriesView />
+        {permissions['VIEW_CHANNEL'] && <HandleCategoriesView />}
       </Animated.ScrollView>
     </View>
   );

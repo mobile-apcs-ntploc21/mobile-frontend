@@ -19,11 +19,22 @@ import { frequencyMatch } from '@/utils/search';
 import { getData } from '@/utils/api';
 import useServer from '@/hooks/useServer';
 import { ServerActions } from '@/context/ServerProvider';
+import { useAuth } from '@/context/AuthProvider';
+import { isAdmin } from '@/utils/user';
 
 const Roles = () => {
   const { currentServerId } = useServers();
-  const { customRoles: roles, dispatch } = useServer();
+  const { customRoles: roles, dispatch, members } = useServer();
+  const { user } = useAuth();
   const navigation = useNavigation();
+
+  const checkAdmin = () => {
+    if (!isAdmin(members.find((member) => member.user_id === user?.id)!)) {
+      return false;
+    }
+    return true;
+  };
+
   useLayoutEffect(() => {
     navigation.setOptions({
       header: (props: NativeStackHeaderProps) => (
@@ -31,32 +42,16 @@ const Roles = () => {
           {...props}
           title="Roles"
           headerRight={
-            <TouchableOpacity onPress={() => router.navigate('./add-role')}>
-              <MyText style={styles.headerAdd}>Add</MyText>
-            </TouchableOpacity>
+            checkAdmin() && (
+              <TouchableOpacity onPress={() => router.navigate('./add-role')}>
+                <MyText style={styles.headerAdd}>Add</MyText>
+              </TouchableOpacity>
+            )
           }
         />
       )
     });
   }, []);
-
-  // useEffect(() => {
-  //   (async () => {
-  //     try {
-  //       const response = await getData(
-  //         `/api/v1/servers/${currentServerId}/roles`
-  //       );
-  //       // console.log(response);
-  //       // console.log(responseToRoles(response));
-  //       dispatch({
-  //         type: ServerActions.SET_ROLES,
-  //         payload: responseToRoles(response)
-  //       });
-  //     } catch (e: any) {
-  //       console.error(e.message);
-  //     }
-  //   })();
-  // }, []);
 
   const [searchText, setSearchText] = useState('');
 
@@ -67,25 +62,27 @@ const Roles = () => {
   return (
     <View style={{ flex: 1, backgroundColor: colors.gray04 }}>
       <View style={styles.headerContainer}>
-        <ButtonListText
-          items={[
-            {
-              text: 'Default Permissions',
-              onPress: async () => {
-                const response = await getData(
-                  `/api/v1/servers/${currentServerId}/roles`
-                );
-                const defaultRoleId = response.roles.find(
-                  (role: any) => role.default === true
-                ).id;
-                console.log(defaultRoleId);
-                if (defaultRoleId) {
-                  router.navigate(`./default/permissions`);
+        {checkAdmin() && (
+          <ButtonListText
+            items={[
+              {
+                text: 'Default Permissions',
+                onPress: async () => {
+                  const response = await getData(
+                    `/api/v1/servers/${currentServerId}/roles`
+                  );
+                  const defaultRoleId = response.roles.find(
+                    (role: any) => role.default === true
+                  ).id;
+                  console.log(defaultRoleId);
+                  if (defaultRoleId) {
+                    router.navigate(`./default/permissions`);
+                  }
                 }
               }
-            }
-          ]}
-        />
+            ]}
+          />
+        )}
         <SearchBar value={searchText} onChangeText={setSearchText} />
       </View>
       <ScrollView contentContainerStyle={styles.scrollView}>
@@ -94,6 +91,7 @@ const Roles = () => {
           items={filteredRoles.map((role, index) => ({
             itemComponent: <RoleItem role={role} />,
             onPress: () =>
+              checkAdmin() &&
               router.navigate({
                 pathname: `./${role.id}`,
                 params: {
