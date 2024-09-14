@@ -15,6 +15,7 @@ import CustomTextInput from '../common/CustomTextInput';
 import useServers from '@/hooks/useServers';
 import { getData, postData } from '@/utils/api';
 import { ServersActions } from '@/context/ServersProvider';
+import { useNotification } from '@/services/alert';
 
 export interface AddMemberModalProps {
   visible: boolean;
@@ -22,6 +23,7 @@ export interface AddMemberModalProps {
 }
 
 const AddMemberModal = (props: AddMemberModalProps) => {
+  const { showAlert } = useNotification();
   const { currentServerId } = useServers();
   const [username, setUsername] = useState('');
 
@@ -43,9 +45,9 @@ const AddMemberModal = (props: AddMemberModalProps) => {
         user_ids: [profile.user_id]
       });
 
-      ToastAndroid.show('Member has been invited.', ToastAndroid.SHORT);
+      showAlert('Member has been invited.');
     } catch (error) {
-      ToastAndroid.show('Failed to invite this member.', ToastAndroid.SHORT);
+      showAlert('Failed to invite this member.');
     }
   }, [username, currentServerId]);
 

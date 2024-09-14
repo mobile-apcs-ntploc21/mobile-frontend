@@ -35,7 +35,7 @@ import ButtonListToggle from '@/components/ButtonList/ButtonListToggle';
 import MyColorPicker from '@/components/MyColorPicker';
 import { deleteData, getData, patchData, postData } from '@/utils/api';
 import useServers from '@/hooks/useServers';
-import { showAlert } from '@/services/alert';
+import { showAlert, useNotification } from '@/services/alert';
 import useServer from '@/hooks/useServer';
 import { ServerActions } from '@/context/ServerProvider';
 import { ServerProfile } from '@/types';
@@ -50,6 +50,7 @@ type FormProps = {
 };
 
 const RoleEdit = () => {
+  const { showAlert } = useNotification();
   const { currentServerId } = useServers();
   const { roles, members: allMembers } = useServer();
   const { setCallback } = useGlobalContext();

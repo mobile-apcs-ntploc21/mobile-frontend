@@ -308,8 +308,7 @@ export const ServerProvider = (props: ProviderProps) => {
       case ServerEvents.memberAdded:
         (async () => {
           const profileAndStatus = await Promise.all(
-            // @ts-ignore
-            serverUpdated.data.map((user_id) =>
+            data.map((user_id: string) =>
               getServerProfile(user_id, true).catch(() =>
                 getServerProfile(user_id)
               )

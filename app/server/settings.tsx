@@ -12,11 +12,12 @@ import MyText from '@/components/MyText';
 import { colors } from '@/constants/theme';
 import useServers from '@/hooks/useServers';
 import { useAuth } from '@/context/AuthProvider';
-import { showAlert } from '@/services/alert';
+import { showAlert, useNotification } from '@/services/alert';
 import { deleteData } from '@/utils/api';
 import useServer from '@/hooks/useServer';
 
 const Settings = () => {
+  const { showAlert } = useNotification();
   const navigation = useNavigation();
   const { permissions } = useServer();
   const [leaveModalVisible, setLeaveModalVisible] = useState(false);

@@ -2,7 +2,7 @@ import CustomTextInput from '@/components/common/CustomTextInput';
 import GlobalStyles from '@/styles/GlobalStyles';
 import AuthStyles from '@/styles/AuthStyles';
 import { useAuth } from '@/context/AuthProvider';
-import { showAlert } from '@/services/alert';
+import { showAlert, useNotification } from '@/services/alert';
 
 import {
   GestureResponderEvent,
@@ -45,6 +45,7 @@ const validationSchema = Yup.object().shape({
 const Register = () => {
   const { register } = useAuth();
   const navigation = useNavigation();
+  const { showAlert } = useNotification();
 
   const handleRegister = async (
     value: any,
@@ -55,7 +56,7 @@ const Register = () => {
 
       await register(
         value.username,
-        value.phoneNumber,
+        value.phoneNumber || undefined,
         value.email,
         value.password
       );

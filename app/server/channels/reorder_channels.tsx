@@ -8,9 +8,10 @@ import ReorderList from '@/components/reordering/ReorderList';
 import { ServerActions } from '@/context/ServerProvider';
 import useServer from '@/hooks/useServer';
 import { patchData } from '@/utils/api';
-import { showAlert } from '@/services/alert';
+import { showAlert, useNotification } from '@/services/alert';
 
 const ReorderChannels = () => {
+  const { showAlert } = useNotification();
   const navigation = useNavigation();
   const { server_id, categories, dispatch } = useServer();
 
