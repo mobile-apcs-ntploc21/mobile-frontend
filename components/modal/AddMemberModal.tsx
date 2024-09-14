@@ -70,9 +70,6 @@ const AddMemberModal = (props: AddMemberModalProps) => {
                 placeholder="Username"
                 value={username}
                 onChangeText={setUsername}
-                errorMessage={
-                  username.length === 0 ? 'Username is required' : ''
-                }
               />
               <View style={styles.actions}>
                 <MyButtonText
