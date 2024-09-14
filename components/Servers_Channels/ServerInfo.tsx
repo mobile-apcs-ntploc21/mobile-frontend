@@ -18,6 +18,7 @@ import useServers from '@/hooks/useServers';
 import { router } from 'expo-router';
 import { checkOnline } from '@/utils/status';
 import { patchData } from '@/utils/api';
+import AddMemberModal from '../modal/AddMemberModal';
 
 const MAXUSERS = 4;
 const SCREEN_HEIGHT = Dimensions.get('window').height;
@@ -29,6 +30,7 @@ interface ServerInfoProps {
 const ServerInfo = (props: ServerInfoProps) => {
   const { servers, currentServerId, dispatch } = useServers();
   const { server_id, categories, members } = useServer();
+  const [showModal, setShowModal] = useState(false);
 
   const nbOnline = useMemo(
     () =>
@@ -164,7 +166,7 @@ const ServerInfo = (props: ServerInfoProps) => {
             />
             <MyButtonIcon
               icon={AddFriendIcon}
-              onPress={() => {}}
+              onPress={() => setShowModal(true)}
               showOutline={false}
               containerStyle={styles.actionStyle}
             />
@@ -208,6 +210,7 @@ const ServerInfo = (props: ServerInfoProps) => {
 
   return (
     <View style={styles.container}>
+      <AddMemberModal visible={showModal} onClose={() => setShowModal(false)} />
       <ServerInfo />
       <View style={styles.separator} />
       <Animated.ScrollView

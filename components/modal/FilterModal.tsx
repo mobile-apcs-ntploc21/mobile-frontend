@@ -7,7 +7,7 @@ import {
   TouchableWithoutFeedback,
   View
 } from 'react-native';
-import React, { useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import MyText from '../MyText';
 import { TextStyles } from '@/styles/TextStyles';
 import { colors } from '@/constants/theme';
@@ -19,12 +19,26 @@ import { Role } from '@/types/server';
 
 export interface FilterModalProps {
   visible: boolean;
-  onClose: () => void;
+  onClose: (roleIds: string[], justClose?: boolean) => void;
 }
 
 const FilterModal = (props: FilterModalProps) => {
   const { customRoles } = useServer();
-  const [selectedRoles, setSelectedRoles] = useState<Role[]>([]);
+  const [selectedRoleIds, setSelectedRoleIds] = useState<string[]>([]);
+  const [lastSavedRoleIds, setLastSavedRoleIds] =
+    useState<string[]>(selectedRoleIds);
+
+  const handleClose = useCallback(
+    (justClose?: boolean) => {
+      if (!justClose) setLastSavedRoleIds(selectedRoleIds);
+      props.onClose(selectedRoleIds, justClose);
+    },
+    [props.onClose, selectedRoleIds]
+  );
+
+  useEffect(() => {
+    if (props.visible) setSelectedRoleIds(lastSavedRoleIds);
+  }, [props.visible]);
 
   return (
     <Modal
@@ -35,7 +49,7 @@ const FilterModal = (props: FilterModalProps) => {
         console.log('Modal has been closed.');
       }}
     >
-      <TouchableWithoutFeedback onPress={props.onClose}>
+      <TouchableWithoutFeedback onPress={() => handleClose(true)}>
         <View style={styles.modalContainer}>
           <TouchableWithoutFeedback>
             <View style={styles.modalView}>
@@ -53,22 +67,23 @@ const FilterModal = (props: FilterModalProps) => {
                 }}
               >
                 <ButtonListCheckbox
+                  scrollable
                   heading="Select Roles"
                   data={customRoles}
-                  keyExtractor={(role: Role) => role.id}
-                  labelExtractor={(role: Role) => role.name}
-                  valueExtractor={(role: Role) => role}
-                  compareValues={(a: Role, b: Role) => a.id === b.id}
-                  scrollable
-                  values={selectedRoles}
-                  onAdd={(value: Role) => {
-                    setSelectedRoles([...selectedRoles, value]);
+                  values={selectedRoleIds}
+                  labelExtractor={(role) => role.name}
+                  valueExtractor={(role) => role.id}
+                  keyExtractor={(role) => role.id}
+                  compareValues={(a, b) => a === b}
+                  onAdd={(value) => {
+                    console.log(value);
+                    setSelectedRoleIds([...selectedRoleIds, value]);
                   }}
-                  onRemove={(value: Role) => {
-                    setSelectedRoles(
-                      selectedRoles.filter((role) => role !== value)
-                    );
-                  }}
+                  onRemove={(value) =>
+                    setSelectedRoleIds(
+                      selectedRoleIds.filter((id) => id !== value)
+                    )
+                  }
                 />
               </View>
               <MyButtonText
@@ -80,18 +95,18 @@ const FilterModal = (props: FilterModalProps) => {
                   height: 40
                 }}
                 textStyle={TextStyles.h3}
-                onPress={props.onClose}
+                onPress={() => handleClose(true)}
               />
               <MyButtonText
                 showOutline={false}
-                title="Show 4 results"
+                title="Show results"
                 containerStyle={{
                   marginTop: 10,
                   width: '100%',
                   height: 40
                 }}
                 textStyle={TextStyles.h3}
-                onPress={props.onClose}
+                onPress={() => handleClose(false)}
               />
             </View>
           </TouchableWithoutFeedback>
