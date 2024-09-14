@@ -383,7 +383,7 @@ const ChannelConversation = () => {
         renderItem={({ item, index }) => (
           <ServerChatItem
             channel_id={channelId!}
-            key={index}
+            key={item.id}
             message={item}
             onLongPress={() => handleOpenMessageBottomSheet(item)}
             conversation_id={conversation.id}
