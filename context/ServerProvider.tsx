@@ -42,6 +42,7 @@ type ServerState = {
   roles: Role[];
   emojis: Emoji[];
   permissions: Record<string, boolean>;
+  isAdmin: boolean;
 };
 
 type ServerAction = {
@@ -71,7 +72,8 @@ const initialState: ServerState = {
   customRoles: [],
   roles: [],
   emojis: [],
-  permissions: {}
+  permissions: {},
+  isAdmin: false
 };
 
 const handlers: Record<
@@ -800,6 +802,7 @@ export const ServerProvider = (props: ProviderProps) => {
       }));
 
       const permissions = responseToPermissions(permissionsFetched);
+      const isAdmin = permissionsFetched.is_admin;
 
       const updatedServer = {
         latestAction: ServerActions.INIT,
@@ -810,7 +813,8 @@ export const ServerProvider = (props: ProviderProps) => {
         defaultRole: defaultRole,
         customRoles: customRoles,
         emojis: emojis,
-        permissions: permissions
+        permissions: permissions,
+        isAdmin: isAdmin
       };
 
       setServers((prevServers) => ({

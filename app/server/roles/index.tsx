@@ -24,16 +24,9 @@ import { isAdmin } from '@/utils/user';
 
 const Roles = () => {
   const { currentServerId } = useServers();
-  const { customRoles: roles, dispatch, members } = useServer();
+  const { customRoles: roles, dispatch, members, isAdmin } = useServer();
   const { user } = useAuth();
   const navigation = useNavigation();
-
-  const checkAdmin = () => {
-    if (!isAdmin(members.find((member) => member.user_id === user?.id)!)) {
-      return false;
-    }
-    return true;
-  };
 
   useLayoutEffect(() => {
     navigation.setOptions({
@@ -42,7 +35,7 @@ const Roles = () => {
           {...props}
           title="Roles"
           headerRight={
-            checkAdmin() && (
+            isAdmin && (
               <TouchableOpacity onPress={() => router.navigate('./add-role')}>
                 <MyText style={styles.headerAdd}>Add</MyText>
               </TouchableOpacity>
@@ -62,7 +55,7 @@ const Roles = () => {
   return (
     <View style={{ flex: 1, backgroundColor: colors.gray04 }}>
       <View style={styles.headerContainer}>
-        {checkAdmin() && (
+        {isAdmin && (
           <ButtonListText
             items={[
               {
@@ -91,7 +84,7 @@ const Roles = () => {
           items={filteredRoles.map((role, index) => ({
             itemComponent: <RoleItem role={role} />,
             onPress: () =>
-              checkAdmin() &&
+              isAdmin &&
               router.navigate({
                 pathname: `./${role.id}`,
                 params: {

@@ -33,7 +33,7 @@ import { isAdmin } from '@/utils/user';
 
 const Members = () => {
   const navigation = useNavigation();
-  const { members } = useServer();
+  const { members, isAdmin } = useServer();
   const { user } = useAuth();
   const [modalVisible, setModalVisible] = useState(false);
   const [query, setQuery] = useState('');
@@ -120,8 +120,7 @@ const Members = () => {
                 <MemberItem key={member.user_id} profile={member} />
               ),
               onPress: () => {
-                if (!isAdmin(members.find((m) => m.user_id === user.id)!))
-                  return;
+                if (!isAdmin) return;
                 router.navigate(`/server/edit-member/${member.user_id}`);
               }
             }))}
