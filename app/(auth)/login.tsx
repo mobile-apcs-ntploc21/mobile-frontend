@@ -4,7 +4,7 @@ import GlobalStyles from '@/styles/GlobalStyles';
 import AuthStyles from '@/styles/AuthStyles';
 import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '@/context/AuthProvider';
-import { showAlert } from '@/services/alert';
+import { showAlert, useNotification } from '@/services/alert';
 
 import { Link, router, useNavigation } from 'expo-router';
 import { CommonActions } from '@react-navigation/native';
@@ -31,6 +31,7 @@ const validationSchema = Yup.object().shape({
 export default function Login() {
   const { login } = useAuth();
   const navigation = useNavigation();
+  const { showAlert } = useNotification();
 
   const handleLogin = async (
     email: string,

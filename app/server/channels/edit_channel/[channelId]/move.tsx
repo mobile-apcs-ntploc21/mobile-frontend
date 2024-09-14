@@ -7,11 +7,12 @@ import { colors } from '@/constants/theme';
 import ButtonListText from '@/components/ButtonList/ButtonListText';
 import useServer from '@/hooks/useServer';
 import useServers from '@/hooks/useServers';
-import { showAlert } from '@/services/alert';
+import { showAlert, useNotification } from '@/services/alert';
 import { patchData } from '@/utils/api';
 import { ServerActions } from '@/context/ServerProvider';
 
 const Move = () => {
+  const { showAlert } = useNotification();
   const navigation = useNavigation();
   const { currentServerId } = useServers();
   const { categories, dispatch } = useServer();

@@ -7,10 +7,11 @@ import MyHeaderRight from '@/components/MyHeaderRight';
 import ReorderList from '@/components/reordering/ReorderList';
 import { ServerActions } from '@/context/ServerProvider';
 import useServer from '@/hooks/useServer';
-import { showAlert } from '@/services/alert';
+import { showAlert, useNotification } from '@/services/alert';
 import { patchData } from '@/utils/api';
 
 const ReorderCategories = () => {
+  const { showAlert } = useNotification();
   const navigation = useNavigation();
   const { server_id, categories, dispatch } = useServer();
 

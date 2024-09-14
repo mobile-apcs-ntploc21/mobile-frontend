@@ -32,9 +32,10 @@ import {
   getFriends,
   searchByUsername
 } from '@/services/friend';
-import { showAlert } from '@/services/alert';
+import { showAlert, useNotification } from '@/services/alert';
 
 const Friends = () => {
+  const { showAlert } = useNotification();
   const isFocused = useIsFocused(); // Used to change status bar color
   const [searchText, setSearchText] = useState('');
 

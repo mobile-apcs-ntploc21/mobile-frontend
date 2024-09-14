@@ -19,7 +19,7 @@ import MyBottomSheetModal from '@/components/modal/MyBottomSheetModal';
 import ButtonListText from '@/components/ButtonList/ButtonListText';
 import { deleteData, getData } from '@/utils/api';
 import useServers from '@/hooks/useServers';
-import { showAlert } from '@/services/alert';
+import { showAlert, useNotification } from '@/services/alert';
 
 interface userBanItem {
   id: string;
@@ -29,6 +29,7 @@ interface userBanItem {
 }
 
 const Bans = () => {
+  const { showAlert } = useNotification();
   const navigation = useNavigation();
   const bottomSheetModalRef = useRef<BottomSheetModal>(null);
   const [bannedUsers, setBannedUsers] = useState<userBanItem[]>([]);

@@ -15,7 +15,7 @@ import MyText from '../MyText';
 import CustomTextInput from '../common/CustomTextInput';
 import { Server } from '@/types';
 import { router } from 'expo-router';
-import { showAlert } from '@/services/alert';
+import { showAlert, useNotification } from '@/services/alert';
 import { ServersActions } from '@/context/ServersProvider';
 
 interface DeleteServerModalProps {
@@ -25,6 +25,7 @@ interface DeleteServerModalProps {
 }
 
 const DeleteServerModal = (props: DeleteServerModalProps) => {
+  const { showAlert } = useNotification();
   const { servers, dispatch } = useServers();
   const [serverName, setServerName] = useState('');
 
