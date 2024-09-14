@@ -17,6 +17,8 @@ import useServer from '@/hooks/useServer';
 import useServers from '@/hooks/useServers';
 import { router } from 'expo-router';
 import { checkOnline } from '@/utils/status';
+import { patchData } from '@/utils/api';
+import AddMemberModal from '../modal/AddMemberModal';
 
 const MAXUSERS = 4;
 const SCREEN_HEIGHT = Dimensions.get('window').height;
@@ -26,8 +28,9 @@ interface ServerInfoProps {
 }
 
 const ServerInfo = (props: ServerInfoProps) => {
-  const { servers, currentServerId } = useServers();
+  const { servers, currentServerId, dispatch } = useServers();
   const { server_id, categories, members, permissions } = useServer();
+  const [showModal, setShowModal] = useState(false);
 
   const nbOnline = useMemo(
     () =>
@@ -40,6 +43,29 @@ const ServerInfo = (props: ServerInfoProps) => {
     () => servers.find((server) => server.id === currentServerId),
     [servers, currentServerId]
   );
+
+  const handleFavorite = async () => {
+    try {
+      const response = await patchData(`/api/v1/servers/${server_id}/favorite`);
+
+      if (!response) {
+        throw new Error(response.data.message);
+      }
+
+      // Update server in context
+      dispatch({
+        type: 'SET_SERVERS',
+        payload: servers.map((server) =>
+          server.id === server_id
+            ? { ...server, is_favorite: !thisServer?.is_favorite || false }
+            : server
+        )
+      });
+    } catch (error) {
+      console.error(error);
+      throw new Error('Failed to favorite server');
+    }
+  };
 
   // =============== UI ===============
 
@@ -125,13 +151,14 @@ const ServerInfo = (props: ServerInfoProps) => {
           <View style={styles.serverActions}>
             <MyButtonIcon
               icon={StarIcon}
-              onPress={() => router.navigate(`/server/edit_permissions`)}
+              onPress={() => handleFavorite()}
               showOutline={false}
               containerStyle={styles.actionStyle}
+              reverseStyle={thisServer?.is_favorite || false}
             />
             <MyButtonIcon
               icon={AddFriendIcon}
-              onPress={() => {}}
+              onPress={() => setShowModal(true)}
               showOutline={false}
               containerStyle={styles.actionStyle}
             />
@@ -175,6 +202,7 @@ const ServerInfo = (props: ServerInfoProps) => {
 
   return (
     <View style={styles.container}>
+      <AddMemberModal visible={showModal} onClose={() => setShowModal(false)} />
       <ServerInfo />
       <View style={styles.separator} />
       <Animated.ScrollView

@@ -52,6 +52,7 @@ type ServerAction = {
 interface IContext extends ServerState {
   setServer: (id: string) => Promise<void>;
   dispatch: Dispatch<ServerAction>;
+  unsubscribeServer: (server_id: string) => void;
 }
 
 interface ProviderProps {
@@ -185,7 +186,8 @@ const reducer = (state: ServerState, action: ServerAction) => {
 export const ServerContext = createContext<IContext>({
   ...initialState,
   setServer: () => Promise.resolve(),
-  dispatch: () => {}
+  dispatch: () => {},
+  unsubscribeServer: () => {}
 });
 
 export const ServerProvider = (props: ProviderProps) => {
@@ -205,6 +207,15 @@ export const ServerProvider = (props: ProviderProps) => {
     variables: { server_ids: fetchedServerIds, user_id: user?.id },
     skip: fetchedServerIds.length === 0
   });
+
+  const unsubscribeServer = async (server_id: string) => {
+    // Unsubscribe from the server with the given ID
+    setServers((prevServers) => {
+      const newServers = { ...prevServers };
+      delete newServers[server_id];
+      return newServers;
+    });
+  };
 
   const handleSubscriptionData = async (subscriptionData: any) => {
     console.log('Subscription data:', subscriptionData);
@@ -850,7 +861,8 @@ export const ServerProvider = (props: ProviderProps) => {
       value={{
         ...state,
         setServer,
-        dispatch
+        dispatch,
+        unsubscribeServer
       }}
     >
       {props.children}

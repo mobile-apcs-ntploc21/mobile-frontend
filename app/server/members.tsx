@@ -90,7 +90,18 @@ const Members = () => {
     <View style={{ flex: 1, marginTop: 16 }}>
       <FilterModal
         visible={modalVisible}
-        onClose={() => setModalVisible(false)}
+        onClose={(roleIds: string[], justClose: boolean = true) => {
+          if (!justClose) {
+            if (roleIds.length === 0) setFilteredMembers(members);
+            else
+              setFilteredMembers(
+                members.filter((member) => {
+                  return member.roles.some((role) => roleIds.includes(role.id));
+                })
+              );
+          }
+          setModalVisible(false);
+        }}
       />
       <View style={[GlobalStyles.subcontainer, styles.searchContainer]}>
         <View style={{ flex: 1 }}>
