@@ -30,7 +30,7 @@ import { checkOnline } from '@/utils/status';
 
 const ServerMembers = () => {
   const navigation = useNavigation();
-  const { members } = useServer();
+  const { members, isAdmin } = useServer();
   const { servers, currentServerId } = useServers();
   const { user: thisUser } = useAuth();
   const [onlineMembers, setOM] = useState<ServerProfile[]>([]);
@@ -117,11 +117,7 @@ const ServerMembers = () => {
                     currentServerId &&
                     (servers.find((server) => server.id === currentServerId)!
                       .owner_id === thisUser.id ||
-                      isAdmin(
-                        members.find(
-                          (member) => member.user_id === thisUser.id
-                        )!
-                      ))
+                      isAdmin)
                   ) {
                     handleCloseBottomSheet();
                     router.navigate(
