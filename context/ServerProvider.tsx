@@ -636,6 +636,26 @@ export const ServerProvider = (props: ProviderProps) => {
           }
         });
         break;
+      case ServerEvents.messagePinAdded:
+        conversationDispatch({
+          type: ConversationsTypes.SetMessagePin,
+          payload: {
+            conversationId: data.conversation_id,
+            messageId: data.message_id,
+            is_pinned: true
+          }
+        });
+        break;
+      case ServerEvents.messagePinRemoved:
+        conversationDispatch({
+          type: ConversationsTypes.SetMessagePin,
+          payload: {
+            conversationId: data.conversation_id,
+            messageId: data.message_id,
+            is_pinned: false
+          }
+        });
+        break;
       case ServerEvents.messageMentionedUser:
         if (data.conversation_id !== focusId) {
           // Increment the number of unread mentions
