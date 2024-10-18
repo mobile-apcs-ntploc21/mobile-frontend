@@ -475,7 +475,8 @@ export const ServerProvider = (props: ProviderProps) => {
                   type: 'channel',
                   number_of_unread_mentions: 0,
                   has_new_message: false,
-                  messages: []
+                  messages: [],
+                  pinned_messages: []
                 } as Conversation
               ]
             }
@@ -641,7 +642,7 @@ export const ServerProvider = (props: ProviderProps) => {
           type: ConversationsTypes.SetMessagePin,
           payload: {
             conversationId: data.conversation_id,
-            messageId: data.message_id,
+            messageId: data.message._id,
             is_pinned: true
           }
         });
@@ -819,7 +820,8 @@ export const ServerProvider = (props: ProviderProps) => {
                 type: 'channel',
                 number_of_unread_mentions: channel.number_of_unread_mentions,
                 has_new_message: channel.has_new_message,
-                messages: []
+                messages: [],
+                pinned_messages: []
               } as Conversation)
           )
         }
