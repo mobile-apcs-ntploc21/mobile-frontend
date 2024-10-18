@@ -228,17 +228,30 @@ const ChannelConversation = () => {
     return content;
   };
 
+  // Some must be sorted by decreasing length to avoid mentioning the wrong user
+  const sortedMembers = useMemo(() => {
+    return members
+      .slice()
+      .sort((a, b) => b.username.length - a.username.length);
+  }, [members]);
+  const sortedRoles = useMemo(() => {
+    return roles.slice().sort((a, b) => b.name.length - a.name.length);
+  }, [roles]);
+  const sortedChannels = useMemo(() => {
+    return channels.slice().sort((a, b) => b.name.length - a.name.length);
+  }, [channels]);
+
   const convertInputToContent = (input: string) => {
-    members.forEach((member) => {
+    sortedMembers.forEach((member) => {
       input = input.replaceAll(`@${member.username}`, `<@${member.user_id}>`);
     });
-    roles.forEach((role) => {
+    sortedRoles.forEach((role) => {
       if (role.default) {
         input = input.replaceAll(`@everyone`, `<@&${role.id}>`);
       }
       input = input.replaceAll(`@${role.name}`, `<@&${role.id}>`);
     });
-    channels.forEach((channel) => {
+    sortedChannels.forEach((channel) => {
       input = input.replaceAll(`#${channel.name}`, `<#${channel.id}>`);
     });
     emojis.forEach((emoji) => {
