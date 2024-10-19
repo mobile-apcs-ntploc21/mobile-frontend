@@ -1,6 +1,6 @@
 import { StyleSheet, Text, View } from 'react-native';
 import React, { useLayoutEffect, useMemo } from 'react';
-import { router, useLocalSearchParams, useNavigation } from 'expo-router';
+import { useLocalSearchParams, useNavigation } from 'expo-router';
 import useServer from '@/hooks/useServer';
 import { Channel } from '@/types/server';
 import { NativeStackHeaderProps } from '@react-navigation/native-stack';
@@ -10,6 +10,9 @@ import { Image } from 'expo-image';
 import { DefaultChannelImage } from '@/constants/images';
 import ButtonListText from '@/components/ButtonList/ButtonListText';
 import { TextStyles } from '@/styles/TextStyles';
+import { FlatList } from 'react-native-gesture-handler';
+import { useConversations } from '@/context/ConversationsProvider';
+import ServerChatItem from '@/components/Chat/ServerChatItem';
 
 const ChannelInfo = () => {
   const navigation = useNavigation();
@@ -23,43 +26,34 @@ const ChannelInfo = () => {
       .flat()
       .find((channel) => channel.id === channelId);
   }, [categories, channelId]);
+  const { conversations } = useConversations();
+  const conversation = useMemo(() => {
+    return conversations.find((conv) => conv.id === channel?.conversation_id);
+  }, [conversations, channelId])!;
 
   useLayoutEffect(() => {
-    const channelName = channel?.name;
     navigation.setOptions({
       header: (props: NativeStackHeaderProps) => (
-        <MyHeader {...props} title="Information" />
+        <MyHeader {...props} title="Pinned mesages" />
       )
     });
   });
   return (
-    <View style={GlobalStyles.screenGray}>
-      <View style={styles.container}>
-        <View style={styles.infoContainer}>
-          <Image source={DefaultChannelImage} style={styles.channelImg} />
-          <Text style={styles.channelName}>{channel?.name}</Text>
-        </View>
-        <ButtonListText
-          items={[
-            {
-              text: 'Search',
-              onPress: () => {}
-            },
-            {
-              text: 'View pinned messages',
-              onPress: () => router.navigate('./pin')
-            },
-            {
-              text: 'Notifications',
-              onPress: () => {}
-            },
-            {
-              text: 'Channel settings',
-              onPress: () => {}
-            }
-          ]}
-        />
-      </View>
+    <View style={GlobalStyles.screen}>
+      <FlatList
+        keyboardShouldPersistTaps="never"
+        data={conversation?.messages || []} // This is just for mock data, it should be pinned messages
+        renderItem={({ item, index }) => (
+          <ServerChatItem
+            channel_id={channelId!}
+            key={item.id}
+            message={item}
+            conversation_id={conversation.id}
+          />
+        )}
+        contentContainerStyle={{ gap: 8 }}
+        keyExtractor={(item, index) => index.toString()}
+      />
     </View>
   );
 };
