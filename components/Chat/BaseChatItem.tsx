@@ -160,7 +160,7 @@ const BaseChatItem = (props: ChatItemProps) => {
             </MyText>
           </View>
           <View style={styles.reactionsContainer}>
-            {props.message.reactions.map((reaction, index) => (
+            {props.message.reactions?.map((reaction, index) => (
               <ReactionItem
                 key={index}
                 reaction={reaction}

@@ -199,6 +199,37 @@ const reducer = (
             : conversation
         )
       };
+    case ConversationsTypes.SetMessagePin:
+      return {
+        ...state,
+        conversations: state.conversations.map((conversation) =>
+          conversation.id === payload.conversationId
+            ? {
+                ...conversation,
+                messages: conversation.messages.map((message) =>
+                  message.id === payload.messageId
+                    ? {
+                        ...message,
+                        is_pinned: payload.is_pinned
+                      }
+                    : message
+                )
+              }
+            : conversation
+        )
+      };
+    case ConversationsTypes.AddPinnedMessages:
+      return {
+        ...state,
+        conversations: state.conversations.map((conversation) =>
+          conversation.id === payload.conversationId
+            ? {
+                ...conversation,
+                pinned_messages: [...payload.messages]
+              }
+            : conversation
+        )
+      };
     default:
       return state;
   }

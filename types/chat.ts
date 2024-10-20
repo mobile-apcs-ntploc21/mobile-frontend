@@ -21,6 +21,7 @@ export type Message = {
     is_deleted: boolean;
   } | null;
   is_modified: boolean;
+  is_pinned: boolean;
   createdAt: string;
   reactions: Reaction[];
 };
@@ -29,6 +30,7 @@ export type ChannelConversation = {
   id: string;
   type: 'channel';
   messages: Message[];
+  pinned_messages: Message[];
   number_of_unread_mentions: number;
   has_new_message: boolean;
 };
@@ -37,6 +39,7 @@ export type DirectConversation = {
   id: string;
   type: 'direct';
   messages: Message[];
+  pinned_messages: Message[];
   number_of_unread_mentions: number;
   has_new_message: boolean;
 };
@@ -59,6 +62,8 @@ export enum ConversationsTypes {
   // AddMessageReaction = 'ADD_MESSAGE_REACTION',
   // RemoveMessageReaction = 'REMOVE_MESSAGE_REACTION',
   SetMessageReaction = 'SET_MESSAGE_REACTION',
+  SetMessagePin = 'SET_MESSAGE_PIN',
+  AddPinnedMessages = 'ADD_PINNED_MESSAGES',
   EditConversationMessage = 'EDIT_CONVERSATION_MESSAGE'
 }
 
@@ -190,6 +195,23 @@ export type EditConversationMessageAction = {
   };
 };
 
+export type SetMessagePinAction = {
+  type: ConversationsTypes.SetMessagePin;
+  payload: {
+    conversationId: string;
+    messageId: string;
+    is_pinned: boolean;
+  };
+};
+
+export type AddPinnedMessagesAction = {
+  type: ConversationsTypes.AddPinnedMessages;
+  payload: {
+    conversationId: string;
+    messages: Message[];
+  };
+};
+
 export type ConversationsAction =
   | SetFocusAction
   | AddConversationAction
@@ -206,4 +228,6 @@ export type ConversationsAction =
   // | AddMessageReactionAction
   // | RemoveMessageReactionAction
   | SetMessageReactionAction
-  | EditConversationMessageAction;
+  | EditConversationMessageAction
+  | SetMessagePinAction
+  | AddPinnedMessagesAction;
