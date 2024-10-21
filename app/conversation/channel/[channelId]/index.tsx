@@ -125,9 +125,6 @@ const ChannelConversation = () => {
       `/api/v1/servers/${currentServerId}/channels/${channelId}/messages/pins`
     );
 
-    console.log("server messages", conversation.messages);
-    console.log("response messages", response.messages);
-
     conversationDispatch({
       type: ConversationsTypes.AddPinnedMessages,
       payload: {
