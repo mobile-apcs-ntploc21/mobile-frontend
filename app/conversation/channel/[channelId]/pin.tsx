@@ -14,7 +14,7 @@ import { FlatList } from 'react-native-gesture-handler';
 import { useConversations } from '@/context/ConversationsProvider';
 import ServerChatItem from '@/components/Chat/ServerChatItem';
 
-const ChannelInfo = () => {
+const Pin = () => {
   const navigation = useNavigation();
   const { categories } = useServer();
   const { channelId } = useLocalSearchParams<{
@@ -58,7 +58,7 @@ const ChannelInfo = () => {
   );
 };
 
-export default ChannelInfo;
+export default Pin;
 
 const styles = StyleSheet.create({
   container: {
