@@ -43,34 +43,11 @@ const ChannelInfo = () => {
     });
   });
 
-  const fetchPinned = async() => {
-    if (!channelId || !conversation) return;
-
-    const response = await getData(
-      `/api/v1/servers/${currentServerId}/channels/${channelId}/messages/pins`
-    );
-
-    console.log("server messages", conversation.messages);
-    console.log("response messages", response.messages);
-
-    conversationDispatch({
-      type: ConversationsTypes.AddPinnedMessages,
-      payload: {
-        conversationId: conversation.id,
-        messages: response.messages
-      }
-    });    
-  }
-
-  useEffect(() => {
-    fetchPinned();
-  }, []);
-
   return (
     <View style={GlobalStyles.screen}>
       <FlatList
         keyboardShouldPersistTaps="never"
-        data={conversation?.pinned_messages || []} // This is just for mock data, it should be pinned messages
+        data={conversation?.pinned_messages || []}
         renderItem={({ item, index }) => (
           <ServerChatItem
             channel_id={channelId!}

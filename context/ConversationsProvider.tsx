@@ -213,7 +213,20 @@ const reducer = (
                         is_pinned: payload.is_pinned
                       }
                     : message
-                )
+                ),
+                pinned_messages: payload.is_pinned
+                  ? (() => {
+                    const pinnedMessage = conversation.messages.find(
+                      (message) => message.id === payload.messageId
+                    );
+
+                    return pinnedMessage
+                      ? [pinnedMessage, ...conversation.pinned_messages]
+                      : conversation.pinned_messages;
+                    })()
+                  : conversation.pinned_messages?.filter(
+                    (message) => message.id !== payload.messageId
+                  )
               }
             : conversation
         )
