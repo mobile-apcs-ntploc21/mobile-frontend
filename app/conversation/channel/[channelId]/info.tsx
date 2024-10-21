@@ -1,6 +1,6 @@
 import { StyleSheet, Text, View } from 'react-native';
 import React, { useLayoutEffect, useMemo } from 'react';
-import { useLocalSearchParams, useNavigation } from 'expo-router';
+import { router, useLocalSearchParams, useNavigation } from 'expo-router';
 import useServer from '@/hooks/useServer';
 import { Channel } from '@/types/server';
 import { NativeStackHeaderProps } from '@react-navigation/native-stack';
@@ -43,7 +43,7 @@ const ChannelInfo = () => {
           items={[
             {
               text: 'Search',
-              onPress: () => {}
+              onPress: () => router.navigate('./search')
             },
             {
               text: 'View pinned messages',
