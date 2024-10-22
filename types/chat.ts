@@ -30,7 +30,6 @@ export type ChannelConversation = {
   id: string;
   type: 'channel';
   messages: Message[];
-  pinned_messages: Message[];
   number_of_unread_mentions: number;
   has_new_message: boolean;
 };
@@ -39,7 +38,6 @@ export type DirectConversation = {
   id: string;
   type: 'direct';
   messages: Message[];
-  pinned_messages: Message[];
   number_of_unread_mentions: number;
   has_new_message: boolean;
 };
