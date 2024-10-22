@@ -220,16 +220,9 @@ const reducer = (
                       (message) => message.id === payload.messageId
                     );
 
-                    if (!pinnedMessage) {
-                      return conversation.pinned_messages;
-                    }
-
-                    const newList = [pinnedMessage, ...conversation.pinned_messages].sort((a, b) => {
-                      return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
-                    });
-
-                    return newList;
-                    
+                    return pinnedMessage
+                      ? [pinnedMessage, ...conversation.pinned_messages]
+                      : conversation.pinned_messages;
                     })()
                   : conversation.pinned_messages?.filter(
                     (message) => message.id !== payload.messageId
@@ -245,9 +238,7 @@ const reducer = (
           conversation.id === payload.conversationId
             ? {
                 ...conversation,
-                pinned_messages: [...payload.messages].sort((a, b) => {
-                  return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
-                })
+                pinned_messages: [...payload.messages]
               }
             : conversation
         )
