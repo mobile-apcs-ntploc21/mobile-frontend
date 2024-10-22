@@ -118,25 +118,6 @@ const ChannelConversation = () => {
     setLoading(false);
   };
 
-  const fetchPinned = async() => {
-    if (!channelId || !conversation) return;
-
-    const response = await getData(
-      `/api/v1/servers/${currentServerId}/channels/${channelId}/messages/pins`
-    );
-
-    console.log("server messages", conversation.messages);
-    console.log("response messages", response.messages);
-
-    conversationDispatch({
-      type: ConversationsTypes.AddPinnedMessages,
-      payload: {
-        conversationId: conversation.id,
-        messages: response.messages
-      }
-    });    
-  }
-
   useEffect(() => {
     conversationDispatch({
       type: ConversationsTypes.SetFocus,
@@ -154,8 +135,6 @@ const ChannelConversation = () => {
         }
       }
     });
-
-    fetchPinned();
     if (conversation && conversation.messages.length < 10) fetchMessages();
     return () => {
       conversationDispatch({
