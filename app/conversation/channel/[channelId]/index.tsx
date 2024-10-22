@@ -291,20 +291,6 @@ const ChannelConversation = () => {
     handleCloseMessageBottomSheet();
   };
 
-  const handlePin = () => {
-    postData(
-      `/api/v1/servers/${currentServerId}/channels/${channelId}/messages/${modalMessage?.id}/pin`
-    );
-    handleCloseMessageBottomSheet();
-  };
-
-  const handleUnpin = () => {
-    deleteData(
-      `/api/v1/servers/${currentServerId}/channels/${channelId}/messages/${modalMessage?.id}/pin`
-    );
-    handleCloseMessageBottomSheet();
-  };
-
   const handleDelete = () => {
     if (modalMessage!.id === actionMessage?.id) {
       setActionMode(null);
@@ -364,18 +350,6 @@ const ChannelConversation = () => {
             {
               text: 'Reply',
               onPress: handleReply
-            },
-            {
-              text: 'Pin',
-              onPress: handlePin,
-              isHidden:
-                modalMessage?.is_pinned 
-            },
-            {
-              text: 'Unpin',
-              onPress: handleUnpin,
-              isHidden:
-                !modalMessage?.is_pinned
             },
             {
               text: 'Delete',

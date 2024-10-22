@@ -21,7 +21,6 @@ export type Message = {
     is_deleted: boolean;
   } | null;
   is_modified: boolean;
-  is_pinned: boolean;
   createdAt: string;
   reactions: Reaction[];
 };
@@ -60,7 +59,6 @@ export enum ConversationsTypes {
   // AddMessageReaction = 'ADD_MESSAGE_REACTION',
   // RemoveMessageReaction = 'REMOVE_MESSAGE_REACTION',
   SetMessageReaction = 'SET_MESSAGE_REACTION',
-  SetMessagePin = 'SET_MESSAGE_PIN',
   EditConversationMessage = 'EDIT_CONVERSATION_MESSAGE'
 }
 
@@ -192,15 +190,6 @@ export type EditConversationMessageAction = {
   };
 };
 
-export type SetMessagePinAction = {
-  type: ConversationsTypes.SetMessagePin;
-  payload: {
-    conversationId: string;
-    messageId: string;
-    is_pinned: boolean;
-  };
-};
-
 export type ConversationsAction =
   | SetFocusAction
   | AddConversationAction
@@ -217,5 +206,4 @@ export type ConversationsAction =
   // | AddMessageReactionAction
   // | RemoveMessageReactionAction
   | SetMessageReactionAction
-  | EditConversationMessageAction
-  | SetMessagePinAction;
+  | EditConversationMessageAction;
