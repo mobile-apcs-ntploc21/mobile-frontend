@@ -63,7 +63,6 @@ export enum ConversationsTypes {
   // RemoveMessageReaction = 'REMOVE_MESSAGE_REACTION',
   SetMessageReaction = 'SET_MESSAGE_REACTION',
   SetMessagePin = 'SET_MESSAGE_PIN',
-  AddPinnedMessages = 'ADD_PINNED_MESSAGES',
   EditConversationMessage = 'EDIT_CONVERSATION_MESSAGE'
 }
 
@@ -204,14 +203,6 @@ export type SetMessagePinAction = {
   };
 };
 
-export type AddPinnedMessagesAction = {
-  type: ConversationsTypes.AddPinnedMessages;
-  payload: {
-    conversationId: string;
-    messages: Message[];
-  };
-};
-
 export type ConversationsAction =
   | SetFocusAction
   | AddConversationAction
@@ -229,5 +220,4 @@ export type ConversationsAction =
   // | RemoveMessageReactionAction
   | SetMessageReactionAction
   | EditConversationMessageAction
-  | SetMessagePinAction
-  | AddPinnedMessagesAction;
+  | SetMessagePinAction;

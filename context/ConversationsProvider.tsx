@@ -231,18 +231,6 @@ const reducer = (
             : conversation
         )
       };
-    case ConversationsTypes.AddPinnedMessages:
-      return {
-        ...state,
-        conversations: state.conversations.map((conversation) =>
-          conversation.id === payload.conversationId
-            ? {
-                ...conversation,
-                pinned_messages: [...conversation.pinned_messages, ...payload.messages]
-              }
-            : conversation
-        )
-      };
     default:
       return state;
   }
