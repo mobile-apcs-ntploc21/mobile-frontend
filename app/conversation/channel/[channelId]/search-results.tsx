@@ -25,20 +25,10 @@ const SearchResults = () => {
   const channels = useMemo(() => {
     return categories.map((category) => category.channels).flat();
   }, [categories]);
-  const {
-    channelId,
-    content,
-    in: inChannel,
-    from,
-    mentions,
-    has
-  } = useLocalSearchParams<{
+  const { channelId, content, additionalParams } = useLocalSearchParams<{
     channelId: string;
     content?: string;
-    in?: string;
-    from?: string;
-    mentions?: string;
-    has?: 'file' | 'image' | 'video' | 'audio';
+    additionalParams?: string;
   }>();
   const channel: Channel | undefined = useMemo(() => {
     return channels.find((channel) => channel.id === channelId);
@@ -61,29 +51,15 @@ const SearchResults = () => {
   const [loading, setLoading] = useState(true);
   useEffect(() => {
     (async () => {
-      const params: any = {
-        content: encodeURIComponent(content || ''),
-        in: inChannel
-      };
-      if (from) {
-        params.from = from;
-      }
-      if (mentions) {
-        params.mentions = mentions;
-      }
-      if (has) {
-        params.has = has;
-      }
-
       const response = await getData(
-        `/api/v1/servers/${currentServerId}/messages/search`,
-        {},
-        params
+        `/api/v1/servers/${currentServerId}/messages/search?content=${content}${
+          additionalParams ? `&${additionalParams}` : ''
+        }`
       );
       setSearchResults(response.messages);
       setLoading(false);
     })();
-  }, [content, inChannel, from, mentions, has]);
+  }, [content, additionalParams]);
 
   return (
     <View style={styles.screen}>
