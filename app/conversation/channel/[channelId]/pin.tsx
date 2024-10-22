@@ -44,14 +44,11 @@ const ChannelInfo = () => {
   });
 
   const fetchPinned = async() => {
-    if (!channelId || !conversation) return;
-
     const response = await getData(
       `/api/v1/servers/${currentServerId}/channels/${channelId}/messages/pins`
     );
 
-    console.log("server messages", conversation.messages);
-    console.log("response messages", response.messages);
+    console.log(response);
 
     conversationDispatch({
       type: ConversationsTypes.AddPinnedMessages,
@@ -64,7 +61,7 @@ const ChannelInfo = () => {
 
   useEffect(() => {
     fetchPinned();
-  }, []);
+  }, [])
 
   return (
     <View style={GlobalStyles.screen}>
