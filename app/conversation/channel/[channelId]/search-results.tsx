@@ -48,18 +48,34 @@ const SearchResults = () => {
   });
 
   const [searchResults, setSearchResults] = useState<Message[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [messageEndReached, setMessageEndReached] = useState(false);
+
+  const fetchMessages = async () => {
+    if (loading) return;
+    if (messageEndReached) return;
+    setLoading(true);
+    const response = await getData(
+      `/api/v1/servers/${currentServerId}/messages/search?content=${content}&page=${currentPage}${
+        additionalParams ? `&${additionalParams}` : ''
+      }`
+    );
+    if (response.messages.length === 0) {
+      setMessageEndReached(true);
+      setLoading(false);
+      return;
+    }
+    setSearchResults((prev) => [...prev, ...response.messages]);
+    setCurrentPage(currentPage + 1);
+    setLoading(false);
+  };
+
   useEffect(() => {
     (async () => {
-      const response = await getData(
-        `/api/v1/servers/${currentServerId}/messages/search?content=${content}${
-          additionalParams ? `&${additionalParams}` : ''
-        }`
-      );
-      setSearchResults(response.messages);
-      setLoading(false);
+      await fetchMessages();
     })();
-  }, [content, additionalParams]);
+  }, []);
 
   return (
     <View style={styles.screen}>
@@ -76,8 +92,8 @@ const SearchResults = () => {
         )}
         contentContainerStyle={{ gap: 8 }}
         keyExtractor={(item, index) => index.toString()}
-        // ListFooterComponent={loading ? <ActivityIndicator /> : null}
-        // onEndReached={fetchMessages}
+        ListFooterComponent={loading ? <ActivityIndicator /> : null}
+        onEndReached={fetchMessages}
       />
     </View>
   );
