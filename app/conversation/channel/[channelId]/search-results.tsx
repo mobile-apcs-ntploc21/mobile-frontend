@@ -1,6 +1,7 @@
 import ServerChatItem from '@/components/Chat/ServerChatItem';
 import { MyButtonText } from '@/components/MyButton';
 import MyHeader from '@/components/MyHeader';
+import MyText from '@/components/MyText';
 import SearchBar from '@/components/SearchBar';
 import { colors } from '@/constants/theme';
 import { useAuth } from '@/context/AuthProvider';
@@ -79,6 +80,11 @@ const SearchResults = () => {
 
   return (
     <View style={styles.screen}>
+      {searchResults.length === 0 && !loading && (
+        <View style={styles.emptyContainer}>
+          <MyText style={styles.emptyText}>No results found</MyText>
+        </View>
+      )}
       <FlatList
         keyboardShouldPersistTaps="never"
         data={searchResults}
@@ -104,5 +110,14 @@ export default SearchResults;
 const styles = StyleSheet.create({
   screen: {
     ...GlobalStyles.screen
+  },
+  emptyContainer: {
+    flex: 1,
+    alignItems: 'center',
+    padding: 16
+  },
+  emptyText: {
+    fontSize: 16,
+    color: colors.gray02
   }
 });
