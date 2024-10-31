@@ -401,30 +401,53 @@ export const ServerProvider = (props: ProviderProps) => {
         }
         break;
       case ServerEvents.emojiAdded:
+        const addedEmojis = [...server.emojis];
+        addedEmojis.push({
+          id: data._id,
+          ...data
+        });
         dispatchLoad.push({
           type: ServerActions.SET_EMOJI,
-          payload: [
-            ...server.emojis,
-            {
-              id: data._id,
-              ...data
-            }
-          ]
+          payload: addedEmojis
+        });
+        props.dispatch({
+          type: 'SET_EMOJIS',
+          payload: {
+            serverId: server_id,
+            emojis: addedEmojis
+          }
         });
         break;
       case ServerEvents.emojiUpdated:
+        const updatedEmojis = server.emojis.map((emoji) =>
+          emoji.id === data._id ? { ...emoji, ...data } : emoji
+        );
         dispatchLoad.push({
           type: ServerActions.SET_EMOJI,
-          payload: server.emojis.map((emoji) =>
-            emoji.id === data._id ? { ...emoji, ...data } : emoji
-          )
+          payload: updatedEmojis
         });
-
+        props.dispatch({
+          type: 'SET_EMOJIS',
+          payload: {
+            serverId: server_id,
+            emojis: updatedEmojis
+          }
+        });
         break;
       case ServerEvents.emojiDeleted:
+        const deletedEmojis = server.emojis.filter(
+          (emoji) => emoji.id !== data._id
+        );
         dispatchLoad.push({
           type: ServerActions.SET_EMOJI,
-          payload: server.emojis.filter((emoji) => emoji.id !== data._id)
+          payload: deletedEmojis
+        });
+        props.dispatch({
+          type: 'SET_EMOJIS',
+          payload: {
+            serverId: server_id,
+            emojis: deletedEmojis
+          }
         });
         break;
       case ServerEvents.roleAdded:

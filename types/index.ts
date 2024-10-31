@@ -1,4 +1,4 @@
-import { Role } from './server';
+import { Emoji, Role } from './server';
 import { StatusType } from './user_status';
 
 export interface IconProps {
@@ -13,6 +13,7 @@ export interface Server {
   banner?: string | null;
   position?: number;
   is_favorite?: boolean;
+  emojis?: Emoji[];
 }
 
 export interface ServerItemProps {

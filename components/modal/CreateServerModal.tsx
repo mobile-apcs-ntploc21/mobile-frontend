@@ -47,7 +47,8 @@ const CreateServerModal = (props: CreateServerModalProps) => {
         owner_id: response.owner,
         name: response.name,
         is_favorite: false,
-        position: response.position || servers.length
+        position: response.position || servers.length,
+        emojis: []
       }
     ];
 

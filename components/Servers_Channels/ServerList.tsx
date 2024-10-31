@@ -44,6 +44,8 @@ const ServerList = () => {
 
         const servers = await Promise.all(
           Object.values(response).map(async (server: any, index: number) => {
+            const emojiResponse =
+              (await getData(`/api/v1/servers/${server.id}/emojis`)) || [];
             return {
               id: server.id,
               owner_id: server.owner,
@@ -51,7 +53,8 @@ const ServerList = () => {
               is_favorite: server.is_favorite,
               avatar: server.avatar_url,
               banner: server.banner_url,
-              position: server.position || index
+              position: server.position || index,
+              emojis: emojiResponse
             };
           })
         );

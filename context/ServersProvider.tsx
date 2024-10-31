@@ -16,7 +16,8 @@ import { getData } from '@/utils/api';
 // Types
 export enum ServersActions {
   SELECT_SERVER = 'SELECT_SERVER',
-  SET_SERVERS = 'SET_SERVERS'
+  SET_SERVERS = 'SET_SERVERS',
+  SET_EMOJIS = 'SET_EMOJIS'
 }
 
 type ServersState = {
@@ -66,6 +67,17 @@ const handlers: Record<
     return {
       ...state,
       servers: payload
+    };
+  },
+  [ServersActions.SET_EMOJIS]: (state, { payload }) => {
+    const { serverId, emojis } = payload;
+    const server = state.serverMap[serverId];
+    if (!server) return state;
+
+    server.emojis = emojis;
+    return {
+      ...state,
+      servers: [...state.servers]
     };
   }
 };
@@ -121,6 +133,8 @@ export const ServersProvider = ({ children }: ServersProviderProps) => {
 
           const servers = await Promise.all(
             Object.values(response).map(async (server: any, index: number) => {
+              const emojiResponse =
+                (await getData(`/api/v1/servers/${server.id}/emojis`)) || [];
               return {
                 id: server.id,
                 owner_id: server.owner,
@@ -128,7 +142,8 @@ export const ServersProvider = ({ children }: ServersProviderProps) => {
                 is_favorite: server.is_favorite,
                 avatar: server.avatar_url,
                 banner: server.banner_url,
-                position: server.position || index
+                position: server.position || index,
+                emojis: emojiResponse
               };
             })
           );
