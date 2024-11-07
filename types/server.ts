@@ -33,6 +33,7 @@ export interface Emoji {
   name: string;
   image_url: string;
   uploader_id: string;
+  unicode: string;
 }
 
 export interface Member {

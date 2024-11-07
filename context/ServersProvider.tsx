@@ -12,18 +12,25 @@ import { useSubscription } from '@apollo/client';
 import { DUMMY_SUBSCRIPTION } from '@/services/graphql/subscriptions';
 import { useAuth } from './AuthProvider';
 import { getData } from '@/utils/api';
+import { Emoji } from '@/types/server';
 
 // Types
 export enum ServersActions {
   SELECT_SERVER = 'SELECT_SERVER',
   SET_SERVERS = 'SET_SERVERS',
-  SET_EMOJIS = 'SET_EMOJIS'
+  SET_EMOJIS = 'SET_EMOJIS',
+  SET_EMOJI_CATEGORIES = 'SET_EMOJI_CATEGORIES'
 }
 
 type ServersState = {
   servers: Server[];
   serverMap: Record<string, Server | null>;
   currentServerId: string | null;
+  emojiCategories: {
+    id: string;
+    name: string;
+    emojis: Emoji[];
+  }[];
 };
 
 type ServerAction = {
@@ -43,7 +50,8 @@ interface ServersProviderProps {
 const initialState: ServersState = {
   servers: [],
   serverMap: {},
-  currentServerId: null
+  currentServerId: null,
+  emojiCategories: []
 };
 
 // Context
@@ -72,12 +80,35 @@ const handlers: Record<
   [ServersActions.SET_EMOJIS]: (state, { payload }) => {
     const { serverId, emojis } = payload;
     const server = state.serverMap[serverId];
+    const serverName = server?.name || 'Unknown Server';
+
     if (!server) return state;
 
-    server.emojis = emojis;
+    // server.emojis = emojis;
+    // return {
+    //   ...state,
+    //   servers: [...state.servers]
+    // };
+  
     return {
       ...state,
-      servers: [...state.servers]
+      servers: state.servers.map((server) =>
+        server.id === serverId ? { ...server, emojis } : server
+      ),
+      emojiCategories: state.emojiCategories.some((category) => category.id === serverId)
+        ? state.emojiCategories.map((category) =>
+            category.id === serverId ? { ...category, emojis } : category
+          )
+        : [
+            ...state.emojiCategories,
+            { id: serverId, name: serverName, emojis }
+          ]
+    };
+  },
+  [ServersActions.SET_EMOJI_CATEGORIES]: (state, { payload }) => {
+    return {
+      ...state,
+      emojiCategories: payload
     };
   }
 };
@@ -130,11 +161,14 @@ export const ServersProvider = ({ children }: ServersProviderProps) => {
             dispatch({ type: ServersActions.SET_SERVERS, payload: [] }); // Set empty array if no servers
             return;
           }
-
+          
           const servers = await Promise.all(
             Object.values(response).map(async (server: any, index: number) => {
               const emojiResponse =
                 (await getData(`/api/v1/servers/${server.id}/emojis`)) || [];
+
+
+
               return {
                 id: server.id,
                 owner_id: server.owner,
@@ -149,7 +183,6 @@ export const ServersProvider = ({ children }: ServersProviderProps) => {
           );
 
           if (Array.isArray(servers)) {
-            console.log('servers', servers);
             dispatch({
               type: ServersActions.SET_SERVERS,
               payload: servers
@@ -157,7 +190,6 @@ export const ServersProvider = ({ children }: ServersProviderProps) => {
           }
         }
         break;
-
       default: {
         console.warn('Unknown type', type);
         console.log(data);

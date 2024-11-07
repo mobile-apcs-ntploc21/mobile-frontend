@@ -1,10 +1,13 @@
 import React, { useCallback, useMemo } from 'react';
 import useServer from './useServer';
+import useServers from './useServers';
 import { Image, StyleSheet, Text } from 'react-native';
 import { colors, fonts } from '@/constants/theme';
 
 const useServerParseContent = () => {
-  const { emojis, members, roles, categories } = useServer();
+  const { members, roles, categories } = useServer();
+  const { currentServerId, emojiCategories } = useServers();
+  const emojis = emojiCategories.flatMap((category) => category.emojis);
   const channels = useMemo(() => {
     return categories.map((category) => category.channels).flat();
   }, [categories]);

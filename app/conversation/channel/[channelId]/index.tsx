@@ -47,8 +47,9 @@ import { useAuth } from '@/context/AuthProvider';
 
 const ChannelConversation = () => {
   const navigation = useNavigation();
-  const { currentServerId } = useServers();
-  const { categories, roles, members, emojis, permissions } = useServer();
+  const { currentServerId, emojiCategories } = useServers();
+  const emojis = emojiCategories.flatMap((category) => category.emojis);
+  const { categories, roles, members, permissions } = useServer();
   const { user } = useAuth();
   const channels = useMemo(() => {
     return categories.map((category) => category.channels).flat();
@@ -239,7 +240,9 @@ const ChannelConversation = () => {
     });
 
     content = content.replace(emojiPattern, (match, emojiName) => {
-      const emoji = emojis.find((emoji) => emoji.name === emojiName);
+      const emoji = emojiCategories.find((category) =>
+        category.emojis.find((emoji) => emoji.name === emojiName)
+      )?.emojis.find((emoji) => emoji.name === emojiName);
       return `:${emoji?.name}:`;
     });
 
@@ -272,12 +275,20 @@ const ChannelConversation = () => {
     sortedChannels.forEach((channel) => {
       input = input.replaceAll(`#${channel.name}`, `<#${channel.id}>`);
     });
+    // emojis.forEach((emoji) => {
+    //   input = input.replaceAll(
+    //     `:${emoji.name}:`,
+    //     `<:${emoji.name}:${emoji.id}>`
+    //   );
+    // });
+
     emojis.forEach((emoji) => {
       input = input.replaceAll(
         `:${emoji.name}:`,
         `<:${emoji.name}:${emoji.id}>`
       );
     });
+
     return input;
   };
 
@@ -430,7 +441,7 @@ const ChannelConversation = () => {
             visible
             handleClose={() => {}}
             height={600}
-            emojis={emojis}
+            emojiCategories= {emojiCategories}
           />
         </View>
       </MyBottomSheetModal>

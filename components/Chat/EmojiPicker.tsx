@@ -22,14 +22,18 @@ interface EmojiPickerProps {
   handleClose: () => void;
   height: number;
   onSelect: (emoji: Emoji) => void;
-  emojis: Emoji[];
+  emojiCategories: {
+    id: string;
+    name: string;
+    emojis: Emoji[];
+  }[];
 }
 
 const placeholderImg = 'https://via.placeholder.com/150';
 
 // This should not be mistaken for the ReactionPicker component
 const EmojiPicker = (props: EmojiPickerProps) => {
-  const { servers } = useServers();
+  const { emojiCategories, servers } = useServers();
 
   const [searchQuery, setSearchQuery] = useState('');
 
@@ -46,11 +50,11 @@ const EmojiPicker = (props: EmojiPickerProps) => {
     }[]
   >(() => {
     const query = searchQuery.trim().toLowerCase();
-    return servers.map((server) => ({
-      ...server,
-      emojis: server.emojis?.filter(({ name }) => name.startsWith(query))
+    return emojiCategories.map((category) => ({
+      ...category,
+      emojis: category.emojis?.filter(({ name }) => name.startsWith(query))
     }));
-  }, [servers, searchQuery]);
+  }, [emojiCategories, searchQuery]); 
 
   useEffect(() => {
     const backHandler = BackHandler.addEventListener(
@@ -98,10 +102,16 @@ const EmojiPicker = (props: EmojiPickerProps) => {
                     onPress={() => props.onSelect(emoji)}
                     key={emoji.id}
                   >
-                    <Image
-                      style={styles.emoji}
-                      source={{ uri: emoji.image_url }}
-                    />
+                    {
+                      emoji.image_url ? (
+                        <Image
+                          style={styles.emoji}
+                          source={{ uri: emoji.image_url }}
+                        />
+                      ) : (
+                        <Text style={styles.emoji}>{emoji.unicode}</Text>
+                      )
+                    }
                   </TouchableOpacity>
                 ))}
               </View>
