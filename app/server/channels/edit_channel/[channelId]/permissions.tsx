@@ -25,7 +25,7 @@ import { useSubscription } from '@apollo/client';
 import { SERVER_SUBSCRIPTION } from '@/services/graphql/subscriptions';
 import { ServerEvents } from '@/types';
 import { Member, Role } from '@/types/server';
-import { getData } from '@/utils/api';
+import { deleteData, getData, postData } from '@/utils/api';
 import BasicModal from '@/components/modal/BasicModal';
 import MyBottomSheetModal from '@/components/modal/MyBottomSheetModal';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
@@ -46,13 +46,15 @@ const Permissions = () => {
 
   const [permissionUserIds, setPermissionUserIds] = useState<string[]>([]);
   const permissionUsers = useMemo(() => {
-    return members.filter((member) =>
-      permissionUserIds.includes(member.user_id)
-    );
+    return permissionUserIds
+      .map((id) => members.find((member) => member.user_id === id))
+      .filter((members) => members !== undefined);
   }, [permissionUserIds, members]);
   const [permissionRoleIds, setPermissionRoleIds] = useState<string[]>([]);
   const permissionRoles = useMemo(() => {
-    return roles.filter((role) => permissionRoleIds.includes(role.id));
+    return permissionRoleIds
+      .map((id) => roles.find((role) => role.id === id))
+      .filter((roles) => roles !== undefined);
   }, [permissionRoleIds, roles]);
 
   useLayoutEffect(() => {
@@ -97,11 +99,11 @@ const Permissions = () => {
         );
         break;
       case ServerEvents.channelRoleAdded:
-        setPermissionRoleIds((prev) => [...prev, data._id.role_id]);
+        setPermissionRoleIds((prev) => [...prev, data._id.server_role_id]);
         break;
       case ServerEvents.channelRoleDeleted:
         setPermissionRoleIds((prev) =>
-          prev.filter((id) => id !== data._id.role_id)
+          prev.filter((id) => id !== data._id.server_role_id)
         );
         break;
     }
@@ -162,10 +164,14 @@ const Permissions = () => {
               onPress: () => {
                 if (modalData?.type === 'user') {
                   // remove user from the channel
-                  console.log('Removing user:', modalData.id);
+                  deleteData(
+                    `/api/v1/servers/${server_id}/channels/${channel_id}/users/${modalData.id}/permissions`
+                  );
                 } else if (modalData?.type === 'role') {
                   // remove role from the channel
-                  console.log('Removing role:', modalData.id);
+                  deleteData(
+                    `/api/v1/servers/${server_id}/channels/${channel_id}/roles/${modalData.id}/permissions`
+                  );
                 }
                 handleCloseBottomSheet();
               },
@@ -188,9 +194,18 @@ const Permissions = () => {
               onPress: () => {
                 setCallback(() => (memberIds: string[]) => {
                   // add members to the server
-                  console.log('Adding members:', memberIds);
+                  memberIds.forEach((memberId) => {
+                    postData(
+                      `/api/v1/servers/${server_id}/channels/${channel_id}/users/${memberId}/permissions`
+                    );
+                  });
                 });
-                router.navigate('/server/add_members');
+                router.navigate({
+                  pathname: '/server/add_members',
+                  params: {
+                    excluded: permissionUserIds
+                  }
+                });
               }
             },
             {
@@ -198,9 +213,18 @@ const Permissions = () => {
               onPress: () => {
                 setCallback(() => (roleIds: string[]) => {
                   // add roles to the server
-                  console.log('Adding roles:', roleIds);
+                  roleIds.forEach((roleId) => {
+                    postData(
+                      `/api/v1/servers/${server_id}/channels/${channel_id}/roles/${roleId}/permissions`
+                    );
+                  });
                 });
-                router.navigate('/server/add_roles');
+                router.navigate({
+                  pathname: '/server/add_roles',
+                  params: {
+                    excluded: permissionRoleIds
+                  }
+                });
               }
             }
           ]}
