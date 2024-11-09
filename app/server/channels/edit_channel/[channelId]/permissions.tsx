@@ -160,8 +160,8 @@ const Permissions = () => {
                   params: {
                     user_role_type: modalData?.type,
                     user_role_id: modalData?.id,
-                    category_channel_type: 'channel',
-                    category_channel_id: channel_id
+                    categories_channels_type: 'channels',
+                    categories_channels_id: channel_id
                   }
                 });
                 handleCloseBottomSheet();

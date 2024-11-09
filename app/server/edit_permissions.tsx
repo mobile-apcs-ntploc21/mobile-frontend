@@ -36,13 +36,13 @@ const EditPermissions = () => {
   const {
     user_role_type,
     user_role_id,
-    category_channel_type,
-    category_channel_id
+    categories_channels_type,
+    categories_channels_id
   } = useLocalSearchParams<{
     user_role_type?: string;
     user_role_id?: string;
-    category_channel_type?: string;
-    category_channel_id?: string;
+    categories_channels_type?: string;
+    categories_channels_id?: string;
   }>();
   const [loading, setLoading] = useState(true);
 
@@ -53,7 +53,7 @@ const EditPermissions = () => {
     (async () => {
       try {
         const response = await getData(
-          `/api/v1/servers/${server_id}/${category_channel_type}s/${category_channel_id}/${user_role_type}s/${user_role_id}/permissions`
+          `/api/v1/servers/${server_id}/${categories_channels_type}/${categories_channels_id}/${user_role_type}s/${user_role_id}/permissions`
         );
         setLoading(false);
         setPermissions(response);
@@ -127,7 +127,7 @@ const EditPermissions = () => {
   const handleSave = async () => {
     const tmp = JSON.stringify(permissions);
     const response = await patchData(
-      `/api/v1/servers/${server_id}/${category_channel_type}s/${category_channel_id}/${user_role_type}s/${user_role_id}/permissions`,
+      `/api/v1/servers/${server_id}/${categories_channels_type}/${categories_channels_id}/${user_role_type}s/${user_role_id}/permissions`,
       permissions
     );
     router.back();
