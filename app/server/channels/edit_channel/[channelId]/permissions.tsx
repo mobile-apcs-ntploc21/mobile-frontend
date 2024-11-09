@@ -155,7 +155,15 @@ const Permissions = () => {
               text: 'Edit permissions',
               onPress: () => {
                 // navigate to edit permissions page
-                console.log('Editing permissions:', modalData);
+                router.navigate({
+                  pathname: '/server/edit_permissions',
+                  params: {
+                    user_role_type: modalData?.type,
+                    user_role_id: modalData?.id,
+                    category_channel_type: 'channel',
+                    category_channel_id: channel_id
+                  }
+                });
                 handleCloseBottomSheet();
               }
             },
