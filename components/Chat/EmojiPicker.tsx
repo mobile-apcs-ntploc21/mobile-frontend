@@ -85,18 +85,6 @@ const EmojiPicker = (props: EmojiPickerProps) => {
     emojiListRef.current?.scrollToIndex({ index });
   };
 
-  const EmojiItem = React.memo(({ emoji }: { emoji: Emoji }) => {
-    return (
-      <TouchableOpacity onPress={() => props.onSelect(emoji)}>
-        {emoji.image_url ? (
-          <Image style={styles.emoji} source={{ uri: emoji.image_url }} />
-        ) : (
-          <Text style={styles.emojiUnicode}>{emoji.unicode}</Text>
-        )}
-      </TouchableOpacity>
-    );
-  });
-
   if (!props.visible) return null;
   return (
     <View style={{ height: props.height, backgroundColor: colors.gray04 }}>
@@ -111,27 +99,9 @@ const EmojiPicker = (props: EmojiPickerProps) => {
           item.emojis?.length ? (
             <View>
               <MyText style={styles.heading}>{item.name}</MyText>
-              {/* <View style={styles.emojis}>
-                {item.emojis?.map((emoji) => (
-                  <TouchableOpacity
-                    onPress={() => props.onSelect(emoji)}
-                    key={emoji.id}
-                  >
-                    {emoji.image_url ? (
-                      <Image
-                        style={styles.emoji}
-                        source={{ uri: emoji.image_url }}
-                      />
-                    ) : (
-                      <Text style={styles.emoji}>{emoji.unicode}</Text>
-                    )}
-                  </TouchableOpacity>
-                ))}
-              </View> */}
               <FlatList
                 data={item.emojis}
                 keyExtractor={(emoji) => emoji.id}
-                // contentContainerStyle={styles.emojis}
                 numColumns={Math.floor(width / 48)}
                 renderItem={({ item: emoji }) => (
                   <TouchableOpacity onPress={() => props.onSelect(emoji)}>
