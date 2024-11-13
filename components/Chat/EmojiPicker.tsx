@@ -23,6 +23,11 @@ interface EmojiPickerProps {
   handleClose: () => void;
   height: number;
   onSelect: (emoji: Emoji) => void;
+  importedEmojiCategories?: {
+    id: string;
+    name: string;
+    emojis: Emoji[];
+  }[];
 }
 
 const placeholderImg = 'https://via.placeholder.com/150';
@@ -45,7 +50,10 @@ const EmojiItemMemo = React.memo(
 const EmojiPicker = (props: EmojiPickerProps) => {
   const { width } = useWindowDimensions();
 
-  const { emojiCategories, servers } = useServers();
+  const { servers, currentServerId } = useServers();
+
+  const emojiCategories =
+    props.importedEmojiCategories || useServers().emojiCategories;
 
   const [searchQuery, setSearchQuery] = useState('');
 

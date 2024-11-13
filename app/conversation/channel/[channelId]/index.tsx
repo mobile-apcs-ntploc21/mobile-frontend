@@ -48,7 +48,10 @@ import { useAuth } from '@/context/AuthProvider';
 const ChannelConversation = () => {
   const navigation = useNavigation();
   const { currentServerId, emojiCategories } = useServers();
-  const emojis = emojiCategories.flatMap((category) => category.emojis);
+  const emojis = useMemo(
+    () => emojiCategories.flatMap((category) => category.emojis),
+    [emojiCategories]
+  );
   const { categories, roles, members, permissions } = useServer();
   const { user } = useAuth();
   const channels = useMemo(() => {
@@ -208,7 +211,7 @@ const ChannelConversation = () => {
     reactionBottomSheetRef.current?.dismiss();
   }, [reactionBottomSheetRef]);
 
-  const handleSelectReaction = (emoji: Emoji) => {
+  const handleSelectReaction = useCallback((emoji: Emoji) => {
     postData(
       `/api/v1/servers/${currentServerId}/channels/${channelId}/messages/${modalMessage?.id}/reactions`,
       {
@@ -216,7 +219,7 @@ const ChannelConversation = () => {
       }
     );
     handleCloseReactionBottomSheet();
-  };
+  }, []);
 
   const convertContentToInput = (content: string) => {
     const userPattern = /<@!?([a-f0-9]{24})>/g;
@@ -439,8 +442,9 @@ const ChannelConversation = () => {
           <EmojiPicker
             onSelect={handleSelectReaction}
             visible
-            handleClose={() => {}}
+            handleClose={useCallback(() => {}, [])}
             height={600}
+            importedEmojiCategories={emojiCategories}
           />
         </View>
       </MyBottomSheetModal>

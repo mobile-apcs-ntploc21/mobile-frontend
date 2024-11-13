@@ -7,7 +7,10 @@ import { colors, fonts } from '@/constants/theme';
 const useServerParseContent = () => {
   const { members, roles, categories } = useServer();
   const { currentServerId, emojiCategories } = useServers();
-  const emojis = emojiCategories.flatMap((category) => category.emojis);
+  const emojis = useMemo(
+    () => emojiCategories.flatMap((category) => category.emojis),
+    [emojiCategories]
+  );
   const channels = useMemo(() => {
     return categories.map((category) => category.channels).flat();
   }, [categories]);
