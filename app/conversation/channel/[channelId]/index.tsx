@@ -119,7 +119,7 @@ const ChannelConversation = () => {
     setLoading(false);
   };
 
-  const fetchPinned = async() => {
+  const fetchPinned = async () => {
     if (!channelId || !conversation) return;
 
     const response = await getData(
@@ -132,8 +132,8 @@ const ChannelConversation = () => {
         conversationId: conversation.id,
         messages: response.messages
       }
-    });    
-  }
+    });
+  };
 
   useEffect(() => {
     conversationDispatch({
@@ -240,9 +240,11 @@ const ChannelConversation = () => {
     });
 
     content = content.replace(emojiPattern, (match, emojiName) => {
-      const emoji = emojiCategories.find((category) =>
-        category.emojis.find((emoji) => emoji.name === emojiName)
-      )?.emojis.find((emoji) => emoji.name === emojiName);
+      const emoji = emojiCategories
+        .find((category) =>
+          category.emojis.find((emoji) => emoji.name === emojiName)
+        )
+        ?.emojis.find((emoji) => emoji.name === emojiName);
       return `:${emoji?.name}:`;
     });
 
@@ -410,14 +412,12 @@ const ChannelConversation = () => {
             {
               text: 'Pin',
               onPress: handlePin,
-              isHidden:
-                modalMessage?.is_pinned 
+              isHidden: modalMessage?.is_pinned
             },
             {
               text: 'Unpin',
               onPress: handleUnpin,
-              isHidden:
-                !modalMessage?.is_pinned
+              isHidden: !modalMessage?.is_pinned
             },
             {
               text: 'Delete',
@@ -441,7 +441,6 @@ const ChannelConversation = () => {
             visible
             handleClose={() => {}}
             height={600}
-            emojiCategories= {emojiCategories}
           />
         </View>
       </MyBottomSheetModal>

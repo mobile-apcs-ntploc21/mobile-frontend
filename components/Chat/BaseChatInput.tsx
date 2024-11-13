@@ -6,7 +6,14 @@ import {
   Touchable,
   View
 } from 'react-native';
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, {
+  Dispatch,
+  SetStateAction,
+  useCallback,
+  useEffect,
+  useRef,
+  useState
+} from 'react';
 import { colors, fonts } from '@/constants/theme';
 import { TouchableOpacity } from '@gorhom/bottom-sheet';
 import IconWithSize from '../IconWithSize';
@@ -36,7 +43,7 @@ const IconButton = ({
 
 export interface BaseChatInputProps {
   value?: string;
-  onChange?: (text: string) => void;
+  onChange?: Dispatch<SetStateAction<string>>;
   onSend?: () => void;
   mentions?: string[];
   emojis?: string[];
@@ -63,10 +70,13 @@ const BaseChatInput = (props: BaseChatInputProps) => {
     };
   }, []);
 
-  const onChange = (text: string) => {
-    props.onChange?.(text);
-    setIsIconHidden(text.length > 0);
-  };
+  const onChange = useCallback(
+    (text: string) => {
+      props.onChange?.(text);
+      setIsIconHidden(text.length > 0);
+    },
+    [props.onChange]
+  );
 
   const handleOpenEmoji = () => {
     setEmojiPickerVisible(true);
@@ -134,6 +144,18 @@ const BaseChatInput = (props: BaseChatInputProps) => {
     [props.emojis, props.mentions]
   );
 
+  console.log('rendering chat input');
+
+  const handleEmojiSelect = useCallback((emoji: Emoji) => {
+    props.onChange?.((text) => {
+      return `${text}:${emoji.name}:`;
+    });
+  }, []);
+
+  const handleCloseEmoji = useCallback(() => {
+    setEmojiPickerVisible(false);
+  }, []);
+
   return (
     <View style={styles.container}>
       <View style={styles.chatBarContainer}>
@@ -176,14 +198,9 @@ const BaseChatInput = (props: BaseChatInputProps) => {
       </View>
       <EmojiPicker
         visible={emojiPickerVisible}
-        handleClose={() => setEmojiPickerVisible(false)}
+        handleClose={handleCloseEmoji}
         height={keyboardHeight}
-        onSelect={(emoji) => {
-          const text = props.value || '';
-          const newText = `${text}:${emoji.name}:`;
-          onChange(newText);
-        }}
-        emojis={props.emojiImports}
+        onSelect={handleEmojiSelect}
       />
     </View>
   );
