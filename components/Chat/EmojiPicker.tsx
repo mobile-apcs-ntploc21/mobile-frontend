@@ -4,7 +4,6 @@ import {
   StyleSheet,
   Text,
   View,
-  Image,
   LayoutChangeEvent,
   useWindowDimensions
 } from 'react-native';
@@ -17,20 +16,30 @@ import useServer from '@/hooks/useServer';
 import { FlatList, TouchableOpacity } from 'react-native-gesture-handler';
 import useServers from '@/hooks/useServers';
 import { Server } from '@/types';
+import { Image } from 'expo-image';
 
 interface EmojiPickerProps {
   visible: boolean;
   handleClose: () => void;
   height: number;
   onSelect: (emoji: Emoji) => void;
-  emojiCategories: {
-    id: string;
-    name: string;
-    emojis: Emoji[];
-  }[];
 }
 
 const placeholderImg = 'https://via.placeholder.com/150';
+
+const EmojiItemMemo = React.memo(
+  ({ emoji, onSelect }: { emoji: Emoji; onSelect: () => void }) => {
+    return (
+      <TouchableOpacity onPress={onSelect}>
+        {emoji.image_url ? (
+          <Image style={styles.emoji} source={{ uri: emoji.image_url }} />
+        ) : (
+          <Text style={styles.emojiUnicode}>{emoji.unicode}</Text>
+        )}
+      </TouchableOpacity>
+    );
+  }
+);
 
 // This should not be mistaken for the ReactionPicker component
 const EmojiPicker = (props: EmojiPickerProps) => {
@@ -58,6 +67,8 @@ const EmojiPicker = (props: EmojiPickerProps) => {
       emojis: category.emojis?.filter(({ name }) => name.startsWith(query))
     }));
   }, [emojiCategories, searchQuery]);
+
+  console.log('rendering emoji picker');
 
   useEffect(() => {
     const backHandler = BackHandler.addEventListener(
@@ -104,16 +115,10 @@ const EmojiPicker = (props: EmojiPickerProps) => {
                 keyExtractor={(emoji) => emoji.id}
                 numColumns={Math.floor(width / 48)}
                 renderItem={({ item: emoji }) => (
-                  <TouchableOpacity onPress={() => props.onSelect(emoji)}>
-                    {emoji.image_url ? (
-                      <Image
-                        style={styles.emoji}
-                        source={{ uri: emoji.image_url }}
-                      />
-                    ) : (
-                      <Text style={styles.emojiUnicode}>{emoji.unicode}</Text>
-                    )}
-                  </TouchableOpacity>
+                  <EmojiItemMemo
+                    emoji={emoji}
+                    onSelect={() => props.onSelect(emoji)}
+                  />
                 )}
               />
             </View>
@@ -139,7 +144,7 @@ const EmojiPicker = (props: EmojiPickerProps) => {
   );
 };
 
-export default EmojiPicker;
+export default React.memo(EmojiPicker);
 
 const styles = StyleSheet.create({
   searchContainer: {
