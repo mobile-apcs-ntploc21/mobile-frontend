@@ -16,6 +16,7 @@ import useServers from '@/hooks/useServers';
 import { useAuth } from '@/context/AuthProvider';
 import { getData } from '@/utils/api';
 import { ServersActions } from '@/context/ServersProvider';
+import { randomUUID } from 'expo-crypto';
 
 const ServerList = () => {
   const { servers, dispatch } = useServers();
@@ -50,10 +51,10 @@ const ServerList = () => {
             const emojiResponse =
               (await getData(`/api/v1/servers/${server.id}/emojis`)) || [];
             // Remove this when SE-27 is merged
-            emojiCategories = [
-              ...emojiCategories,
-              { id: server.id, name: server.name, emojis: emojiResponse }
-            ];
+            // emojiCategories = [
+            //   ...emojiCategories,
+            //   { id: server.id, name: server.name, emojis: emojiResponse }
+            // ];
             //
             return {
               id: server.id,
@@ -69,20 +70,29 @@ const ServerList = () => {
         );
 
         // TODO: save for when SE-27 is merged
-        // const globalEmojiResponse = await getData(`/api/v1/servers/emojis/user/${user?.id}`);
-        // const defaultEmojiResponse = await getData('/api/v1/servers/emojis/unicode/');
-        // const allEmojis = [...globalEmojiResponse, ...defaultEmojiResponse];
-        // if (globalEmojiResponse) {
-        //   dispatch({
-        //     type: ServersActions.SET_EMOJI_CATEGORIES,
-        //     payload: allEmojis
-        //   });
-        // }
+        const globalEmojiResponse = await getData(
+          `/api/v1/servers/emojis/user/${user?.id}`
+        );
+        const defaultEmojiResponse = await getData(
+          '/api/v1/servers/emojis/unicode/'
+        );
+        const allEmojis = [...globalEmojiResponse, ...defaultEmojiResponse].map(
+          (category: any) => ({
+            ...category,
+            id: randomUUID()
+          })
+        );
+        if (globalEmojiResponse) {
+          dispatch({
+            type: ServersActions.SET_EMOJI_CATEGORIES,
+            payload: allEmojis
+          });
+        }
 
         if (Array.isArray(servers)) {
           dispatch({ type: ServersActions.SET_SERVERS, payload: servers });
           // Remove this when SE-27 is merged
-          dispatch({ type: ServersActions.SET_EMOJI_CATEGORIES, payload: emojiCategories });
+          // dispatch({ type: ServersActions.SET_EMOJI_CATEGORIES, payload: emojiCategories });
           //
         } else {
           throw new Error('Failed to fetch servers.');

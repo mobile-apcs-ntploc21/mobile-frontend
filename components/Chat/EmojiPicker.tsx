@@ -5,7 +5,8 @@ import {
   Text,
   View,
   Image,
-  LayoutChangeEvent
+  LayoutChangeEvent,
+  useWindowDimensions
 } from 'react-native';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { Emoji } from '@/types/server';
@@ -33,6 +34,8 @@ const placeholderImg = 'https://via.placeholder.com/150';
 
 // This should not be mistaken for the ReactionPicker component
 const EmojiPicker = (props: EmojiPickerProps) => {
+  const { width } = useWindowDimensions();
+
   const { emojiCategories, servers } = useServers();
 
   const [searchQuery, setSearchQuery] = useState('');
@@ -54,7 +57,7 @@ const EmojiPicker = (props: EmojiPickerProps) => {
       ...category,
       emojis: category.emojis?.filter(({ name }) => name.startsWith(query))
     }));
-  }, [emojiCategories, searchQuery]); 
+  }, [emojiCategories, searchQuery]);
 
   useEffect(() => {
     const backHandler = BackHandler.addEventListener(
@@ -82,6 +85,18 @@ const EmojiPicker = (props: EmojiPickerProps) => {
     emojiListRef.current?.scrollToIndex({ index });
   };
 
+  const EmojiItem = React.memo(({ emoji }: { emoji: Emoji }) => {
+    return (
+      <TouchableOpacity onPress={() => props.onSelect(emoji)}>
+        {emoji.image_url ? (
+          <Image style={styles.emoji} source={{ uri: emoji.image_url }} />
+        ) : (
+          <Text style={styles.emojiUnicode}>{emoji.unicode}</Text>
+        )}
+      </TouchableOpacity>
+    );
+  });
+
   if (!props.visible) return null;
   return (
     <View style={{ height: props.height, backgroundColor: colors.gray04 }}>
@@ -96,25 +111,41 @@ const EmojiPicker = (props: EmojiPickerProps) => {
           item.emojis?.length ? (
             <View>
               <MyText style={styles.heading}>{item.name}</MyText>
-              <View style={styles.emojis}>
+              {/* <View style={styles.emojis}>
                 {item.emojis?.map((emoji) => (
                   <TouchableOpacity
                     onPress={() => props.onSelect(emoji)}
                     key={emoji.id}
                   >
-                    {
-                      emoji.image_url ? (
-                        <Image
-                          style={styles.emoji}
-                          source={{ uri: emoji.image_url }}
-                        />
-                      ) : (
-                        <Text style={styles.emoji}>{emoji.unicode}</Text>
-                      )
-                    }
+                    {emoji.image_url ? (
+                      <Image
+                        style={styles.emoji}
+                        source={{ uri: emoji.image_url }}
+                      />
+                    ) : (
+                      <Text style={styles.emoji}>{emoji.unicode}</Text>
+                    )}
                   </TouchableOpacity>
                 ))}
-              </View>
+              </View> */}
+              <FlatList
+                data={item.emojis}
+                keyExtractor={(emoji) => emoji.id}
+                // contentContainerStyle={styles.emojis}
+                numColumns={Math.floor(width / 48)}
+                renderItem={({ item: emoji }) => (
+                  <TouchableOpacity onPress={() => props.onSelect(emoji)}>
+                    {emoji.image_url ? (
+                      <Image
+                        style={styles.emoji}
+                        source={{ uri: emoji.image_url }}
+                      />
+                    ) : (
+                      <Text style={styles.emojiUnicode}>{emoji.unicode}</Text>
+                    )}
+                  </TouchableOpacity>
+                )}
+              />
             </View>
           ) : null
         }
@@ -155,6 +186,10 @@ const styles = StyleSheet.create({
   emoji: {
     width: 32,
     height: 32,
+    margin: 8
+  },
+  emojiUnicode: {
+    fontSize: 24,
     margin: 8
   },
   emojis: {
