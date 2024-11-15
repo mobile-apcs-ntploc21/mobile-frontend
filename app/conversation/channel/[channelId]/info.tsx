@@ -43,7 +43,7 @@ const ChannelInfo = () => {
           items={[
             {
               text: 'Search',
-              onPress: () => {}
+              onPress: () => router.navigate('./search')
             },
             {
               text: 'View pinned messages',
