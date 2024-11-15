@@ -47,8 +47,12 @@ import { useAuth } from '@/context/AuthProvider';
 
 const ChannelConversation = () => {
   const navigation = useNavigation();
-  const { currentServerId } = useServers();
-  const { categories, roles, members, emojis, permissions } = useServer();
+  const { currentServerId, emojiCategories } = useServers();
+  const emojis = useMemo(
+    () => emojiCategories.flatMap((category) => category.emojis),
+    [emojiCategories]
+  );
+  const { categories, roles, members, permissions } = useServer();
   const { user } = useAuth();
   const channels = useMemo(() => {
     return categories.map((category) => category.channels).flat();
@@ -124,7 +128,7 @@ const ChannelConversation = () => {
     setLoading(false);
   };
 
-  const fetchPinned = async() => {
+  const fetchPinned = async () => {
     if (!channelId || !conversation) return;
 
     const response = await getData(
@@ -137,8 +141,8 @@ const ChannelConversation = () => {
         conversationId: conversation.id,
         messages: response.messages
       }
-    });    
-  }
+    });
+  };
 
   useEffect(() => {
     conversationDispatch({
@@ -210,7 +214,7 @@ const ChannelConversation = () => {
     reactionBottomSheetRef.current?.dismiss();
   }, [reactionBottomSheetRef]);
 
-  const handleSelectReaction = (emoji: Emoji) => {
+  const handleSelectReaction = useCallback((emoji: Emoji) => {
     postData(
       `/api/v1/servers/${currentServerId}/channels/${channelId}/messages/${modalMessage?.id}/reactions`,
       {
@@ -218,7 +222,7 @@ const ChannelConversation = () => {
       }
     );
     handleCloseReactionBottomSheet();
-  };
+  }, []);
 
   const convertContentToInput = (content: string) => {
     const userPattern = /<@!?([a-f0-9]{24})>/g;
@@ -242,7 +246,11 @@ const ChannelConversation = () => {
     });
 
     content = content.replace(emojiPattern, (match, emojiName) => {
-      const emoji = emojis.find((emoji) => emoji.name === emojiName);
+      const emoji = emojiCategories
+        .find((category) =>
+          category.emojis.find((emoji) => emoji.name === emojiName)
+        )
+        ?.emojis.find((emoji) => emoji.name === emojiName);
       return `:${emoji?.name}:`;
     });
 
@@ -275,12 +283,33 @@ const ChannelConversation = () => {
     sortedChannels.forEach((channel) => {
       input = input.replaceAll(`#${channel.name}`, `<#${channel.id}>`);
     });
-    emojis.forEach((emoji) => {
+    // emojis.forEach((emoji) => {
+    //   input = input.replaceAll(
+    //     `:${emoji.name}:`,
+    //     `<:${emoji.name}:${emoji.id}>`
+    //   );
+    // });
+
+    // get unique emoji names from emojis
+    const emojiNames = emojis.map((emoji) => emoji.name);
+    const emojiNameSet = new Set(emojiNames);
+
+    // for each emoji name, replace all instances of the emoji name with the emoji id
+    emojiNameSet.forEach((emojiName) => {
+      const emoji = emojis.find((emoji) => emoji.name === emojiName);
       input = input.replaceAll(
-        `:${emoji.name}:`,
-        `<:${emoji.name}:${emoji.id}>`
+        `:${emojiName}:`,
+        `<:${emojiName}:${emoji?.id}>`
       );
     });
+
+    // emojis.forEach((emoji) => {
+    //   input = input.replaceAll(
+    //     `:${emoji.name}:`,
+    //     `<:${emoji.name}:${emoji.id}>`
+    //   );
+    // });
+
     return input;
   };
 
@@ -402,14 +431,12 @@ const ChannelConversation = () => {
             {
               text: 'Pin',
               onPress: handlePin,
-              isHidden:
-                modalMessage?.is_pinned 
+              isHidden: modalMessage?.is_pinned
             },
             {
               text: 'Unpin',
               onPress: handleUnpin,
-              isHidden:
-                !modalMessage?.is_pinned
+              isHidden: !modalMessage?.is_pinned
             },
             {
               text: 'Delete',
@@ -431,9 +458,9 @@ const ChannelConversation = () => {
           <EmojiPicker
             onSelect={handleSelectReaction}
             visible
-            handleClose={() => {}}
+            handleClose={useCallback(() => {}, [])}
             height={600}
-            emojis={emojis}
+            importedEmojiCategories={emojiCategories}
           />
         </View>
       </MyBottomSheetModal>

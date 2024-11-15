@@ -105,7 +105,7 @@ const ServerChatInput = (props: ServerChatInputProps) => {
     } else {
       setLastWord(null);
     }
-  }, [props.value]);
+  }, []);
 
   const suggestions = useMemo(() => {
     if (!lastWord) return [];

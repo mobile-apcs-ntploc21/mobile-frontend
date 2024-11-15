@@ -49,6 +49,8 @@ const ReactionItem = (props: {
     }
   };
 
+  if (!props.emoji) return null;
+
   return (
     <TouchableOpacity
       style={[

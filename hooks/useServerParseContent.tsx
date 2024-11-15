@@ -1,10 +1,17 @@
 import React, { useCallback, useMemo } from 'react';
 import useServer from './useServer';
+import useServers from './useServers';
 import { Image, StyleSheet, Text } from 'react-native';
 import { colors, fonts } from '@/constants/theme';
+import MyText from '@/components/MyText';
 
 const useServerParseContent = () => {
-  const { emojis, members, roles, categories } = useServer();
+  const { members, roles, categories } = useServer();
+  const { currentServerId, emojiCategories } = useServers();
+  const emojis = useMemo(
+    () => emojiCategories.flatMap((category) => category.emojis),
+    [emojiCategories]
+  );
   const channels = useMemo(() => {
     return categories.map((category) => category.channels).flat();
   }, [categories]);
@@ -53,14 +60,16 @@ const useServerParseContent = () => {
           if ((match = /<:(?:.*?):([a-f0-9]{24})>/g.exec(part))) {
             const emojiId = match[1];
             const emoji = emojis.find((emoji) => emoji.id === emojiId);
+            if (!emoji) return <Text>{part}</Text>;
+            if (!emoji.image_url) return <MyText>{emoji.unicode}</MyText>;
             return (
               <Image
-                source={{ uri: emoji?.image_url }}
+                source={{ uri: emoji.image_url }}
                 style={{ width: 20, height: 20 }}
               />
             );
           }
-          return <Text>{part}</Text>;
+          return <MyText>{part}</MyText>;
         })
         .map((part, index) => (
           <React.Fragment key={index}>{part}</React.Fragment>

@@ -29,7 +29,7 @@ const EmojiSettings = () => {
     });
   }, []);
 
-  const { currentServerId } = useServers();
+  const { currentServerId, emojiCategories } = useServers();
   const { emojis, permissions } = useServer();
 
   const [deleteModalVisible, setDeleteModalVisible] = useState(false);
