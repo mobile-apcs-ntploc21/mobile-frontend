@@ -47,7 +47,7 @@ const ServerList = () => {
 
         let emojiCategories: any[] = [];
         const servers = await Promise.all(
-          Object.values(response).map(async (server: any, index: number) => {
+          response.servers.map(async (server: any, index: number) => {
             const emojiResponse =
               (await getData(`/api/v1/servers/${server.id}/emojis`)) || [];
             // Remove this when SE-27 is merged
@@ -76,12 +76,19 @@ const ServerList = () => {
         const defaultEmojiResponse = await getData(
           '/api/v1/servers/emojis/unicode/'
         );
-        const allEmojis = [...globalEmojiResponse, ...defaultEmojiResponse].map(
+        const globalEmojis = globalEmojiResponse.categories.map(
           (category: any) => ({
             ...category,
-            id: randomUUID()
+            id: category.server_id
           })
         );
+        const defaultEmojis = defaultEmojiResponse.categories.map(
+          (category: any) => ({
+            ...category,
+            id: category.name
+          })
+        );
+        const allEmojis = [...globalEmojis, ...defaultEmojis];
         if (globalEmojiResponse) {
           dispatch({
             type: ServersActions.SET_EMOJI_CATEGORIES,
