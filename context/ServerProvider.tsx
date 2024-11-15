@@ -702,7 +702,7 @@ export const ServerProvider = (props: ProviderProps) => {
         });
         break;
       default:
-        console.warn('Unknown event type:', type);
+        console.log('Unknown event type:', type);
         console.log(type, server_id, data);
     }
 

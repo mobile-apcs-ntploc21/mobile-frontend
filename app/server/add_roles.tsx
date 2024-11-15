@@ -108,7 +108,6 @@ const AddRole = () => {
   const [searchText, setSearchText] = useState('');
 
   const filteredRoleList = useMemo(() => {
-    if (!searchText) return roles;
     return roles.filter(
       (role) =>
         frequencyMatch(role.name, searchText) &&

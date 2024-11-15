@@ -94,5 +94,21 @@ export enum ServerEvents {
   messageReactionAdded = 'REACTION_ADDED',
   messageReactionRemoved = 'REACTION_REMOVED',
   messageMentionedUser = 'USER_MENTIONED',
-  messageMentionedRole = 'ROLE_MENTIONED'
+  messageMentionedRole = 'ROLE_MENTIONED',
+
+  channelRoleAdded = 'ADD_CHANNEL_PERMISSIONS_TO_ROLE',
+  channelRoleDeleted = 'REMOVE_CHANNEL_PERMISSIONS_FROM_ROLE',
+  channelRoleUpdated = 'UPDATE_CHANNEL_PERMISSIONS_FOR_ROLE',
+
+  categoryRoleAdded = 'ADD_CATEGORY_PERMISSIONS_TO_ROLE',
+  categoryRoleDeleted = 'REMOVE_CATEGORY_PERMISSIONS_FROM_ROLE',
+  categoryRoleUpdated = 'UPDATE_CATEGORY_PERMISSIONS_FOR_ROLE',
+
+  channelUserAdded = 'ADD_CHANNEL_PERMISSIONS_TO_USER',
+  channelUserDeleted = 'REMOVE_CHANNEL_PERMISSIONS_FROM_USER',
+  channelUserUpdated = 'UPDATE_CHANNEL_PERMISSIONS_FOR_USER',
+
+  categoryUserAdded = 'ADD_CATEGORY_PERMISSIONS_TO_USER',
+  categoryUserDeleted = 'REMOVE_CATEGORY_PERMISSIONS_FROM_USER',
+  categoryUserUpdated = 'UPDATE_CATEGORY_PERMISSIONS_FOR_USER'
 }

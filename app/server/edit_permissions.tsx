@@ -1,6 +1,7 @@
-import { useNavigation } from 'expo-router';
-import { useEffect, useLayoutEffect, useRef, useState } from 'react';
+import { router, useLocalSearchParams, useNavigation } from 'expo-router';
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import {
+  ActivityIndicator,
   Alert,
   Pressable,
   ScrollView,
@@ -23,28 +24,114 @@ import ButtonListCheckbox from '@/components/ButtonList/ButtonListCheckbox';
 import MyList from '@/components/MyList';
 import ToggleItem3, { STATE } from '@/components/Toggles/ToggleItem3';
 import SearchBar from '@/components/SearchBar';
+import useServer from '@/hooks/useServer';
+import { getData, patchData } from '@/utils/api';
+import { useAuth } from '@/context/AuthProvider';
+import { frequencyMatch } from '@/utils/search';
 
 const EditPermissions = () => {
   const navigation = useNavigation();
-  const [groupPermissions, setGroupPermissions] = useState<any[]>([]);
+  const { server_id } = useServer();
+  const { user } = useAuth();
+  const {
+    user_role_type,
+    user_role_id,
+    categories_channels_type,
+    categories_channels_id
+  } = useLocalSearchParams<{
+    user_role_type?: string;
+    user_role_id?: string;
+    categories_channels_type?: string;
+    categories_channels_id?: string;
+  }>();
+  const [loading, setLoading] = useState(true);
 
-  const handleSave = () => {
-    console.log(JSON.stringify(groupPermissions));
-  };
-
+  const [permissions, setPermissions] = useState<{
+    [key: string]: 'ALLOWED' | 'DENIED' | 'DEFAULT';
+  }>({});
   useEffect(() => {
-    setGroupPermissions(
-      Array.from({ length: 5 }, (_, index) => ({
-        id: index.toString(),
-        name: `Group ${index}`,
-        permissions: Array.from({ length: 5 }, (_, index) => ({
-          id: index.toString(),
-          name: `Permission ${index}`,
-          state: STATE.NULL
-        }))
-      }))
-    );
+    (async () => {
+      try {
+        const response = await getData(
+          `/api/v1/servers/${server_id}/${categories_channels_type}/${categories_channels_id}/${user_role_type}s/${user_role_id}/permissions`
+        );
+        setLoading(false);
+        setPermissions(response);
+      } catch (e: any) {
+        console.error(e.message);
+      }
+    })();
   }, []);
+
+  const permissionsList = useMemo(() => {
+    const permissionItem = (value: string, label: string) => {
+      let state;
+      if (permissions[value] === 'ALLOWED') {
+        state = STATE.YES;
+      } else if (permissions[value] === 'DENIED') {
+        state = STATE.NO;
+      } else {
+        state = STATE.NULL;
+      }
+      return {
+        value,
+        label,
+        state
+      };
+    };
+
+    return [
+      {
+        title: 'General Permissions',
+        permissions: [
+          permissionItem('VIEW_CHANNEL', 'View Channels'),
+          permissionItem('MANAGE_CHANNEL', 'Manage Channels')
+        ]
+      },
+      {
+        title: 'Text Chat Permissions',
+        permissions: [
+          permissionItem('SEND_MESSAGE', 'Send Messages'),
+          permissionItem('ATTACH_FILE', 'Attach Files'),
+          permissionItem('ADD_REACTION', 'Add Reactions'),
+          permissionItem('USE_EXTERNAL_EMOJI', 'Use External Emoji'),
+          permissionItem('MENTION_ALL', 'Mention @everyone and Roles'),
+          permissionItem('MANAGE_MESSAGE', 'Manage Messages')
+        ]
+      },
+      {
+        title: 'Voice Channel Permissions',
+        permissions: [
+          permissionItem('VOICE_CONNECT', 'Connect'),
+          permissionItem('VOICE_SPEAK', 'Speak'),
+          permissionItem('VOICE_VIDEO', 'Video'),
+          permissionItem('VOICE_MUTE_MEMBER', 'Mute Members'),
+          permissionItem('VOICE_DEAFEN_MEMBER', 'Deafen Members')
+        ]
+      }
+    ];
+  }, [permissions]);
+
+  const [searchText, setSearchText] = useState('');
+  const filteredPermissionsList = useMemo(() => {
+    if (!searchText) return permissionsList;
+    const result = permissionsList.map((group) => ({
+      ...group,
+      permissions: group.permissions.filter((permission) =>
+        frequencyMatch(permission.label, searchText)
+      )
+    }));
+    return result.filter((group) => group.permissions.length > 0);
+  }, [permissionsList, searchText]);
+
+  const handleSave = async () => {
+    const tmp = JSON.stringify(permissions);
+    const response = await patchData(
+      `/api/v1/servers/${server_id}/${categories_channels_type}/${categories_channels_id}/${user_role_type}s/${user_role_id}/permissions`,
+      permissions
+    );
+    router.back();
+  };
 
   useLayoutEffect(() => {
     navigation.setOptions({
@@ -80,22 +167,43 @@ const EditPermissions = () => {
         />
       )
     });
-  }, []);
+  }, [handleSave]);
+
+  if (loading)
+    return (
+      <View style={GlobalStyles.screenGray}>
+        <ActivityIndicator />
+      </View>
+    );
 
   return (
-    <View style={{ flex: 1 }}>
+    <View style={GlobalStyles.screenGray}>
       <View style={styles.searchContainer}>
         <View style={{ flex: 1 }}>
-          <SearchBar />
+          <SearchBar value={searchText} onChangeText={setSearchText} />
         </View>
       </View>
       <ScrollView contentContainerStyle={styles.container}>
-        {groupPermissions.map((group) => (
+        {filteredPermissionsList.map((permissionGroup) => (
           <MyList
-            heading={group.name}
-            // @ts-ignore
-            items={group.permissions.map((permission) => (
-              <ToggleItem3 text={permission.name} />
+            key={permissionGroup.title}
+            heading={permissionGroup.title}
+            items={permissionGroup.permissions.map((permission) => (
+              <ToggleItem3
+                text={permission.label}
+                value={permission.state}
+                onChange={(value) => {
+                  setPermissions((prev) => ({
+                    ...prev,
+                    [permission.value]:
+                      value === STATE.YES
+                        ? 'ALLOWED'
+                        : value === STATE.NO
+                        ? 'DENIED'
+                        : 'DEFAULT'
+                  }));
+                }}
+              />
             ))}
           />
         ))}
