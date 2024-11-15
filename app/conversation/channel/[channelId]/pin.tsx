@@ -17,7 +17,7 @@ import ServerChatItem from '@/components/Chat/ServerChatItem';
 import { getData } from '@/utils/api';
 import { ConversationsTypes } from '@/types/chat';
 
-const ChannelInfo = () => {
+const Pin = () => {
   const navigation = useNavigation();
   const { categories } = useServer();
   const { currentServerId } = useServers();
@@ -63,7 +63,7 @@ const ChannelInfo = () => {
   );
 };
 
-export default ChannelInfo;
+export default Pin;
 
 const styles = StyleSheet.create({
   container: {
