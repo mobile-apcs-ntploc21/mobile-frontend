@@ -287,12 +287,25 @@ const ChannelConversation = () => {
     //   );
     // });
 
-    emojis.forEach((emoji) => {
+    // get unique emoji names from emojis
+    const emojiNames = emojis.map((emoji) => emoji.name);
+    const emojiNameSet = new Set(emojiNames);
+
+    // for each emoji name, replace all instances of the emoji name with the emoji id
+    emojiNameSet.forEach((emojiName) => {
+      const emoji = emojis.find((emoji) => emoji.name === emojiName);
       input = input.replaceAll(
-        `:${emoji.name}:`,
-        `<:${emoji.name}:${emoji.id}>`
+        `:${emojiName}:`,
+        `<:${emojiName}:${emoji?.id}>`
       );
     });
+
+    // emojis.forEach((emoji) => {
+    //   input = input.replaceAll(
+    //     `:${emoji.name}:`,
+    //     `<:${emoji.name}:${emoji.id}>`
+    //   );
+    // });
 
     return input;
   };
