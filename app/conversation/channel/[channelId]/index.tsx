@@ -95,10 +95,13 @@ const ChannelConversation = () => {
   });
 
   const [loading, setLoading] = useState(false);
+  const [messageEndReached, setMessageEndReached] = useState(false);
 
   const fetchMessages = async () => {
     if (!conversation) return;
     if (conversation.messages.length === 0) return;
+    if (messageEndReached) return;
+    if (loading) return;
     setLoading(true);
     const response = await getData(
       `/api/v1/servers/${currentServerId}/channels/${channelId}/messages`,
@@ -108,6 +111,9 @@ const ChannelConversation = () => {
         limit: 10
       }
     );
+    if (response.messages.length === 0) {
+      setMessageEndReached(true);
+    }
     conversationDispatch({
       type: ConversationsTypes.AddConversationMessageHistory,
       payload: {
@@ -151,9 +157,6 @@ const ChannelConversation = () => {
         }
       }
     });
-
-    fetchPinned();
-    if (conversation && conversation.messages.length < 10) fetchMessages();
     return () => {
       conversationDispatch({
         type: ConversationsTypes.SetFocus,
