@@ -1,7 +1,8 @@
 import { StyleSheet, Text, View } from 'react-native';
-import React, { useLayoutEffect, useMemo } from 'react';
+import React, { useEffect, useLayoutEffect, useMemo } from 'react';
 import { useLocalSearchParams, useNavigation } from 'expo-router';
 import useServer from '@/hooks/useServer';
+import useServers from '@/hooks/useServers'
 import { Channel } from '@/types/server';
 import { NativeStackHeaderProps } from '@react-navigation/native-stack';
 import MyHeader from '@/components/MyHeader';
@@ -13,10 +14,13 @@ import { TextStyles } from '@/styles/TextStyles';
 import { FlatList } from 'react-native-gesture-handler';
 import { useConversations } from '@/context/ConversationsProvider';
 import ServerChatItem from '@/components/Chat/ServerChatItem';
+import { getData } from '@/utils/api';
+import { ConversationsTypes } from '@/types/chat';
 
 const Pin = () => {
   const navigation = useNavigation();
   const { categories } = useServer();
+  const { currentServerId } = useServers();
   const { channelId } = useLocalSearchParams<{
     channelId: string;
   }>();
@@ -26,7 +30,7 @@ const Pin = () => {
       .flat()
       .find((channel) => channel.id === channelId);
   }, [categories, channelId]);
-  const { conversations } = useConversations();
+  const { conversations, dispatch: conversationDispatch } = useConversations();
   const conversation = useMemo(() => {
     return conversations.find((conv) => conv.id === channel?.conversation_id);
   }, [conversations, channelId])!;
@@ -38,11 +42,12 @@ const Pin = () => {
       )
     });
   });
+
   return (
     <View style={GlobalStyles.screen}>
       <FlatList
         keyboardShouldPersistTaps="never"
-        data={conversation?.messages || []} // This is just for mock data, it should be pinned messages
+        data={conversation?.pinned_messages || []}
         renderItem={({ item, index }) => (
           <ServerChatItem
             channel_id={channelId!}

@@ -118,6 +118,22 @@ const ChannelConversation = () => {
     setLoading(false);
   };
 
+  const fetchPinned = async() => {
+    if (!channelId || !conversation) return;
+
+    const response = await getData(
+      `/api/v1/servers/${currentServerId}/channels/${channelId}/messages/pins`
+    );
+
+    conversationDispatch({
+      type: ConversationsTypes.AddPinnedMessages,
+      payload: {
+        conversationId: conversation.id,
+        messages: response.messages
+      }
+    });    
+  }
+
   useEffect(() => {
     conversationDispatch({
       type: ConversationsTypes.SetFocus,
@@ -135,6 +151,8 @@ const ChannelConversation = () => {
         }
       }
     });
+
+    fetchPinned();
     if (conversation && conversation.messages.length < 10) fetchMessages();
     return () => {
       conversationDispatch({
@@ -304,6 +322,20 @@ const ChannelConversation = () => {
     handleCloseMessageBottomSheet();
   };
 
+  const handlePin = () => {
+    postData(
+      `/api/v1/servers/${currentServerId}/channels/${channelId}/messages/${modalMessage?.id}/pin`
+    );
+    handleCloseMessageBottomSheet();
+  };
+
+  const handleUnpin = () => {
+    deleteData(
+      `/api/v1/servers/${currentServerId}/channels/${channelId}/messages/${modalMessage?.id}/pin`
+    );
+    handleCloseMessageBottomSheet();
+  };
+
   const handleDelete = () => {
     if (modalMessage!.id === actionMessage?.id) {
       setActionMode(null);
@@ -363,6 +395,18 @@ const ChannelConversation = () => {
             {
               text: 'Reply',
               onPress: handleReply
+            },
+            {
+              text: 'Pin',
+              onPress: handlePin,
+              isHidden:
+                modalMessage?.is_pinned 
+            },
+            {
+              text: 'Unpin',
+              onPress: handleUnpin,
+              isHidden:
+                !modalMessage?.is_pinned
             },
             {
               text: 'Delete',

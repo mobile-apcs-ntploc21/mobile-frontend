@@ -199,6 +199,59 @@ const reducer = (
             : conversation
         )
       };
+    case ConversationsTypes.SetMessagePin:
+      return {
+        ...state,
+        conversations: state.conversations.map((conversation) =>
+          conversation.id === payload.conversationId
+            ? {
+                ...conversation,
+                messages: conversation.messages.map((message) =>
+                  message.id === payload.messageId
+                    ? {
+                        ...message,
+                        is_pinned: payload.is_pinned
+                      }
+                    : message
+                ),
+                pinned_messages: payload.is_pinned
+                  ? (() => {
+                    const pinnedMessage = conversation.messages.find(
+                      (message) => message.id === payload.messageId
+                    );
+
+                    if (!pinnedMessage) {
+                      return conversation.pinned_messages;
+                    }
+
+                    const newList = [pinnedMessage, ...conversation.pinned_messages].sort((a, b) => {
+                      return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+                    });
+
+                    return newList;
+                    
+                    })()
+                  : conversation.pinned_messages?.filter(
+                    (message) => message.id !== payload.messageId
+                  )
+              }
+            : conversation
+        )
+      };
+    case ConversationsTypes.AddPinnedMessages:
+      return {
+        ...state,
+        conversations: state.conversations.map((conversation) =>
+          conversation.id === payload.conversationId
+            ? {
+                ...conversation,
+                pinned_messages: [...payload.messages].sort((a, b) => {
+                  return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+                })
+              }
+            : conversation
+        )
+      };
     default:
       return state;
   }
