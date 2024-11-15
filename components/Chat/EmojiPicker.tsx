@@ -17,6 +17,8 @@ import { FlatList, TouchableOpacity } from 'react-native-gesture-handler';
 import useServers from '@/hooks/useServers';
 import { Server } from '@/types';
 import { Image } from 'expo-image';
+import IconWithSize from '../IconWithSize';
+import EmojiIcon from '@/assets/icons/EmojiIcon';
 
 interface EmojiPickerProps {
   visible: boolean;
@@ -104,6 +106,26 @@ const EmojiPicker = (props: EmojiPickerProps) => {
     emojiListRef.current?.scrollToIndex({ index });
   };
 
+  const serversList = useMemo<
+    {
+      id: string;
+      avatar?: string | null;
+      component?: JSX.Element;
+    }[]
+  >(() => {
+    return [
+      ...servers,
+      {
+        id: 'unicode',
+        component: (
+          <View style={styles.serverAvatar}>
+            <IconWithSize icon={EmojiIcon} size={24} color={colors.gray02} />
+          </View>
+        )
+      }
+    ];
+  }, [servers]);
+
   if (!props.visible) return null;
   return (
     <View style={{ height: props.height, backgroundColor: colors.gray04 }}>
@@ -135,15 +157,19 @@ const EmojiPicker = (props: EmojiPickerProps) => {
       />
       <View style={styles.serverListContainer}>
         <FlatList
-          data={servers}
+          data={serversList}
           keyExtractor={(item) => item.id}
           horizontal
           renderItem={({ index, item }) => (
             <TouchableOpacity onPress={() => scrollToSection(index)}>
-              <Image
-                style={styles.serverAvatar}
-                source={{ uri: item.avatar || placeholderImg }}
-              />
+              {item.component ? (
+                item.component
+              ) : (
+                <Image
+                  style={styles.serverAvatar}
+                  source={{ uri: item.avatar || placeholderImg }}
+                />
+              )}
             </TouchableOpacity>
           )}
         />
