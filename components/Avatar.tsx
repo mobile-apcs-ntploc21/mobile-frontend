@@ -1,15 +1,15 @@
-import { StyleSheet, View, ImageStyle } from 'react-native';
+import { ImageStyle, StyleSheet, View } from 'react-native';
 import { Image } from 'expo-image';
 import { colors } from '@/constants/theme';
 import { DefaultProfileImage } from '@/constants/images';
 import { getOnlineStatusColor } from '@/utils/user';
 import { StatusType } from '@/types/user_status';
 import { useFocusEffect } from 'expo-router';
-import { Dispatch, useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useApolloClient } from '@apollo/client';
 import { getData } from '@/utils/api';
 import { USER_STATUS_SUBSCRIPTION } from '@/services/graphql/subscriptions';
-import { ServerProfile, UserProfile, UserStatus } from '@/types';
+import { ServerProfile } from '@/types';
 
 const getDefaultStatusText = (statusType: StatusType) => {
   switch (statusType) {
@@ -36,15 +36,15 @@ export interface AvatarProps {
 }
 
 const Avatar = ({
-  id,
-  showStatus,
-  profile,
-  profilePic,
-  onlineStatus,
-  avatarStyle,
-  subscribeToStatus,
-  setStatusText: setTextProps
-}: AvatarProps) => {
+                  id,
+                  showStatus,
+                  profile,
+                  profilePic,
+                  onlineStatus,
+                  avatarStyle,
+                  subscribeToStatus,
+                  setStatusText: setTextProps
+                }: AvatarProps) => {
   const wsClient = useApolloClient();
   const [isOnline, setIsOnline] = useState(false);
   const [statusType, setStatusType] = useState(StatusType.OFFLINE);
@@ -66,12 +66,12 @@ const Avatar = ({
       setStatusType(profile.status.type);
       setStatusText(
         profile.status.status_text ||
-          getDefaultStatusText(
-            onlineStatus ??
-              (profile.status.is_online
-                ? profile.status.type
-                : StatusType.OFFLINE)
-          )
+        getDefaultStatusText(
+          onlineStatus ??
+          (profile.status.is_online
+            ? profile.status.type
+            : StatusType.OFFLINE)
+        )
       );
     }
   }, [profile?.status]);
@@ -86,10 +86,10 @@ const Avatar = ({
           setStatusType(res?.type);
           setStatusText(
             res?.status_text ||
-              getDefaultStatusText(
-                onlineStatus ??
-                  (res?.is_online ? res?.type : StatusType.OFFLINE)
-              )
+            getDefaultStatusText(
+              onlineStatus ??
+              (res?.is_online ? res?.type : StatusType.OFFLINE)
+            )
           );
         })
         .catch(() => {
@@ -108,12 +108,12 @@ const Avatar = ({
           setStatusType(userStatusChanged?.type);
           setStatusText(
             userStatusChanged?.status_text ||
-              getDefaultStatusText(
-                onlineStatus ??
-                  (userStatusChanged?.is_online
-                    ? userStatusChanged?.type
-                    : StatusType.OFFLINE)
-              )
+            getDefaultStatusText(
+              onlineStatus ??
+              (userStatusChanged?.is_online
+                ? userStatusChanged?.type
+                : StatusType.OFFLINE)
+            )
           );
         }
       });

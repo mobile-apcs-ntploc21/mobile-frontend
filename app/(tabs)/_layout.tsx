@@ -6,7 +6,7 @@ import { MaterialIcons } from '@expo/vector-icons';
 
 const TabArr = [
   { name: 'servers', iconType: MaterialIcons, iconName: 'dashboard' },
-  { name: 'dm', iconType: MaterialIcons, iconName: 'group' },
+  { name: 'dm', iconType: MaterialIcons, iconName: 'forum' },
   { name: 'notifications', iconType: MaterialIcons, iconName: 'notifications' },
   { name: 'user', iconType: MaterialIcons, iconName: 'account-circle' }
 ];
