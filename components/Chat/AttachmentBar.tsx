@@ -1,5 +1,5 @@
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import React, { useMemo } from 'react';
+import React, { Dispatch, SetStateAction, useMemo } from 'react';
 import { AttachmentPicked } from './BaseChatInput';
 import { FlatList } from 'react-native-gesture-handler';
 import { colors } from '@/constants/theme';
@@ -12,7 +12,10 @@ import DocumentIcon from '@/assets/icons/DocumentIcon';
 import { Image } from 'expo-image';
 import PlayArrowIcon from '@/assets/icons/PlayArrowIcon';
 
-const AttachmentItem = (props: { attachment: AttachmentPicked }) => {
+const AttachmentItem = (props: {
+  attachment: AttachmentPicked;
+  onRemove: () => void;
+}) => {
   const fileExtenstion = useMemo(() => {
     const parts = props.attachment.filename.split('.');
     return parts[parts.length - 1];
@@ -25,7 +28,7 @@ const AttachmentItem = (props: { attachment: AttachmentPicked }) => {
           source={{ uri: props.attachment.uri }}
           style={styles.imageContainer}
         />
-        <TouchableOpacity style={styles.removeButton}>
+        <TouchableOpacity style={styles.removeButton} onPress={props.onRemove}>
           <IconWithSize icon={CrossIcon} size={16} color={colors.gray02} />
         </TouchableOpacity>
       </View>
@@ -39,7 +42,7 @@ const AttachmentItem = (props: { attachment: AttachmentPicked }) => {
           source={{ uri: props.attachment.uri }}
           style={styles.imageContainer}
         />
-        <TouchableOpacity style={styles.removeButton}>
+        <TouchableOpacity style={styles.removeButton} onPress={props.onRemove}>
           <IconWithSize icon={CrossIcon} size={16} color={colors.gray02} />
         </TouchableOpacity>
         <View style={styles.videoOverlay}>
@@ -51,7 +54,7 @@ const AttachmentItem = (props: { attachment: AttachmentPicked }) => {
 
   return (
     <View style={styles.attachmentContainer}>
-      <TouchableOpacity style={styles.removeButton}>
+      <TouchableOpacity style={styles.removeButton} onPress={props.onRemove}>
         <IconWithSize icon={CrossIcon} size={16} color={colors.gray02} />
       </TouchableOpacity>
       <IconWithSize icon={DocumentIcon} size={32} color={colors.gray02} />
@@ -71,6 +74,7 @@ const AttachmentItem = (props: { attachment: AttachmentPicked }) => {
 
 export type AttachmentBarProps = {
   attachments: AttachmentPicked[];
+  setAttachments: Dispatch<SetStateAction<AttachmentPicked[]>>;
 };
 
 const AttachmentBar = (props: AttachmentBarProps) => {
@@ -82,7 +86,16 @@ const AttachmentBar = (props: AttachmentBarProps) => {
       horizontal
       data={props.attachments}
       keyExtractor={(item) => item.key}
-      renderItem={({ item }) => <AttachmentItem attachment={item} />}
+      renderItem={({ item }) => (
+        <AttachmentItem
+          attachment={item}
+          onRemove={() => {
+            props.setAttachments((attachments) =>
+              attachments.filter((attachment) => attachment.key !== item.key)
+            );
+          }}
+        />
+      )}
       style={styles.container}
       contentContainerStyle={styles.contentContainer}
     />

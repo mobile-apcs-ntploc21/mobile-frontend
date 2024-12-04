@@ -104,36 +104,7 @@ const BaseChatInput = (props: BaseChatInputProps) => {
 
   const [attachmentsPicked, setAttachmentsPicked] = useState<
     AttachmentPicked[]
-  >([
-    {
-      key: '1',
-      uri: 'https://via.placeholder.com/150',
-      filename: 'image.jpg',
-      fileType: 'image/jpeg',
-      fileSize: 15021
-    },
-    {
-      key: '2',
-      uri: 'https://via.placeholder.com/150',
-      filename: 'video.mp4',
-      fileType: 'video/mp4',
-      fileSize: 3312344
-    },
-    {
-      key: '3',
-      uri: 'https://via.placeholder.com/150',
-      filename: 'document_with_a_very_long_name.pdf',
-      fileType: 'application/pdf',
-      fileSize: 150
-    },
-    {
-      key: '4',
-      uri: 'https://via.placeholder.com/150',
-      filename: 'audio.mp3',
-      fileType: 'audio/mpeg',
-      fileSize: 150
-    }
-  ]);
+  >([]);
 
   const uploadFile = async (
     uri: string,
@@ -312,7 +283,10 @@ const BaseChatInput = (props: BaseChatInputProps) => {
 
   return (
     <View style={styles.container}>
-      <AttachmentBar attachments={attachmentsPicked} />
+      <AttachmentBar
+        attachments={attachmentsPicked}
+        setAttachments={setAttachmentsPicked}
+      />
       <View style={styles.chatBarContainer}>
         {!isIconHidden ? (
           <>
@@ -351,7 +325,10 @@ const BaseChatInput = (props: BaseChatInputProps) => {
           <IconButton
             icon={SendIcon}
             size={32}
-            onPress={() => props.onSend?.(attachmentsPicked)}
+            onPress={() => {
+              props.onSend?.(attachmentsPicked);
+              setAttachmentsPicked([]);
+            }}
           />
         )}
       </View>
