@@ -1,15 +1,16 @@
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import React, { useMemo } from 'react';
 import { AttachmentPicked } from './BaseChatInput';
 import { FlatList } from 'react-native-gesture-handler';
 import { colors } from '@/constants/theme';
 import { getAttachmentType } from '@/utils/file';
 import { AttachmentTypes } from '@/types/attachment';
-import { TouchableOpacity } from '@gorhom/bottom-sheet';
 import IconWithSize from '../IconWithSize';
 import CrossIcon from '@/assets/icons/CrossIcon';
 import MyText from '../MyText';
 import DocumentIcon from '@/assets/icons/DocumentIcon';
+import { Image } from 'expo-image';
+import PlayArrowIcon from '@/assets/icons/PlayArrowIcon';
 
 const AttachmentItem = (props: { attachment: AttachmentPicked }) => {
   const fileExtenstion = useMemo(() => {
@@ -17,23 +18,52 @@ const AttachmentItem = (props: { attachment: AttachmentPicked }) => {
     return parts[parts.length - 1];
   }, [props.attachment.filename]);
 
+  if (getAttachmentType(props.attachment.fileType) === AttachmentTypes.Image) {
+    return (
+      <View>
+        <Image
+          source={{ uri: props.attachment.uri }}
+          style={styles.imageContainer}
+        />
+        <TouchableOpacity style={styles.removeButton}>
+          <IconWithSize icon={CrossIcon} size={16} color={colors.gray02} />
+        </TouchableOpacity>
+      </View>
+    );
+  }
+
+  if (getAttachmentType(props.attachment.fileType) === AttachmentTypes.Video) {
+    return (
+      <View>
+        <Image
+          source={{ uri: props.attachment.uri }}
+          style={styles.imageContainer}
+        />
+        <TouchableOpacity style={styles.removeButton}>
+          <IconWithSize icon={CrossIcon} size={16} color={colors.gray02} />
+        </TouchableOpacity>
+        <View style={styles.videoOverlay}>
+          <IconWithSize icon={PlayArrowIcon} size={24} color={colors.gray04} />
+        </View>
+      </View>
+    );
+  }
+
   return (
     <View style={styles.attachmentContainer}>
       <TouchableOpacity style={styles.removeButton}>
         <IconWithSize icon={CrossIcon} size={16} color={colors.gray02} />
       </TouchableOpacity>
-      <View style={styles.attachmentContent}>
-        <IconWithSize icon={DocumentIcon} size={32} color={colors.gray02} />
-        <View style={styles.attachmentInfo}>
-          <MyText
-            style={styles.attachmentName}
-            numberOfLines={1}
-            ellipsizeMode="middle"
-          >
-            {props.attachment.filename}
-          </MyText>
-          <MyText style={styles.attachmentExt}>{fileExtenstion}</MyText>
-        </View>
+      <IconWithSize icon={DocumentIcon} size={32} color={colors.gray02} />
+      <View style={styles.attachmentInfo}>
+        <MyText
+          style={styles.attachmentName}
+          numberOfLines={1}
+          ellipsizeMode="middle"
+        >
+          {props.attachment.filename}
+        </MyText>
+        <MyText style={styles.attachmentExt}>{fileExtenstion}</MyText>
       </View>
     </View>
   );
@@ -77,7 +107,11 @@ const styles = StyleSheet.create({
     width: 136,
     height: 56,
     backgroundColor: colors.gray03,
-    borderRadius: 8
+    borderRadius: 8,
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 8,
+    gap: 4
   },
   removeButton: {
     width: 24,
@@ -90,12 +124,21 @@ const styles = StyleSheet.create({
     right: -8,
     top: -4
   },
-  attachmentContent: {
-    flex: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: 8,
-    gap: 4
+  imageContainer: {
+    width: 56,
+    height: 56,
+    borderRadius: 8
+  },
+  videoOverlay: {
+    position: 'absolute',
+    top: 16,
+    left: 16,
+    width: 24,
+    height: 24,
+    borderRadius: 4,
+    backgroundColor: colors.gray01_50,
+    justifyContent: 'center',
+    alignItems: 'center'
   },
   attachmentInfo: {
     flex: 1,
