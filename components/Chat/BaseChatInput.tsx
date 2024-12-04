@@ -26,6 +26,20 @@ import ArrowForwardIcon from '@/assets/icons/ArrowForwardIcon';
 import SendIcon from '@/assets/icons/SendIcon';
 import EmojiPicker from './EmojiPicker';
 import { Emoji } from '@/types/server';
+import * as DocumentPicker from 'expo-document-picker';
+import * as ImagePicker from 'expo-image-picker';
+import { ImagePickerAsset } from 'expo-image-picker';
+import { DocumentPickerAsset } from 'expo-document-picker';
+import { getPresignedPostServer } from '@/utils/s3';
+import { postData } from '@/utils/api';
+
+export type AttachmentPicked = {
+  key: string;
+  uri: string;
+  filename: string;
+  fileType?: string;
+  fileSize?: number;
+};
 
 const IconButton = ({
   icon,
@@ -44,7 +58,16 @@ const IconButton = ({
 export interface BaseChatInputProps {
   value?: string;
   onChange?: Dispatch<SetStateAction<string>>;
-  onSend?: () => void;
+  onSend?: (attachmentsPicked: AttachmentPicked[] | null) => void;
+  onUpload?: (
+    filename: string,
+    fileType?: string,
+    fileSize?: number
+  ) => Promise<{
+    uploadUrl: string;
+    fields: { [key: string]: string };
+    key: string;
+  }>;
   mentions?: string[];
   emojis?: string[];
   channels?: string[];
@@ -77,6 +100,109 @@ const BaseChatInput = (props: BaseChatInputProps) => {
     },
     [props.onChange]
   );
+
+  const [attachmentsPicked, setAttachmentsPicked] = useState<
+    AttachmentPicked[]
+  >([]);
+
+  const uploadFile = async (
+    uri: string,
+    filename: string,
+    fileType?: string,
+    fileSize?: number
+  ): Promise<AttachmentPicked> => {
+    if (!props.onUpload) throw new Error('onUpload is not defined');
+    try {
+      const { uploadUrl, fields, key } = await props.onUpload?.(
+        filename,
+        fileType,
+        fileSize
+      );
+
+      const formData = new FormData();
+      Object.entries(fields).forEach(([key, value]) => {
+        formData.append(key, value);
+      });
+
+      // @ts-ignore
+      formData.append('file', {
+        uri,
+        type: fileType,
+        name: filename
+      });
+
+      const response = await fetch(uploadUrl, {
+        method: 'POST',
+        body: formData
+      });
+
+      return {
+        key,
+        uri,
+        filename,
+        fileType,
+        fileSize
+      };
+    } catch (e) {
+      throw new Error('Failed to upload file');
+    }
+  };
+
+  const pickAttachment = async () => {
+    const result = await DocumentPicker.getDocumentAsync({
+      multiple: true
+    });
+    if (result.canceled) return;
+
+    const responseSettlement = await Promise.allSettled(
+      result.assets.map(async (doc) => {
+        const attachment = await uploadFile(
+          doc.uri,
+          doc.name,
+          doc.mimeType,
+          doc.size
+        );
+        return attachment;
+      })
+    );
+
+    const attachments = responseSettlement
+      .filter((result) => result.status === 'fulfilled')
+      .map((result) => result.value as AttachmentPicked);
+
+    setAttachmentsPicked((prev) => [...prev, ...attachments]);
+  };
+
+  const pickImage = async () => {
+    const result = await ImagePicker.launchImageLibraryAsync({
+      allowsMultipleSelection: true,
+      mediaTypes: ImagePicker.MediaTypeOptions.All
+    });
+
+    if (result.canceled) return;
+
+    const responseSettlement = await Promise.allSettled(
+      result.assets.map(async (image) => {
+        const attachment = await uploadFile(
+          image.uri,
+          image.fileName || 'image.jpg',
+          image.mimeType,
+          image.fileSize
+        );
+        return attachment;
+      })
+    );
+
+    const attachments = responseSettlement
+      .filter((result) => result.status === 'fulfilled')
+      .map((result) => result.value as AttachmentPicked);
+
+    setAttachmentsPicked((prev) => [...prev, ...attachments]);
+  };
+
+  useEffect(() => {
+    console.log(attachmentsPicked);
+  }, [attachmentsPicked]);
 
   const handleOpenEmoji = () => {
     setEmojiPickerVisible(true);
@@ -144,8 +270,6 @@ const BaseChatInput = (props: BaseChatInputProps) => {
     [props.emojis, props.mentions]
   );
 
-  console.log('rendering chat input');
-
   const handleEmojiSelect = useCallback((emoji: Emoji) => {
     props.onChange?.((text) => {
       return `${text}:${emoji.name}:`;
@@ -161,8 +285,8 @@ const BaseChatInput = (props: BaseChatInputProps) => {
       <View style={styles.chatBarContainer}>
         {!isIconHidden ? (
           <>
-            <IconButton icon={PlusIcon} size={32} />
-            <IconButton icon={ImageIcon} size={32} />
+            <IconButton icon={PlusIcon} size={32} onPress={pickAttachment} />
+            <IconButton icon={ImageIcon} size={32} onPress={pickImage} />
           </>
         ) : (
           <IconButton
@@ -193,7 +317,11 @@ const BaseChatInput = (props: BaseChatInputProps) => {
         {props.value?.length === 0 ? (
           <IconButton icon={MicIcon} size={32} />
         ) : (
-          <IconButton icon={SendIcon} size={32} onPress={props.onSend} />
+          <IconButton
+            icon={SendIcon}
+            size={32}
+            onPress={() => props.onSend?.(attachmentsPicked)}
+          />
         )}
       </View>
       <EmojiPicker

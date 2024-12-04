@@ -44,6 +44,7 @@ import debounce from '@/utils/debounce';
 import EmojiPicker from '@/components/Chat/EmojiPicker';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useAuth } from '@/context/AuthProvider';
+import { getPresignedPostServer } from '@/utils/s3';
 
 const ChannelConversation = () => {
   const navigation = useNavigation();
@@ -379,6 +380,25 @@ const ChannelConversation = () => {
     handleCloseMessageBottomSheet();
   };
 
+  const handleUpload = async (
+    filename: string,
+    fileType?: string,
+    fileSize?: number
+  ) => {
+    const { uploadUrl, fields, key } = await getPresignedPostServer(
+      currentServerId!,
+      channelId!,
+      filename,
+      fileType,
+      fileSize
+    );
+    return {
+      uploadUrl,
+      fields,
+      key
+    };
+  };
+
   const handleSend = async () => {
     const content = convertInputToContent(chatInput);
     if (actionMode?.type === 'edit') {
@@ -495,6 +515,7 @@ const ChannelConversation = () => {
             mode={actionMode}
             onCancelMode={handleCancelMode}
             onSend={handleSend}
+            onUpload={handleUpload}
             emojiImports={emojis}
           />
         </KeyboardAvoidingView>
