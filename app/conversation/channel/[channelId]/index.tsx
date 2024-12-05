@@ -25,7 +25,9 @@ import { TextStyles } from '@/styles/TextStyles';
 import { NativeStackHeaderProps } from '@react-navigation/native-stack';
 import GlobalStyles from '@/styles/GlobalStyles';
 import { TextInput } from 'react-native-gesture-handler';
-import BaseChatInput from '@/components/Chat/BaseChatInput';
+import BaseChatInput, {
+  AttachmentPicked
+} from '@/components/Chat/BaseChatInput';
 import useServer from '@/hooks/useServer';
 import { Channel, Emoji } from '@/types/server';
 import IconWithSize from '@/components/IconWithSize';
@@ -400,7 +402,7 @@ const ChannelConversation = () => {
     };
   };
 
-  const handleSend = async () => {
+  const handleSend = async (attachments?: AttachmentPicked[]) => {
     const content = convertInputToContent(chatInput);
     if (actionMode?.type === 'edit') {
       setChatInput('');
@@ -415,12 +417,17 @@ const ChannelConversation = () => {
     }
     setChatInput('');
     setActionMode(null);
+    const sendAttachments = attachments?.map((attachment) => ({
+      key: attachment.key,
+      filename: attachment.filename
+    }));
     const response = await postData(
       `/api/v1/servers/${currentServerId}/channels/${channelId}/messages`,
       {
         content,
         repliedMessageId:
-          actionMode?.type === 'reply' ? actionMessage?.id : undefined
+          actionMode?.type === 'reply' ? actionMessage?.id : undefined,
+        attachments: sendAttachments
       }
     );
   };
