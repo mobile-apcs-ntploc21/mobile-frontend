@@ -162,6 +162,7 @@ const ChannelConversation = () => {
         }
       }
     });
+    fetchPinned();
     return () => {
       conversationDispatch({
         type: ConversationsTypes.SetFocus,
