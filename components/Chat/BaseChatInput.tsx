@@ -59,7 +59,7 @@ const IconButton = ({
 export interface BaseChatInputProps {
   value?: string;
   onChange?: Dispatch<SetStateAction<string>>;
-  onSend?: (attachmentsPicked: AttachmentPicked[] | null) => void;
+  onSend?: (attachmentsPicked?: AttachmentPicked[]) => void;
   onUpload?: (
     filename: string,
     fileType?: string,
@@ -200,10 +200,6 @@ const BaseChatInput = (props: BaseChatInputProps) => {
 
     setAttachmentsPicked((prev) => [...prev, ...attachments]);
   };
-
-  useEffect(() => {
-    console.log(attachmentsPicked);
-  }, [attachmentsPicked]);
 
   const handleOpenEmoji = () => {
     setEmojiPickerVisible(true);
