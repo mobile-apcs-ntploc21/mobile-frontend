@@ -25,7 +25,9 @@ import { TextStyles } from '@/styles/TextStyles';
 import { NativeStackHeaderProps } from '@react-navigation/native-stack';
 import GlobalStyles from '@/styles/GlobalStyles';
 import { TextInput } from 'react-native-gesture-handler';
-import BaseChatInput from '@/components/Chat/BaseChatInput';
+import BaseChatInput, {
+  AttachmentPicked
+} from '@/components/Chat/BaseChatInput';
 import useServer from '@/hooks/useServer';
 import { Channel, Emoji } from '@/types/server';
 import IconWithSize from '@/components/IconWithSize';
@@ -44,6 +46,7 @@ import debounce from '@/utils/debounce';
 import EmojiPicker from '@/components/Chat/EmojiPicker';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useAuth } from '@/context/AuthProvider';
+import { getPresignedPostServer } from '@/utils/s3';
 
 const ChannelConversation = () => {
   const navigation = useNavigation();
@@ -161,6 +164,7 @@ const ChannelConversation = () => {
         }
       }
     });
+    fetchPinned();
     return () => {
       conversationDispatch({
         type: ConversationsTypes.SetFocus,
@@ -379,7 +383,26 @@ const ChannelConversation = () => {
     handleCloseMessageBottomSheet();
   };
 
-  const handleSend = async () => {
+  const handleUpload = async (
+    filename: string,
+    fileType?: string,
+    fileSize?: number
+  ) => {
+    const { uploadUrl, fields, key } = await getPresignedPostServer(
+      currentServerId!,
+      channelId!,
+      filename,
+      fileType,
+      fileSize
+    );
+    return {
+      uploadUrl,
+      fields,
+      key
+    };
+  };
+
+  const handleSend = async (attachments?: AttachmentPicked[]) => {
     const content = convertInputToContent(chatInput);
     if (actionMode?.type === 'edit') {
       setChatInput('');
@@ -394,12 +417,17 @@ const ChannelConversation = () => {
     }
     setChatInput('');
     setActionMode(null);
+    const sendAttachments = attachments?.map((attachment) => ({
+      key: attachment.key,
+      filename: attachment.filename
+    }));
     const response = await postData(
       `/api/v1/servers/${currentServerId}/channels/${channelId}/messages`,
       {
         content,
         repliedMessageId:
-          actionMode?.type === 'reply' ? actionMessage?.id : undefined
+          actionMode?.type === 'reply' ? actionMessage?.id : undefined,
+        attachments: sendAttachments
       }
     );
   };
@@ -495,6 +523,7 @@ const ChannelConversation = () => {
             mode={actionMode}
             onCancelMode={handleCancelMode}
             onSend={handleSend}
+            onUpload={handleUpload}
             emojiImports={emojis}
           />
         </KeyboardAvoidingView>

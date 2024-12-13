@@ -1,3 +1,5 @@
+import { AttachmentTypes } from './attachment';
+
 export type Reaction = {
   emoji_id: string;
   reactors: string[];
@@ -13,6 +15,12 @@ export type Message = {
     display_name: string;
     avatar_url: string;
   };
+  attachments: {
+    type: AttachmentTypes;
+    url: string;
+    filename: string;
+    size: number;
+  }[];
   content: string;
   replied_message: {
     id: string;
