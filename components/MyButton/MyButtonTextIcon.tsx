@@ -1,8 +1,7 @@
-import { StyleSheet, Text, TextStyle, View } from 'react-native';
+import { StyleSheet, TextStyle, View } from 'react-native';
 import React from 'react';
 import MyButtonBase, { MyButtonBaseProps } from './MyButtonBase';
 import MyText from '../MyText';
-import { TextStyles } from '@/styles/TextStyles';
 import { colors, fonts } from '@/constants/theme';
 import { IconProps } from '@/types';
 import IconWithSize from '../IconWithSize';
@@ -11,10 +10,11 @@ interface MyButtonTextIconProps extends MyButtonBaseProps {
   title: string;
   iconBefore?: React.ComponentType<IconProps>;
   iconAfter?: React.ComponentType<IconProps>;
+  gap?: number;
 }
 
 const MyButtonTextIcon = (props: MyButtonTextIconProps) => {
-  const { backgroundColor = colors.primary, textColor = colors.white } = props;
+  const { backgroundColor = colors.primary, textColor = colors.white, gap = 8 } = props;
   const combinedStyles: TextStyle = StyleSheet.flatten([
     styles.text,
     { color: props.reverseStyle ? backgroundColor : textColor },
@@ -22,7 +22,7 @@ const MyButtonTextIcon = (props: MyButtonTextIconProps) => {
   ]);
   return (
     <MyButtonBase {...props} {...{ backgroundColor, textColor }}>
-      <View style={styles.textContainer}>
+      <View style={[styles.textContainer, { gap }]}>
         {props.iconBefore && (
           <IconWithSize
             icon={props.iconBefore}
@@ -52,7 +52,6 @@ const styles = StyleSheet.create({
   },
   textContainer: {
     flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8
+    alignItems: 'center'
   }
 });
