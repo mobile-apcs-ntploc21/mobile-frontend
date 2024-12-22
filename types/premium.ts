@@ -8,4 +8,6 @@ export type Premium = {
   duration: PremiumDuration;
   price: number;
   features: string[];
+  discount?: number;
+  currency: string;
 };
