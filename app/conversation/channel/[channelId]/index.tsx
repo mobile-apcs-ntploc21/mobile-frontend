@@ -201,7 +201,7 @@ const ChannelConversation = () => {
       messageBottomSheetRef.current?.present();
       Keyboard.dismiss();
     },
-    [messageBottomSheetRef]
+    [messageBottomSheetRef, setModalMessage]
   );
 
   const handleCloseMessageBottomSheet = useCallback(() => {
@@ -218,15 +218,18 @@ const ChannelConversation = () => {
     reactionBottomSheetRef.current?.dismiss();
   }, [reactionBottomSheetRef]);
 
-  const handleSelectReaction = useCallback((emoji: Emoji) => {
-    postData(
-      `/api/v1/servers/${currentServerId}/channels/${channelId}/messages/${modalMessage?.id}/reactions`,
-      {
-        emoji_id: emoji.id
-      }
-    );
-    handleCloseReactionBottomSheet();
-  }, []);
+  const handleSelectReaction = useCallback(
+    (emoji: Emoji) => {
+      postData(
+        `/api/v1/servers/${currentServerId}/channels/${channelId}/messages/${modalMessage?.id}/reactions`,
+        {
+          emoji_id: emoji.id
+        }
+      );
+      handleCloseReactionBottomSheet();
+    },
+    [currentServerId, channelId, modalMessage, handleCloseReactionBottomSheet]
+  );
 
   const convertContentToInput = (content: string) => {
     const userPattern = /<@!?([a-f0-9]{24})>/g;
@@ -502,6 +505,22 @@ const ChannelConversation = () => {
             message={item}
             onLongPress={() => handleOpenMessageBottomSheet(item)}
             conversation_id={conversation.id}
+            onReact={(emojiId) => {
+              postData(
+                `/api/v1/servers/${currentServerId}/channels/${channelId}/messages/${item.id}/reactions`,
+                {
+                  emoji_id: emojiId
+                }
+              );
+            }}
+            onUnreact={(emojiId) => {
+              deleteData(
+                `/api/v1/servers/${currentServerId}/channels/${channelId}/messages/${item.id}/reactions`,
+                {
+                  emoji_id: emojiId
+                }
+              );
+            }}
           />
         )}
         contentContainerStyle={{ gap: 8 }}

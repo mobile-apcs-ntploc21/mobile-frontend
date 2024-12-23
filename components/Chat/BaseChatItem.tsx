@@ -116,6 +116,8 @@ const ReactionItem = (props: {
   message: Message;
   channel_id: string;
   conversation_id: string;
+  onReact: () => void;
+  onUnreact: () => void;
 }) => {
   const { user } = useAuth();
   const { currentServerId } = useServers();
@@ -126,19 +128,9 @@ const ReactionItem = (props: {
 
   const handleReactionPress = () => {
     if (isReacted) {
-      deleteData(
-        `/api/v1/servers/${currentServerId}/channels/${props.channel_id}/messages/${props.message.id}/reactions`,
-        {
-          emoji_id: props.emoji.id
-        }
-      );
+      props.onUnreact();
     } else {
-      postData(
-        `/api/v1/servers/${currentServerId}/channels/${props.channel_id}/messages/${props.message.id}/reactions`,
-        {
-          emoji_id: props.emoji.id
-        }
-      );
+      props.onReact();
     }
   };
 
@@ -169,6 +161,8 @@ export interface ChatItemProps {
   users: ServerProfile[];
   emojis: Emoji[];
   conversation_id: string;
+  onReact: (emoji_id: string) => void;
+  onUnreact: (emoji_id: string) => void;
 }
 
 const BaseChatItem = (props: ChatItemProps) => {
@@ -275,6 +269,8 @@ const BaseChatItem = (props: ChatItemProps) => {
                   message={props.message}
                   channel_id={props.channel_id}
                   conversation_id={props.conversation_id}
+                  onReact={() => props.onReact(reaction.emoji_id)}
+                  onUnreact={() => props.onUnreact(reaction.emoji_id)}
                 />
               ))}
             </View>
