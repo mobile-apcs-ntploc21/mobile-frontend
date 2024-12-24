@@ -18,7 +18,6 @@ import { IconProps } from '@/types';
 import { MyButtonText } from '@/components/MyButton';
 import { G } from 'react-native-svg';
 import CrossIcon from '@/assets/icons/CrossIcon';
-import TickIcon from '@/assets/icons/TickIcon';
 // const onSubmit = () => showAlert('Subscribed to premium');
 
 const PaymentFailed = () => {
@@ -39,71 +38,26 @@ const PaymentFailed = () => {
   return <View style={GlobalStyles.screen}>
       <View style={styles.container}>
         <MyText style={[TextStyles.h2, { flex: 1, textAlign: 'center', fontWeight: 'bold' }]}>
-            Payment Successful
+            Payment Failed
         </MyText>
       </View>
 
       <View style={styles.content}>
-        <View style={[styles.circle, {
-            backgroundColor: colors.white,
-            borderWidth: 4,
-            borderColor: colors.semantic_green,
-            alignSelf: 'center',
-          }]}>
-          <View style={{ aspectRatio: 1, padding: 14, paddingTop: 16 }}>
-            <TickIcon color={colors.semantic_green} strokeWidth = {2} />
+        <View style={[styles.circle, { backgroundColor: colors.semantic_red }]}>
+          <View style={{ aspectRatio: 1, margin: 16 }}>
+            <CrossIcon color={colors.white} strokeWidth = {2} />
           </View>
         </View>
-        <MyText style={[TextStyles.h3, { textAlign: 'center', color: colors.semantic_green, fontWeight: 'bold' }]}>
-            Thank you for your payment!
+        <MyText style={[TextStyles.h1, { textAlign: 'center', color: colors.semantic_red, fontWeight: 'bold' }]}>
+            Payment failed. Please try again.
         </MyText>
-        <View style={[styles.infoContainer, { borderWidth: 1, borderColor: colors.gray03, borderRadius: 8 }]}>
-        <View style={styles.row}>
-            <MyText style={[TextStyles.bodyXL]} >
-              Order ID
-            </MyText>
-            <MyText style={[TextStyles.h5, { fontWeight: 'bold' }]}>
-              {123213}
-            </MyText>
-          </View>
-          <View style={styles.row}>
-            <MyText style={[TextStyles.bodyXL]}>
-              Description
-            </MyText>
-            <MyText style={[TextStyles.h5, {
-                fontWeight: 'bold',
-                textAlign: 'right',
-                flexWrap: 'wrap',
-                width: '50%'
-              }]}>
-              {"Premium Subscription for 1 month"}
-            </MyText>
-          </View>
-          <View style={styles.row}>
-            <MyText style={[TextStyles.bodyXL]}>
-              Amount Paid
-            </MyText>
-            <MyText style={[TextStyles.h5, { fontWeight: 'bold' }]}>
-              1000 USD
-            </MyText>
-          </View>
-          <View style={styles.row}>
-            <MyText style={[TextStyles.bodyXL]}>
-              Date & Time
-            </MyText>
-            <MyText style={[TextStyles.h5, { fontWeight: 'bold' }]} >
-              0
-            </MyText>
-          </View>
-
-        </View>
       </View>
 
       
       <View style={ styles.buttonContainer }>
         <MyButtonText
           title="Go Back"
-          onPress= { router.back }
+          onPress= { goBack }
           containerStyle={styles.button}
         />
       </View>
@@ -124,16 +78,24 @@ const styles = StyleSheet.create({
     content: {
         flex: 1,
         marginBottom: 20,
-        marginHorizontal: 16,
+        marginTop: 20,
+        marginHorizontal: 64,
         paddingBottom: 64,
-        // alignItems: 'center',
+        alignItems: 'center',
+        justifyContent: 'center'
     },
     row: {
         flexDirection: "row",
         justifyContent: "space-between",
         alignItems: "center",
         marginVertical: 8,
-        marginHorizontal: 16,
+        marginHorizontal: 24,
+    },
+    divider: {
+        height: 2,
+        backgroundColor: "black",
+        marginVertical: 10,
+        marginHorizontal: 24,
     },
     buttonContainer: {
       padding: 16
@@ -144,17 +106,14 @@ const styles = StyleSheet.create({
       width: '100%'
     },
     circle: {
-      width: 72, // Diameter of the circle
-      height: 72,
-      borderRadius: 36, // Half the width/height to make it circular
+      width: 128, // Diameter of the circle
+      height: 128,
+      borderRadius: 64, // Half the width/height to make it circular
       alignItems: 'center', // Center the icon inside horizontally
       justifyContent: 'center', // Center the icon inside vertically
-      margin: 16
+      margin: 32
     },
-    infoContainer: {
-      justifyContent: 'space-between',
-      marginVertical: 32,
-    },
+    
 });
 
 export default PaymentFailed;

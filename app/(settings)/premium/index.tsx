@@ -1,6 +1,6 @@
 import { View, Text, TouchableOpacity, FlatList } from 'react-native';
 import React, { useCallback, useLayoutEffect, useMemo, useState } from 'react';
-import { useNavigation } from 'expo-router';
+import { router, useNavigation } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
 import { colors } from '@/constants/theme';
 import { Entypo } from '@expo/vector-icons';
@@ -19,7 +19,14 @@ const PremiumDashboard = () => {
   const [premiums, setPremiums] = useState<Premium[]>(samplePremiums);
   const [selectedPremium, setSelectedPremium] = useState<Premium>(premiums[0]);
 
-  const onSubmit = () => showAlert('Subscribed to premium');
+  const onSubmit = () => {
+    router.push({
+      pathname: './confirmation',
+      params: {
+        premiumId: selectedPremium.id
+      }
+    });
+  }
 
   const goBack = useCallback(() => {
     if (navigation.canGoBack()) navigation.goBack();
