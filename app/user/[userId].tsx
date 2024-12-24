@@ -314,8 +314,8 @@ const UserById = () => {
                 styles.onlineStatus,
                 {
                   backgroundColor: getOnlineStatusColor(
-                    userData?.onlineStatus?.is_online
-                      ? userData?.onlineStatus?.type
+                    userData?.status?.is_online
+                      ? userData?.status?.type
                       : StatusType.OFFLINE
                   )
                 }
@@ -327,10 +327,10 @@ const UserById = () => {
           <Text style={styles.displayName}>{userData?.display_name}</Text>
           <Text style={styles.username}>@{userData?.username}</Text>
         </View>
-        {userData?.onlineStatus?.status_text && (
+        {userData?.status?.status_text && (
           <StatusBubble
             // emoji="👋"
-            text={userData?.onlineStatus?.status_text}
+            text={userData?.status?.status_text}
           />
         )}
         <View style={styles.buttonContainer}>

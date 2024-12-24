@@ -4,16 +4,41 @@ import GlobalStyles from '@/styles/GlobalStyles';
 import { colors } from '@/constants/theme';
 import { TextStyles } from '@/styles/TextStyles';
 import { MaterialIcons } from '@expo/vector-icons';
-import React from 'react';
+import React, { useMemo } from 'react';
 import MyButtonTextIcon from '@/components/MyButton/MyButtonTextIcon';
 import GroupIcon from '@/assets/icons/GroupIcon';
 import MyText from '@/components/MyText';
 import Avatar from '@/components/Avatar';
 import DMItem from '@/components/DMItem';
+import { useDMContext } from '@/context/DMProvider';
+import { useConversations } from '@/context/ConversationsProvider';
 
-const users: string[] = Array.from({ length: 10 }).map((_, index) => `${index}`);
+// const users: string[] = Array.from({ length: 10 }).map((_, index) => `${index}`);
+
+const convertTimeToNumber = (timestamp: string) => {
+  return new Date(timestamp).getTime();
+};
 
 export default function DM() {
+  const { data: dmChannels, loading } = useDMContext();
+  const { conversations } = useConversations();
+  const sortedChannels = useMemo(
+    () =>
+      dmChannels?.sort((a, b) => {
+        const aConversation = conversations.find(
+          (c) => c.id === a.conversation_id
+        );
+        const bConversation = conversations.find(
+          (c) => c.id === b.conversation_id
+        );
+        if (!aConversation || !bConversation) return 0;
+        return (
+          convertTimeToNumber(bConversation.messages[0].createdAt) -
+          convertTimeToNumber(aConversation.messages[0].createdAt)
+        );
+      }),
+    [dmChannels, conversations]
+  );
 
   return (
     <View
@@ -47,30 +72,45 @@ export default function DM() {
               placeholder="Enter username"
             />
           </View>
-          <FlatList horizontal showsHorizontalScrollIndicator={false} style={{ marginHorizontal: -16, marginTop: 18 }}
-                    contentContainerStyle={{
-                      gap: 18,
-                      paddingHorizontal: 16
-                    }} data={users} keyExtractor={(item) => item} renderItem={
-            ({ item }) => (
+          <FlatList
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            style={{ marginHorizontal: -16, marginTop: 18 }}
+            contentContainerStyle={{
+              gap: 18,
+              paddingHorizontal: 16
+            }}
+            data={dmChannels}
+            keyExtractor={(item) => item.user_id}
+            renderItem={({ item }) => (
               <View style={{ width: 60, gap: 4 }}>
-                <Avatar id={item} avatarStyle={{ width: 60, height: 60, borderRadius: 30 }} showStatus />
-                <MyText style={{ alignSelf: 'center' }} numberOfLines={1}
-                        ellipsizeMode="tail">
-                  {item}
+                <Avatar
+                  id={item.user_id}
+                  avatarStyle={{ width: 60, height: 60, borderRadius: 30 }}
+                  profilePic={item.avatar_url}
+                  showStatus
+                />
+                <MyText
+                  style={{ alignSelf: 'center' }}
+                  numberOfLines={1}
+                  ellipsizeMode="tail"
+                >
+                  {item.name}
                 </MyText>
               </View>
-            )
-          } />
+            )}
+          />
         </View>
       </View>
-      <FlatList data={users} keyExtractor={(item) => item} renderItem={
-        ({ item }) => <DMItem user_id={item} />
-      } contentContainerStyle={{ paddingVertical: 12, gap: 16 }} />
+      <FlatList
+        data={sortedChannels}
+        keyExtractor={(item) => item.user_id}
+        renderItem={({ item }) => <DMItem user_id={item.user_id} />}
+        contentContainerStyle={{ paddingVertical: 12, gap: 16 }}
+      />
     </View>
   );
-};
-
+}
 
 const styles = StyleSheet.create({
   headerContainer: {

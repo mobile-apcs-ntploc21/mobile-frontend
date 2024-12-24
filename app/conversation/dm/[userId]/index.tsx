@@ -20,16 +20,9 @@ import React, {
 } from 'react';
 import { router, useLocalSearchParams, useNavigation } from 'expo-router';
 import MyHeader from '@/components/MyHeader';
-import MyText from '@/components/MyText';
-import { TextStyles } from '@/styles/TextStyles';
 import { NativeStackHeaderProps } from '@react-navigation/native-stack';
 import GlobalStyles from '@/styles/GlobalStyles';
-import { TextInput } from 'react-native-gesture-handler';
-import BaseChatInput, {
-  AttachmentPicked
-} from '@/components/Chat/BaseChatInput';
-import useServer from '@/hooks/useServer';
-import { Channel, Emoji } from '@/types/server';
+import { Emoji } from '@/types/server';
 import IconWithSize from '@/components/IconWithSize';
 import InfoIcon from '@/assets/icons/InfoIcon';
 import { colors } from '@/constants/theme';
@@ -46,35 +39,40 @@ import debounce from '@/utils/debounce';
 import EmojiPicker from '@/components/Chat/EmojiPicker';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useAuth } from '@/context/AuthProvider';
-import { getPresignedPostServer } from '@/utils/s3';
+import DMChatItem from '@/components/Chat/DMChatItem';
+import { useUserContext } from '@/context/UserProvider';
+import { useUserById } from '@/hooks/useUserById';
+import { useDMContext } from '@/context/DMProvider';
 
 const ChannelConversation = () => {
   const navigation = useNavigation();
-  const { currentServerId, emojiCategories } = useServers();
+  const { emojiCategories } = useServers();
   const emojis = useMemo(
     () => emojiCategories.flatMap((category) => category.emojis),
     [emojiCategories]
   );
-  const { categories, roles, members, permissions } = useServer();
+
   const { user } = useAuth();
-  const channels = useMemo(() => {
-    return categories.map((category) => category.channels).flat();
-  }, [categories]);
-  const { channelId } = useLocalSearchParams<{
-    channelId: string;
+  const { userId } = useLocalSearchParams<{
+    userId: string;
   }>();
-  const channel: Channel | undefined = useMemo(() => {
-    return channels.find((channel) => channel.id === channelId);
-  }, [channels, channelId]);
   const { conversations, dispatch: conversationDispatch } = useConversations();
+  const { data: dmChannels } = useDMContext();
+  const channel = useMemo(
+    () => dmChannels.find((channel) => channel.user_id === userId),
+    [dmChannels, userId]
+  );
   const conversation = useMemo(() => {
     return conversations.find((conv) => conv.id === channel?.conversation_id);
-  }, [conversations, channelId])!;
+  }, [conversations, userId])!;
+
+  const { data: userProfile } = useUserContext();
+  const { data: otherUserProfile } = useUserById(userId);
 
   const insets = useSafeAreaInsets();
 
   useLayoutEffect(() => {
-    const channelName = channel?.name;
+    const channelName = otherUserProfile.display_name;
     navigation.setOptions({
       header: (props: NativeStackHeaderProps) => (
         <MyHeader
@@ -111,7 +109,7 @@ const ChannelConversation = () => {
     if (loading) return;
     setLoading(true);
     const response = await getData(
-      `/api/v1/servers/${currentServerId}/channels/${channelId}/messages`,
+      `/api/v1/direct-messages/${userId}`,
       {},
       {
         before: conversation.messages.at(-1)?.id,
@@ -132,11 +130,9 @@ const ChannelConversation = () => {
   };
 
   const fetchPinned = async () => {
-    if (!channelId || !conversation) return;
+    if (!userId || !conversation) return;
 
-    const response = await getData(
-      `/api/v1/servers/${currentServerId}/channels/${channelId}/messages/pins`
-    );
+    const response = await getData(`/api/v1/direct-messages/${userId}/pins`);
 
     conversationDispatch({
       type: ConversationsTypes.AddPinnedMessages,
@@ -151,7 +147,7 @@ const ChannelConversation = () => {
     conversationDispatch({
       type: ConversationsTypes.SetFocus,
       payload: {
-        conversationId: channel?.conversation_id || ''
+        conversationId: conversation.id
       }
     });
     conversationDispatch({
@@ -179,9 +175,7 @@ const ChannelConversation = () => {
     return debounce(() => {
       if (!conversation) return;
       if (conversation.messages.length === 0) return;
-      postData(
-        `/api/v1/servers/${currentServerId}/channels/${channelId}/messages/read`
-      );
+      postData(`/api/v1/direct-messages/${userId}/read`);
     }, 1000);
   }, []);
 
@@ -201,7 +195,7 @@ const ChannelConversation = () => {
       messageBottomSheetRef.current?.present();
       Keyboard.dismiss();
     },
-    [messageBottomSheetRef, setModalMessage]
+    [messageBottomSheetRef]
   );
 
   const handleCloseMessageBottomSheet = useCallback(() => {
@@ -221,36 +215,24 @@ const ChannelConversation = () => {
   const handleSelectReaction = useCallback(
     (emoji: Emoji) => {
       postData(
-        `/api/v1/servers/${currentServerId}/channels/${channelId}/messages/${modalMessage?.id}/reactions`,
+        `/api/v1/direct-messages/${userId}/${modalMessage?.id}/reactions`,
         {
           emoji_id: emoji.id
         }
       );
       handleCloseReactionBottomSheet();
     },
-    [currentServerId, channelId, modalMessage, handleCloseReactionBottomSheet]
+    [modalMessage]
   );
 
   const convertContentToInput = (content: string) => {
-    const userPattern = /<@!?([a-f0-9]{24})>/g;
-    const rolePattern = /<@&([a-f0-9]{24})>/g;
-    const channelPattern = /<#([a-f0-9]{24})>/g;
+    // const userPattern = /<@!?([a-f0-9]{24})>/g;
     const emojiPattern = /<:(.*?):(?:[a-f0-9]{24})>/g;
 
-    content = content.replace(userPattern, (match, userId) => {
-      const member = members.find((member) => member.user_id === userId);
-      return `@${member?.username}`;
-    });
-
-    content = content.replace(rolePattern, (match, roleId) => {
-      const role = roles.find((role) => role.id === roleId);
-      return `@${role?.name}`;
-    });
-
-    content = content.replace(channelPattern, (match, channelId) => {
-      const channel = channels.find((channel) => channel.id === channelId);
-      return `#${channel?.name}`;
-    });
+    // content = content.replace(userPattern, (match, userId) => {
+    //   const member = members.find((member) => member.user_id === userId);
+    //   return `@${member?.username}`;
+    // });
 
     content = content.replace(emojiPattern, (match, emojiName) => {
       const emoji = emojiCategories
@@ -264,39 +246,7 @@ const ChannelConversation = () => {
     return content;
   };
 
-  // Some must be sorted by decreasing length to avoid mentioning the wrong user
-  const sortedMembers = useMemo(() => {
-    return members
-      .slice()
-      .sort((a, b) => b.username.length - a.username.length);
-  }, [members]);
-  const sortedRoles = useMemo(() => {
-    return roles.slice().sort((a, b) => b.name.length - a.name.length);
-  }, [roles]);
-  const sortedChannels = useMemo(() => {
-    return channels.slice().sort((a, b) => b.name.length - a.name.length);
-  }, [channels]);
-
   const convertInputToContent = (input: string) => {
-    sortedMembers.forEach((member) => {
-      input = input.replaceAll(`@${member.username}`, `<@${member.user_id}>`);
-    });
-    sortedRoles.forEach((role) => {
-      if (role.default) {
-        input = input.replaceAll(`@everyone`, `<@&${role.id}>`);
-      }
-      input = input.replaceAll(`@${role.name}`, `<@&${role.id}>`);
-    });
-    sortedChannels.forEach((channel) => {
-      input = input.replaceAll(`#${channel.name}`, `<#${channel.id}>`);
-    });
-    // emojis.forEach((emoji) => {
-    //   input = input.replaceAll(
-    //     `:${emoji.name}:`,
-    //     `<:${emoji.name}:${emoji.id}>`
-    //   );
-    // });
-
     // get unique emoji names from emojis
     const emojiNames = emojis.map((emoji) => emoji.name);
     const emojiNameSet = new Set(emojiNames);
@@ -362,16 +312,12 @@ const ChannelConversation = () => {
   };
 
   const handlePin = () => {
-    postData(
-      `/api/v1/servers/${currentServerId}/channels/${channelId}/messages/${modalMessage?.id}/pin`
-    );
+    postData(`/api/v1/direct-messages/${userId}/${modalMessage?.id}/pin`);
     handleCloseMessageBottomSheet();
   };
 
   const handleUnpin = () => {
-    deleteData(
-      `/api/v1/servers/${currentServerId}/channels/${channelId}/messages/${modalMessage?.id}/pin`
-    );
+    deleteData(`/api/v1/direct-messages/${userId}/${modalMessage?.id}/pin`);
     handleCloseMessageBottomSheet();
   };
 
@@ -380,38 +326,17 @@ const ChannelConversation = () => {
       setActionMode(null);
       setActionMessage(null);
     }
-    deleteData(
-      `/api/v1/servers/${currentServerId}/channels/${channelId}/messages/${modalMessage?.id}`
-    );
+    deleteData(`/api/v1/direct-messages/${modalMessage?.id}`);
     handleCloseMessageBottomSheet();
   };
 
-  const handleUpload = async (
-    filename: string,
-    fileType?: string,
-    fileSize?: number
-  ) => {
-    const { uploadUrl, fields, key } = await getPresignedPostServer(
-      currentServerId!,
-      channelId!,
-      filename,
-      fileType,
-      fileSize
-    );
-    return {
-      uploadUrl,
-      fields,
-      key
-    };
-  };
-
-  const handleSend = async (attachments?: AttachmentPicked[]) => {
+  const handleSend = async () => {
     const content = convertInputToContent(chatInput);
     if (actionMode?.type === 'edit') {
       setChatInput('');
       setActionMode(null);
       const response = await putData(
-        `/api/v1/servers/${currentServerId}/channels/${channelId}/messages/${actionMessage?.id}`,
+        `/api/v1/direct-messages/${actionMessage?.id}`,
         {
           content
         }
@@ -420,19 +345,11 @@ const ChannelConversation = () => {
     }
     setChatInput('');
     setActionMode(null);
-    const sendAttachments = attachments?.map((attachment) => ({
-      key: attachment.key,
-      filename: attachment.filename
-    }));
-    const response = await postData(
-      `/api/v1/servers/${currentServerId}/channels/${channelId}/messages`,
-      {
-        content,
-        repliedMessageId:
-          actionMode?.type === 'reply' ? actionMessage?.id : undefined,
-        attachments: sendAttachments
-      }
-    );
+    const response = await postData(`/api/v1/direct-messages/${userId}`, {
+      content,
+      repliedMessageId:
+        actionMode?.type === 'reply' ? actionMessage?.id : undefined
+    });
   };
 
   return (
@@ -445,15 +362,12 @@ const ChannelConversation = () => {
           items={[
             {
               text: 'React',
-              onPress: handleReact,
-              isHidden: !permissions['ADD_REACTION']
+              onPress: handleReact
             },
             {
               text: 'Edit',
               onPress: handleEdit,
-              isHidden:
-                !permissions['MANAGE_MESSAGE'] &&
-                modalMessage?.sender_id !== user?.id
+              isHidden: modalMessage?.sender_id !== user?.id
             },
             {
               text: 'Reply',
@@ -473,9 +387,7 @@ const ChannelConversation = () => {
               text: 'Delete',
               onPress: handleDelete,
               style: { color: colors.semantic_red },
-              isHidden:
-                !permissions['MANAGE_MESSAGE'] &&
-                modalMessage?.sender_id !== user?.id
+              isHidden: modalMessage?.sender_id !== user?.id
             }
           ]}
         />
@@ -499,14 +411,15 @@ const ChannelConversation = () => {
         keyboardShouldPersistTaps="never"
         data={conversation?.messages || []}
         renderItem={({ item, index }) => (
-          <ServerChatItem
+          <DMChatItem
             key={item.id}
             message={item}
             onLongPress={() => handleOpenMessageBottomSheet(item)}
             conversation_id={conversation.id}
+            users={[userProfile, otherUserProfile]}
             onReact={(emojiId) => {
               postData(
-                `/api/v1/servers/${currentServerId}/channels/${channelId}/messages/${item.id}/reactions`,
+                `/api/v1/direct-messages/${userId}/${item.id}/reactions`,
                 {
                   emoji_id: emojiId
                 }
@@ -514,7 +427,7 @@ const ChannelConversation = () => {
             }}
             onUnreact={(emojiId) => {
               deleteData(
-                `/api/v1/servers/${currentServerId}/channels/${channelId}/messages/${item.id}/reactions`,
+                `/api/v1/direct-messages/${userId}/${item.id}/reactions`,
                 {
                   emoji_id: emojiId
                 }
@@ -528,24 +441,19 @@ const ChannelConversation = () => {
         ListFooterComponent={loading ? <ActivityIndicator /> : null}
         onEndReached={fetchMessages}
       />
-      {permissions['SEND_MESSAGE'] && (
-        <KeyboardAvoidingView
-          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-          keyboardVerticalOffset={
-            Platform.OS === 'ios' ? 96 + insets.bottom : 0
-          }
-        >
-          <ServerChatInput
-            value={chatInput}
-            onChange={setChatInput}
-            mode={actionMode}
-            onCancelMode={handleCancelMode}
-            onSend={handleSend}
-            onUpload={handleUpload}
-            emojiImports={emojis}
-          />
-        </KeyboardAvoidingView>
-      )}
+      <KeyboardAvoidingView
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        keyboardVerticalOffset={Platform.OS === 'ios' ? 96 + insets.bottom : 0}
+      >
+        <ServerChatInput
+          value={chatInput}
+          onChange={setChatInput}
+          mode={actionMode}
+          onCancelMode={handleCancelMode}
+          onSend={handleSend}
+          emojiImports={emojis}
+        />
+      </KeyboardAvoidingView>
     </View>
   );
 };

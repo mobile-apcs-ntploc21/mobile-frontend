@@ -114,14 +114,11 @@ const ReactionItem = (props: {
   reaction: Reaction;
   emoji: Emoji;
   message: Message;
-  channel_id: string;
   conversation_id: string;
   onReact: () => void;
   onUnreact: () => void;
 }) => {
   const { user } = useAuth();
-  const { currentServerId } = useServers();
-  const { dispatch } = useConversations();
   const isReacted = useMemo(() => {
     return props.reaction.reactors.includes(user?.id || '');
   }, [props.reaction.reactors, user]);
@@ -155,10 +152,9 @@ const ReactionItem = (props: {
 
 export interface ChatItemProps {
   message: Message;
-  channel_id: string;
   onLongPress?: () => void;
   parseContent: (content?: string) => ReactNode[];
-  users: ServerProfile[];
+  users: UserProfile[];
   emojis: Emoji[];
   conversation_id: string;
   onReact: (emoji_id: string) => void;
@@ -228,7 +224,7 @@ const BaseChatItem = (props: ChatItemProps) => {
         <View style={styles.messageContainer}>
           <Avatar
             id={''}
-            profile={currentUser}
+            profilePic={currentUser?.avatar_url}
             onlineStatus={
               currentUser?.status.is_online
                 ? currentUser.status.type
@@ -267,7 +263,6 @@ const BaseChatItem = (props: ChatItemProps) => {
                     )!
                   }
                   message={props.message}
-                  channel_id={props.channel_id}
                   conversation_id={props.conversation_id}
                   onReact={() => props.onReact(reaction.emoji_id)}
                   onUnreact={() => props.onUnreact(reaction.emoji_id)}
