@@ -67,7 +67,7 @@ const ChannelConversation = () => {
   }, [conversations, userId])!;
 
   const { data: userProfile } = useUserContext();
-  const { data: otherUserProfile } = useUserById(userId);
+  const { data: otherUserProfile } = useUserById(userId!);
 
   const insets = useSafeAreaInsets();
 
