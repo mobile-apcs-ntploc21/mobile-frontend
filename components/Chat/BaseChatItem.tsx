@@ -141,10 +141,15 @@ const ReactionItem = (props: {
       ]}
       onPress={handleReactionPress}
     >
-      <Image
-        source={{ uri: props.emoji.image_url }}
-        style={styles.reactionEmoji}
-      />
+      {props.emoji.image_url ? (
+        <Image
+          source={{ uri: props.emoji.image_url }}
+          style={styles.reactionEmoji}
+        />
+      ) : (
+        <MyText style={TextStyles.h5}>{props.emoji.unicode}</MyText>
+      )}
+
       <MyText style={TextStyles.bodyM}>{props.reaction.count}</MyText>
     </TouchableOpacity>
   );
@@ -226,8 +231,8 @@ const BaseChatItem = (props: ChatItemProps) => {
             id={''}
             profilePic={currentUser?.avatar_url}
             onlineStatus={
-              currentUser?.status.is_online
-                ? currentUser.status.type
+              currentUser?.status?.is_online
+                ? currentUser.status?.type
                 : StatusType.OFFLINE
             }
             showStatus
