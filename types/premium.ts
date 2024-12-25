@@ -5,14 +5,15 @@ export enum PremiumDuration {
 }
 
 export enum PremiumPack {
-  BASIC = 'Basic',
-  STANDARD = 'Standard',
-  DELUXE = 'Deluxe'
+  MONTHLY = 'Monthly',
+  THREE_MONTHS = 'Three_Months',
+  SIX_MONTHS = 'Six_Months'
 }
 
 export type Premium = {
   id: PremiumPack;
   duration: PremiumDuration;
+  originalPrice: number;
   price: number;
   features: string[];
   discount?: number;

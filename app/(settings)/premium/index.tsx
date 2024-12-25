@@ -26,7 +26,7 @@ const PremiumDashboard = () => {
         premiumId: selectedPremium.id
       }
     });
-  }
+  };
 
   const goBack = useCallback(() => {
     if (navigation.canGoBack()) navigation.goBack();

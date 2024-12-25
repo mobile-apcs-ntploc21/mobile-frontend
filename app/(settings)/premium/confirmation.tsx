@@ -19,13 +19,12 @@ import { MyButtonText } from '@/components/MyButton';
 import { G } from 'react-native-svg';
 // const onSubmit = () => showAlert('Subscribed to premium');
 
-
 const PaymentConfirmation = () => {
   const navigation = useNavigation();
   const { showAlert } = useNotification();
 
   const { premiumId } = useLocalSearchParams<{
-      'premiumId': string;
+    premiumId: string;
   }>();
 
   const onSubmit = () => {
@@ -38,16 +37,17 @@ const PaymentConfirmation = () => {
   }, [navigation]);
 
   const selectedPremium: Premium | undefined = useMemo(() => {
-      return samplePremiums.find((item) => item.id === premiumId);
+    return samplePremiums.find((item) => item.id === premiumId);
   }, [premiumId]);
 
   if (!selectedPremium) {
-      showAlert('Premium not found');
-      return null;
+    showAlert('Premium not found');
+    return null;
   }
 
-  const discountAmount = selectedPremium?.price * (selectedPremium?.discount ? selectedPremium.discount : 0);
-  const discountedPrice = selectedPremium?.price - discountAmount;
+  const discountAmount =
+    selectedPremium?.originalPrice - selectedPremium?.price;
+  const discountedPrice = selectedPremium?.price;
 
   useLayoutEffect(() => {
     navigation.setOptions({
@@ -55,9 +55,10 @@ const PaymentConfirmation = () => {
     });
   }, []);
 
-  return <View style={GlobalStyles.screen}>
+  return (
+    <View style={GlobalStyles.screen}>
       <View style={styles.container}>
-        <TouchableOpacity onPress={goBack} >
+        <TouchableOpacity onPress={goBack}>
           <Entypo name="chevron-thin-left" size={32} color={colors.black} />
         </TouchableOpacity>
         <MyText style={[TextStyles.h2, { flex: 1, textAlign: 'center' }]}>
@@ -68,100 +69,100 @@ const PaymentConfirmation = () => {
 
       {/* Content */}
       <View style={styles.content}>
-          <View style={styles.row}>
-            <MyText style={[TextStyles.bodyXL]} >
-              Order ID
-            </MyText>
-            <MyText style={[TextStyles.h5, { fontWeight: 'bold' }]}>
-              {123213}
-            </MyText>
-          </View>
-          <View style={styles.row}>
-            <MyText style={[TextStyles.bodyXL]}>
-              Description
-            </MyText>
-            <MyText style={[TextStyles.h5, {
+        <View style={styles.row}>
+          <MyText style={[TextStyles.bodyXL]}>Order ID</MyText>
+          <MyText style={[TextStyles.h5, { fontWeight: 'bold' }]}>
+            {123213}
+          </MyText>
+        </View>
+        <View style={styles.row}>
+          <MyText style={[TextStyles.bodyXL]}>Description</MyText>
+          <MyText
+            style={[
+              TextStyles.h5,
+              {
                 fontWeight: 'bold',
                 textAlign: 'right',
                 flexWrap: 'wrap',
                 width: '50%'
-              }]}>
-              {"Premium Subscription for " + selectedPremium?.duration}
-            </MyText>
-          </View>
-          <View style={styles.row}>
-            <MyText style={[TextStyles.bodyXL]}>
-              Original Amount
-            </MyText>
-            <MyText style={[TextStyles.h5, { fontWeight: 'bold' }]}>
-              {selectedPremium?.price.toLocaleString()} {selectedPremium?.currency}
-            </MyText>
-          </View>
-          <View style={styles.row}>
-            <MyText style={[TextStyles.bodyXL]}>
-              Discount
-            </MyText>
-            <MyText style={[TextStyles.h5, { fontWeight: 'bold' }]} >
-              {discountAmount > 0 ? `-${discountAmount.toLocaleString()}` : discountAmount.toLocaleString()} {selectedPremium?.currency} 
-            </MyText>
-          </View>
-          <View style={styles.divider} />
-          <View style={styles.row}>
-            <MyText style={[TextStyles.bodyXL]}>
-                Final Amount
-            </MyText>
-            <MyText style={[TextStyles.h2, { fontWeight: 'bold' }]}>
-                {discountedPrice.toLocaleString()} {selectedPremium?.currency}
-            </MyText>
-          </View>
+              }
+            ]}
+          >
+            {'Premium Subscription for ' + selectedPremium?.duration}
+          </MyText>
+        </View>
+        <View style={styles.row}>
+          <MyText style={[TextStyles.bodyXL]}>Original Amount</MyText>
+          <MyText style={[TextStyles.h5, { fontWeight: 'bold' }]}>
+            {selectedPremium?.originalPrice.toLocaleString()}{' '}
+            {selectedPremium?.currency}
+          </MyText>
+        </View>
+        <View style={styles.row}>
+          <MyText style={[TextStyles.bodyXL]}>Discount</MyText>
+          <MyText style={[TextStyles.h5, { fontWeight: 'bold' }]}>
+            {discountAmount > 0
+              ? `-${discountAmount.toLocaleString()}`
+              : discountAmount.toLocaleString()}{' '}
+            {selectedPremium?.currency}
+          </MyText>
+        </View>
+        <View style={styles.divider} />
+        <View style={styles.row}>
+          <MyText style={[TextStyles.bodyXL]}>Final Amount</MyText>
+          <MyText style={[TextStyles.h2, { fontWeight: 'bold' }]}>
+            {discountedPrice.toLocaleString()} {selectedPremium?.currency}
+          </MyText>
+        </View>
       </View>
-    <View style={ styles.buttonContainer }>
-      <MyButtonText
-        title="Continue"
-        onPress= {onSubmit}
-        containerStyle={styles.button}
-      />
+      <View style={styles.buttonContainer}>
+        <MyButtonText
+          title="Continue"
+          onPress={onSubmit}
+          containerStyle={styles.button}
+        />
+      </View>
     </View>
-  </View>;
+  );
 };
 
 const styles = StyleSheet.create({
-    container: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      paddingHorizontal: 16,
-      gap: 16,
-      backgroundColor: colors.white,
-      height: 72,
-      borderBottomWidth: 1,
-      borderBottomColor: colors.gray03
-    },
-    content: {
-        flex: 1,
-        marginBottom: 20,
-        marginTop: 20,
-    },
-    row: {
-        flexDirection: "row",
-        justifyContent: "space-between",
-        alignItems: "center",
-        marginVertical: 8,
-        marginHorizontal: 24,
-    },
-    divider: {
-        height: 2,
-        backgroundColor: "black",
-        marginVertical: 10,
-        marginHorizontal: 24,
-    },
-    buttonContainer: {
-      padding: 16
-    },
-    button: {
-      alignSelf: 'center',
-      color: colors.primary,
-      width: '100%'
-    }
+  container: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 16,
+    gap: 16,
+    backgroundColor: colors.white,
+    height: 72,
+    borderBottomWidth: 1,
+    borderBottomColor: colors.gray03
+  },
+  content: {
+    flex: 1,
+    marginBottom: 20,
+    marginTop: 20
+  },
+  row: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginVertical: 8,
+    marginHorizontal: 24
+  },
+  divider: {
+    height: 2,
+    backgroundColor: 'black',
+    marginVertical: 10,
+    marginHorizontal: 24
+  },
+  buttonContainer: {
+    padding: 16
+  },
+  button: {
+    alignSelf: 'center',
+    color: colors.primary,
+    width: '100%'
+  }
 });
 
 export default PaymentConfirmation;
