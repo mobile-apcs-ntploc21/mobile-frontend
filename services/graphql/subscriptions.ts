@@ -54,3 +54,13 @@ export const DUMMY_SUBSCRIPTION = gql`
     }
   }
 `;
+
+export const DIRECT_MESSAGE_SUBSCRIPTION = gql`
+  subscription OnDirectMessageUpdated($conversation_id: ID!) {
+    directMessageUpdated(conversation_id: $conversation_id) {
+      conversation_id
+      type
+      data
+    }
+  }
+`;

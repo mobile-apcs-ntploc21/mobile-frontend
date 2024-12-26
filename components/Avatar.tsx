@@ -36,20 +36,20 @@ export interface AvatarProps {
 }
 
 const Avatar = ({
-                  id,
-                  showStatus,
-                  profile,
-                  profilePic,
-                  onlineStatus,
-                  avatarStyle,
-                  subscribeToStatus,
-                  setStatusText: setTextProps
-                }: AvatarProps) => {
+  id,
+  showStatus,
+  profile,
+  profilePic,
+  onlineStatus,
+  avatarStyle,
+  subscribeToStatus,
+  setStatusText: setTextProps
+}: AvatarProps) => {
   const wsClient = useApolloClient();
   const [isOnline, setIsOnline] = useState(false);
   const [statusType, setStatusType] = useState(StatusType.OFFLINE);
   const [avatarUrl, setAvatarUri] = useState<string | undefined>(
-    profile?.avatar_url
+    profile?.avatar_url || profilePic
   );
 
   const setStatusText = (text: string) => {
@@ -66,12 +66,12 @@ const Avatar = ({
       setStatusType(profile.status.type);
       setStatusText(
         profile.status.status_text ||
-        getDefaultStatusText(
-          onlineStatus ??
-          (profile.status.is_online
-            ? profile.status.type
-            : StatusType.OFFLINE)
-        )
+          getDefaultStatusText(
+            onlineStatus ??
+              (profile.status.is_online
+                ? profile.status.type
+                : StatusType.OFFLINE)
+          )
       );
     }
   }, [profile?.status]);
@@ -86,10 +86,10 @@ const Avatar = ({
           setStatusType(res?.type);
           setStatusText(
             res?.status_text ||
-            getDefaultStatusText(
-              onlineStatus ??
-              (res?.is_online ? res?.type : StatusType.OFFLINE)
-            )
+              getDefaultStatusText(
+                onlineStatus ??
+                  (res?.is_online ? res?.type : StatusType.OFFLINE)
+              )
           );
         })
         .catch(() => {
@@ -108,12 +108,12 @@ const Avatar = ({
           setStatusType(userStatusChanged?.type);
           setStatusText(
             userStatusChanged?.status_text ||
-            getDefaultStatusText(
-              onlineStatus ??
-              (userStatusChanged?.is_online
-                ? userStatusChanged?.type
-                : StatusType.OFFLINE)
-            )
+              getDefaultStatusText(
+                onlineStatus ??
+                  (userStatusChanged?.is_online
+                    ? userStatusChanged?.type
+                    : StatusType.OFFLINE)
+              )
           );
         }
       });

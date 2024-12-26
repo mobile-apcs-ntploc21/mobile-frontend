@@ -132,9 +132,7 @@ const User = () => {
               style={[
                 styles.statusButton,
                 {
-                  backgroundColor: getOnlineStatusColor(
-                    userData?.onlineStatus?.type
-                  )
+                  backgroundColor: getOnlineStatusColor(userData?.status?.type)
                 }
               ]}
             />
@@ -144,24 +142,24 @@ const User = () => {
           <Text style={styles.displayName}>{userData?.display_name}</Text>
           <Text style={styles.username}>{`@${userData?.username}`}</Text>
         </View>
-        {userData?.onlineStatus?.status_text && (
+        {userData?.status?.status_text && (
           <StatusBubble
             // emoji="👋"
-            text={userData?.onlineStatus?.status_text}
+            text={userData?.status?.status_text}
           />
         )}
 
         <View style={styles.buttonContainer}>
           <MyButtonTextIcon
             title="Edit Status"
-            onPress={() => router.navigate('edit-status')}
+            onPress={() => router.navigate('/edit-status')}
             iconAfter={EditStatusIcon}
             containerStyle={styles.button}
             textStyle={TextStyles.h4}
           />
           <MyButtonTextIcon
             title="Edit Profile"
-            onPress={() => router.navigate('edit-profile')}
+            onPress={() => router.navigate('/edit-profile')}
             iconAfter={EditProfileIcon}
             containerStyle={styles.button}
             textStyle={TextStyles.h4}

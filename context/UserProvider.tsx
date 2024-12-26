@@ -4,9 +4,10 @@ import { useSubscription } from '@apollo/client';
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { useAuth } from './AuthProvider';
 import { useStatusContext } from './StatusProvider';
+import { UserProfile } from '@/types';
 
 interface UserContextValue {
-  data: any;
+  data: UserProfile;
   loading: boolean;
 }
 
@@ -64,7 +65,7 @@ export default function UserProvider({ children }: UserProviderProps) {
       value={{
         data: {
           ...data,
-          onlineStatus: onlineStatusData
+          status: onlineStatusData
         },
         loading
       }}

@@ -35,6 +35,12 @@ export interface UserProfile {
   about_me: string;
   avatar_url: string;
   banner_url: string;
+  status: {
+    is_online: boolean;
+    last_seen: Date;
+    type: StatusType;
+    status_text?: string;
+  };
 }
 
 export interface UserStatus {
@@ -46,12 +52,6 @@ export interface UserStatus {
 }
 
 export interface ServerProfile extends UserProfile {
-  status: {
-    is_online: boolean;
-    last_seen: Date;
-    type: StatusType;
-    status_text?: string;
-  };
   roles: Role[];
 }
 

@@ -35,6 +35,7 @@ import DownloadIcon from '@/assets/icons/DownloadIcon';
 import { AttachmentTypes } from '@/types/attachment';
 import { ResizeMode, Video, VideoFullscreenUpdate } from 'expo-av';
 import { router } from 'expo-router';
+import config from '@/utils/config';
 
 const AttachmentItem = (props: { attachment: Message['attachments'][0] }) => {
   if (props.attachment.type == AttachmentTypes.Image) {
@@ -114,35 +115,22 @@ const ReactionItem = (props: {
   reaction: Reaction;
   emoji: Emoji;
   message: Message;
-  channel_id: string;
   conversation_id: string;
+  onReact: () => void;
+  onUnreact: () => void;
 }) => {
   const { user } = useAuth();
-  const { currentServerId } = useServers();
-  const { dispatch } = useConversations();
   const isReacted = useMemo(() => {
     return props.reaction.reactors.includes(user?.id || '');
   }, [props.reaction.reactors, user]);
 
   const handleReactionPress = () => {
     if (isReacted) {
-      deleteData(
-        `/api/v1/servers/${currentServerId}/channels/${props.channel_id}/messages/${props.message.id}/reactions`,
-        {
-          emoji_id: props.emoji.id
-        }
-      );
+      props.onUnreact();
     } else {
-      postData(
-        `/api/v1/servers/${currentServerId}/channels/${props.channel_id}/messages/${props.message.id}/reactions`,
-        {
-          emoji_id: props.emoji.id
-        }
-      );
+      props.onReact();
     }
   };
-
-  if (!props.emoji) return null;
 
   return (
     <TouchableOpacity
@@ -152,10 +140,15 @@ const ReactionItem = (props: {
       ]}
       onPress={handleReactionPress}
     >
-      <Image
-        source={{ uri: props.emoji.image_url }}
-        style={styles.reactionEmoji}
-      />
+      {!props.emoji || !props.emoji.unicode ? (
+        <Image
+          source={{ uri: `${config.CDN_URL}/emojis/${props.emoji.id}.png` }}
+          style={styles.reactionEmoji}
+        />
+      ) : (
+        <MyText style={TextStyles.h5}>{props.emoji.unicode}</MyText>
+      )}
+
       <MyText style={TextStyles.bodyM}>{props.reaction.count}</MyText>
     </TouchableOpacity>
   );
@@ -163,12 +156,13 @@ const ReactionItem = (props: {
 
 export interface ChatItemProps {
   message: Message;
-  channel_id: string;
   onLongPress?: () => void;
   parseContent: (content?: string) => ReactNode[];
-  users: ServerProfile[];
+  users: UserProfile[];
   emojis: Emoji[];
   conversation_id: string;
+  onReact: (emoji_id: string) => void;
+  onUnreact: (emoji_id: string) => void;
 }
 
 const BaseChatItem = (props: ChatItemProps) => {
@@ -234,10 +228,10 @@ const BaseChatItem = (props: ChatItemProps) => {
         <View style={styles.messageContainer}>
           <Avatar
             id={''}
-            profile={currentUser}
+            profilePic={currentUser?.avatar_url}
             onlineStatus={
-              currentUser?.status.is_online
-                ? currentUser.status.type
+              currentUser?.status?.is_online
+                ? currentUser.status?.type
                 : StatusType.OFFLINE
             }
             showStatus
@@ -270,11 +264,15 @@ const BaseChatItem = (props: ChatItemProps) => {
                   emoji={
                     props.emojis.find(
                       (emoji) => emoji.id === reaction.emoji_id
-                    )!
+                    ) ||
+                    ({
+                      id: reaction.emoji_id
+                    } as Emoji)
                   }
                   message={props.message}
-                  channel_id={props.channel_id}
                   conversation_id={props.conversation_id}
+                  onReact={() => props.onReact(reaction.emoji_id)}
+                  onUnreact={() => props.onUnreact(reaction.emoji_id)}
                 />
               ))}
             </View>
