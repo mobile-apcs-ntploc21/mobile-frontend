@@ -11,7 +11,18 @@ Project Documentation (Report):
 
 ## Features
 
-To be updated
+- **Real-time Messaging**: Send and receive messages instantly with real-time updates.
+- **Server-based Architecture**: Connect with others through servers and channels for organized communication.
+- **Server Management**: Customize your servers with channels, roles, and permissions.
+- **Emojis and Reactions**: Express yourself with custom emojis and reactions in your messages.
+- **Attachments**: Share images, videos, and files with your friends.
+- **Search Functionality**: Find messages quickly and easily with the advanced search feature.
+- **Friend System**: Add friends to your contact list and start chatting with them.
+- **Direct Messaging**: Chat one-on-one with your friends.
+- **Online Presence**: See who's online and available to chat in real-time.
+- **Multiple Devices**: Stay connected across all your devices with seamless synchronization.
+- **Push Notifications**: Receive notifications for new messages, mentions, and more even when the app is closed.
+- **Profile Customization**: Personalize your profile with a custom avatar, status, and more.
 
 ## Releases
 
@@ -67,11 +78,9 @@ This project is licensed under the GNU General Public License v3.0 - see the [LI
 
 ## Installation (Frontend)
 
-<!-- Use npx expo run:android to run project -->
-
 ### Android SDK
 
-Start by installing the necessary dependencies for Android development. You can follow the instructions on the [React Native documentation](https://reactnative.dev/docs/environment-setup).
+Start by installing the necessary dependencies for Android development, including the Android Studio IDE, Android SDK, and Java Development Kit (JDK). You can follow the instructions on the [React Native documentation](https://reactnative.dev/docs/environment-setup).
 
 ### Running the project
 
