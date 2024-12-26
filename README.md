@@ -6,7 +6,7 @@ Orantio is a mobile messaging platform, designed to enhance your communication e
 
 ![image](https://github.com/user-attachments/assets/81a1a1a5-3806-40c1-8a49-928236ac4e5d)
 
-Project Documentation (Report): 
+Project Documentation (Report):
 [Orantio - Final Project Report](https://docs.google.com/document/d/1JKH1tpbLIcx2oh7RjDSPgTujh9yx4NycOP6JxVRhfdg/edit?usp=sharing)
 
 ## Features
@@ -24,6 +24,7 @@ Here is the video demo of the project on YouTube: [CS426 - Orantio Demonstration
 ## Repositories
 
 The project contains two repositories:
+
 - [Mobile Frontend](https://github.com/mobile-apcs-ntploc21/mobile-frontend): This repository contains all the source code for the Mobile Application that supports both Android and iOS, written in React Native.
   - Number of commits (last updated 15/09/2024): 535 commits.
   - Link to [commit history](https://github.com/mobile-apcs-ntploc21/mobile-frontend/commits/master/).
@@ -38,24 +39,29 @@ This project is licensed under the GNU General Public License v3.0 - see the [LI
 ## Technologies
 
 ### Mobile:
+
 - [React Native](https://reactnative.dev/)
 - [Expo](https://expo.dev/)
 
 ### Backend (Server):
+
 - [ExpressJs](https://expressjs.com/)
 - [NodeJS](https://nodejs.org/en/)
 - [Apollo GraphQL](https://www.apollographql.com/)
 
 ### Deployment:
+
 - [Amazon Lightsail](https://aws.amazon.com/free/compute/lightsail)
 - [Docker](https://www.docker.com/)
 - [NGiNX](https://nginx.org/en/)
 - [Amazon Route53](https://aws.amazon.com/route53/) (DNS Service)
 
 ### Database
+
 - [MongoDB](https://www.mongodb.com/lp/cloud/atlas/try4)
 
 ### Content Storage (Images, Attachments, etc)
+
 - [Amazon S3](https://aws.amazon.com/s3/)
 - [Amazon CloudFront](https://aws.amazon.com/cloudfront/) (Content Delivery Network - CDN)
 
@@ -75,3 +81,5 @@ The project could not have been completed without these developers!
   - nhphuc221@apcs.fitus.edu.vn
 - 22125115 - Ngô Hoàng Tuấn
   - nhtuan22@apcs.fitus.edu.vn
+- 22125121 - Đinh Hoàng Việt
+  - dhviet22@apcs.fitus.edu.vn
