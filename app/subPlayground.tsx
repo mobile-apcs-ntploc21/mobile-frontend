@@ -8,7 +8,7 @@ import {
   View
 } from 'react-native';
 import React, { useLayoutEffect, useState } from 'react';
-import { useNavigation } from 'expo-router';
+import { router, useLocalSearchParams, useNavigation } from 'expo-router';
 import MyHeader from '@/components/MyHeader';
 import MyText from '@/components/MyText';
 import { TextStyles } from '@/styles/TextStyles';
@@ -20,6 +20,15 @@ import BaseChatInput from '@/components/Chat/BaseChatInput';
 const subPlayground = () => {
   const navigation = useNavigation();
   const [text, setText] = useState('');
+  const params = useLocalSearchParams();
+
+  useLayoutEffect(() => {
+    if (params.vnp_TransactionStatus === '00') {
+      router.replace('/premium/successful');
+    } else {
+      router.replace('/premium/failed');
+    }
+  }, []);
 
   useLayoutEffect(() => {
     navigation.setOptions({

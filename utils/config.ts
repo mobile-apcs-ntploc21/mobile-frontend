@@ -2,6 +2,7 @@ interface IConfig {
   API_URL: string;
   PLAYGROUND_MODE: boolean;
   SUBSCRIPTION_URL: string;
+  VNPAY_TMN_CODE: string;
   CDN_URL: string;
 }
 
@@ -11,6 +12,7 @@ const config: IConfig = {
   SUBSCRIPTION_URL:
     process.env.EXPO_PUBLIC_SUBSCRIPTION_URL ||
     'http://localhost:4000/subscriptions',
+  VNPAY_TMN_CODE: process.env.EXPO_PUBLIC_VNPAY_TMN_CODE || '7725KJYQ',
   CDN_URL: process.env.EXPO_PUBLIC_CDN_URL || 'https://cdn.ntploc21.xyz'
 };
 

@@ -3,6 +3,7 @@ import { StatusType } from './user_status';
 
 export interface IconProps {
   color?: string;
+  strokeWidth?: number;
 }
 
 export interface Server {

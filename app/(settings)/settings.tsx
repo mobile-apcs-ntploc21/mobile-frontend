@@ -13,12 +13,18 @@ import { router, useNavigation } from 'expo-router';
 import { useCallback, useLayoutEffect } from 'react';
 import { Alert, ScrollView, StyleSheet, View } from 'react-native';
 import { Conversation, ConversationsTypes } from '@/types/chat';
+import { useNotification } from '@/services/alert';
 
 const Settings = () => {
   const { logout } = useAuth();
   const { dispatch: serversDispatch } = useServers();
   const { dispatch: conversationsDispatch } = useConversations();
   const { unsubscribeServer } = useServer();
+  const { showAlert } = useNotification();
+
+  const unavailableService = useCallback(() => {
+    showAlert('Service is unavailable at the moment.');
+  }, [showAlert]);
 
   const navigation = useNavigation();
 
@@ -64,13 +70,40 @@ const Settings = () => {
     <View style={styles.container}>
       <ScrollView
         style={{ flex: 1 }}
-        contentContainerStyle={{ paddingTop: 16, paddingHorizontal: 16 }}
+        contentContainerStyle={{
+          paddingTop: 16,
+          paddingHorizontal: 16,
+          gap: 16
+        }}
       >
         <ButtonListText
+          heading="Account Settings"
           items={[
+            {
+              text: 'Change password',
+              onPress: unavailableService
+            },
             {
               text: 'Blocked list',
               onPress: () => router.push('/blocked')
+            }
+          ]}
+        />
+        <ButtonListText
+          heading="App Settings"
+          items={[
+            {
+              text: 'Notifications',
+              onPress: unavailableService
+            }
+          ]}
+        />
+        <ButtonListText
+          heading="Billing Settings"
+          items={[
+            {
+              text: 'Premium management',
+              onPress: () => router.push('/premium')
             }
           ]}
         />
