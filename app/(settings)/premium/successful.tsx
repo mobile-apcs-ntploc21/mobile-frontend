@@ -25,6 +25,21 @@ const PaymentFailed = () => {
   const navigation = useNavigation();
   const { showAlert } = useNotification();
 
+  const params = useLocalSearchParams();
+
+  const [_, packageId, orderId] = useMemo(() => {
+    return (params.vnp_OrderInfo as string).split(',');
+  }, [params]);
+
+  const selectedPremium: Premium | undefined = useMemo(() => {
+    return samplePremiums.find((item) => item.id === packageId);
+  }, [packageId]);
+
+  if (!selectedPremium) {
+    showAlert('Something is wrong');
+    return null;
+  }
+
   const goBack = useCallback(() => {
     if (navigation.canGoBack()) navigation.goBack();
     else showAlert('Cannot go back');
@@ -86,7 +101,7 @@ const PaymentFailed = () => {
           <View style={styles.row}>
             <MyText style={[TextStyles.bodyXL]}>Order ID</MyText>
             <MyText style={[TextStyles.h5, { fontWeight: 'bold' }]}>
-              {123213}
+              {orderId}
             </MyText>
           </View>
           <View style={styles.row}>
@@ -102,18 +117,22 @@ const PaymentFailed = () => {
                 }
               ]}
             >
-              {'Premium Subscription for 1 month'}
+              Premium Subscription for {selectedPremium.duration}
             </MyText>
           </View>
           <View style={styles.row}>
             <MyText style={[TextStyles.bodyXL]}>Amount Paid</MyText>
             <MyText style={[TextStyles.h5, { fontWeight: 'bold' }]}>
-              1000 USD
+              {selectedPremium.price.toLocaleString() +
+                ' ' +
+                selectedPremium.currency}
             </MyText>
           </View>
           <View style={styles.row}>
             <MyText style={[TextStyles.bodyXL]}>Date & Time</MyText>
-            <MyText style={[TextStyles.h5, { fontWeight: 'bold' }]}>0</MyText>
+            <MyText style={[TextStyles.h5, { fontWeight: 'bold' }]}>
+              {new Date().toLocaleString()}
+            </MyText>
           </View>
         </View>
       </View>
@@ -121,7 +140,7 @@ const PaymentFailed = () => {
       <View style={styles.buttonContainer}>
         <MyButtonText
           title="Go Back"
-          onPress={router.back}
+          onPress={() => router.navigate('/settings')}
           containerStyle={styles.button}
         />
       </View>

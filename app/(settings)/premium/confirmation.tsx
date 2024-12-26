@@ -1,4 +1,10 @@
-import { View, Text, TouchableOpacity, FlatList } from 'react-native';
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  FlatList,
+  ActivityIndicator
+} from 'react-native';
 import React, { useCallback, useLayoutEffect, useMemo, useState } from 'react';
 import { router, useLocalSearchParams, useNavigation } from 'expo-router';
 import { NativeStackHeaderProps } from '@react-navigation/native-stack';
@@ -17,19 +23,17 @@ import PremiumBox from '@/components/PremiumBox';
 import TickIcon from '@/assets/icons/TickIcon';
 import { MyButtonText } from '@/components/MyButton';
 import { G } from 'react-native-svg';
-// const onSubmit = () => showAlert('Subscribed to premium');
+import { postData } from '@/utils/api';
+import VnpayMerchant from '@/react-native-vnpay-merchant';
+import config from '@/utils/config';
 
 const PaymentConfirmation = () => {
   const navigation = useNavigation();
   const { showAlert } = useNotification();
 
   const { premiumId } = useLocalSearchParams<{
-    premiumId: string;
+    premiumId?: string;
   }>();
-
-  const onSubmit = () => {
-    router.replace({ pathname: './successful' });
-  };
 
   const goBack = useCallback(() => {
     if (navigation.canGoBack()) navigation.goBack();
@@ -45,15 +49,74 @@ const PaymentConfirmation = () => {
     return null;
   }
 
-  const discountAmount =
-    selectedPremium?.originalPrice - selectedPremium?.price;
-  const discountedPrice = selectedPremium?.price;
+  const [paymentUrl, setPaymentUrl] = useState<string | undefined>(undefined);
+  const [loading, setLoading] = useState(true);
+
+  useLayoutEffect(() => {
+    if (!selectedPremium) {
+      router.back();
+    }
+    (async () => {
+      const response = await postData('/api/v1/payments/create-order', {
+        packageId: selectedPremium.id,
+        returnUrl: 'myapp://premium/pending'
+      });
+
+      if (!response.success) {
+        showAlert('Failed to create order');
+        router.back();
+      }
+
+      setPaymentUrl(response.data.paymentUrl);
+      setLoading(false);
+    })();
+  }, []);
+
+  const onSubmit = () => {
+    VnpayMerchant.show({
+      isSandbox: true,
+      paymentUrl: paymentUrl,
+      tmn_code: config.VNPAY_TMN_CODE,
+      backAlert: 'Bạn có chắc chắn trở lại ko?',
+      title: 'VNPAY',
+      iconBackName: 'ic_close',
+      beginColor: 'ffffff',
+      endColor: 'ffffff',
+      titleColor: '000000',
+      scheme: 'myapp'
+    });
+  };
+
+  const orderId = useMemo(() => {
+    const urlParams = new URLSearchParams(paymentUrl);
+    return urlParams.get('vnp_OrderInfo')?.split(',')[2];
+  }, [paymentUrl]);
+
+  const discountAmount = selectedPremium.originalPrice - selectedPremium.price;
+  const discountedPrice = selectedPremium.price;
 
   useLayoutEffect(() => {
     navigation.setOptions({
       headerShown: false
     });
   }, []);
+
+  if (loading) {
+    return (
+      <View style={GlobalStyles.screen}>
+        <View style={styles.container}>
+          <TouchableOpacity onPress={goBack}>
+            <Entypo name="chevron-thin-left" size={32} color={colors.black} />
+          </TouchableOpacity>
+          <MyText style={[TextStyles.h2, { flex: 1, textAlign: 'center' }]}>
+            Payment Confirmation
+          </MyText>
+          <View style={{ width: 32 }} />
+        </View>
+        <ActivityIndicator size="large" color={colors.primary} />
+      </View>
+    );
+  }
 
   return (
     <View style={GlobalStyles.screen}>
@@ -72,7 +135,7 @@ const PaymentConfirmation = () => {
         <View style={styles.row}>
           <MyText style={[TextStyles.bodyXL]}>Order ID</MyText>
           <MyText style={[TextStyles.h5, { fontWeight: 'bold' }]}>
-            {123213}
+            {orderId}
           </MyText>
         </View>
         <View style={styles.row}>
@@ -88,14 +151,14 @@ const PaymentConfirmation = () => {
               }
             ]}
           >
-            {'Premium Subscription for ' + selectedPremium?.duration}
+            {'Premium Subscription for ' + selectedPremium.duration}
           </MyText>
         </View>
         <View style={styles.row}>
           <MyText style={[TextStyles.bodyXL]}>Original Amount</MyText>
           <MyText style={[TextStyles.h5, { fontWeight: 'bold' }]}>
-            {selectedPremium?.originalPrice.toLocaleString()}{' '}
-            {selectedPremium?.currency}
+            {selectedPremium.originalPrice.toLocaleString()}{' '}
+            {selectedPremium.currency}
           </MyText>
         </View>
         <View style={styles.row}>
@@ -104,14 +167,14 @@ const PaymentConfirmation = () => {
             {discountAmount > 0
               ? `-${discountAmount.toLocaleString()}`
               : discountAmount.toLocaleString()}{' '}
-            {selectedPremium?.currency}
+            {selectedPremium.currency}
           </MyText>
         </View>
         <View style={styles.divider} />
         <View style={styles.row}>
           <MyText style={[TextStyles.bodyXL]}>Final Amount</MyText>
           <MyText style={[TextStyles.h2, { fontWeight: 'bold' }]}>
-            {discountedPrice.toLocaleString()} {selectedPremium?.currency}
+            {discountedPrice.toLocaleString()} {selectedPremium.currency}
           </MyText>
         </View>
       </View>

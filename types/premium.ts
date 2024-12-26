@@ -5,9 +5,9 @@ export enum PremiumDuration {
 }
 
 export enum PremiumPack {
-  MONTHLY = 'Monthly',
-  THREE_MONTHS = 'Three_Months',
-  SIX_MONTHS = 'Six_Months'
+  MONTHLY = '6766f0d9060df0aa8fbb8afb',
+  THREE_MONTHS = '6766f0e9060df0aa8fbb8afe',
+  SIX_MONTHS = '6766f0f6060df0aa8fbb8b00'
 }
 
 export type Premium = {
