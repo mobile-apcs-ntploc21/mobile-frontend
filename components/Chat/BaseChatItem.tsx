@@ -35,6 +35,7 @@ import DownloadIcon from '@/assets/icons/DownloadIcon';
 import { AttachmentTypes } from '@/types/attachment';
 import { ResizeMode, Video, VideoFullscreenUpdate } from 'expo-av';
 import { router } from 'expo-router';
+import config from '@/utils/config';
 
 const AttachmentItem = (props: { attachment: Message['attachments'][0] }) => {
   if (props.attachment.type == AttachmentTypes.Image) {
@@ -131,8 +132,6 @@ const ReactionItem = (props: {
     }
   };
 
-  if (!props.emoji) return null;
-
   return (
     <TouchableOpacity
       style={[
@@ -141,9 +140,9 @@ const ReactionItem = (props: {
       ]}
       onPress={handleReactionPress}
     >
-      {props.emoji.image_url ? (
+      {!props.emoji || !props.emoji.unicode ? (
         <Image
-          source={{ uri: props.emoji.image_url }}
+          source={{ uri: `${config.CDN_URL}/emojis/${props.emoji.id}.png` }}
           style={styles.reactionEmoji}
         />
       ) : (
@@ -265,7 +264,10 @@ const BaseChatItem = (props: ChatItemProps) => {
                   emoji={
                     props.emojis.find(
                       (emoji) => emoji.id === reaction.emoji_id
-                    )!
+                    ) ||
+                    ({
+                      id: reaction.emoji_id
+                    } as Emoji)
                   }
                   message={props.message}
                   conversation_id={props.conversation_id}

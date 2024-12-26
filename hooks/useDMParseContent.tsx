@@ -4,6 +4,7 @@ import useServers from './useServers';
 import { Image, StyleSheet, Text } from 'react-native';
 import { colors, fonts } from '@/constants/theme';
 import MyText from '@/components/MyText';
+import config from '@/utils/config';
 
 const useDMParseContent = () => {
   const { emojiCategories } = useServers();
@@ -28,14 +29,14 @@ const useDMParseContent = () => {
           if ((match = /<:(?:.*?):([a-f0-9]{24})>/g.exec(part))) {
             const emojiId = match[1];
             const emoji = emojis.find((emoji) => emoji.id === emojiId);
-            if (!emoji) return <Text>{part}</Text>;
-            if (!emoji.image_url) return <MyText>{emoji.unicode}</MyText>;
-            return (
-              <Image
-                source={{ uri: emoji.image_url }}
-                style={{ width: 20, height: 20 }}
-              />
-            );
+            if (!emoji || !emoji.unicode)
+              return (
+                <Image
+                  source={{ uri: `${config.CDN_URL}/emojis/${emojiId}.png` }}
+                  style={{ width: 20, height: 20 }}
+                />
+              );
+            return <MyText>{emoji.unicode}</MyText>;
           }
           return <MyText>{part}</MyText>;
         })
