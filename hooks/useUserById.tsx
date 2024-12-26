@@ -3,8 +3,14 @@ import { getData } from '@/utils/api';
 import { useSubscription } from '@apollo/client';
 import { useEffect, useState } from 'react';
 import { useStatusById } from './useStatusById';
+import { UserProfile } from '@/types';
 
-export const useUserById = (id: string) => {
+export const useUserById = (
+  id: string
+): {
+  data: UserProfile;
+  loading: boolean;
+} => {
   const [data, setData] = useState<any>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const { data: onlineStatusData } = useStatusById(id);
@@ -34,7 +40,7 @@ export const useUserById = (id: string) => {
   return {
     data: {
       ...data,
-      onlineStatus: onlineStatusData
+      status: onlineStatusData
     },
     loading
   };

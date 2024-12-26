@@ -1,18 +1,34 @@
 import { StyleSheet, View } from 'react-native';
-import React from 'react';
+import React, { useMemo } from 'react';
 import { colors, fonts } from '@/constants/theme';
 import { TextStyles } from '@/styles/TextStyles';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import useServerParseContent from '@/hooks/useServerParseContent';
 import MyText from '@/components/MyText';
 import Avatar from '@/components/Avatar';
+import useDMParseContent from '@/hooks/useDMParseContent';
+import { useDMContext } from '@/context/DMProvider';
+import { useConversations } from '@/context/ConversationsProvider';
+import { router } from 'expo-router';
 
 interface DMItemProps {
   user_id: string;
 }
 
 const DMItem = (props: DMItemProps) => {
-  const parseContent = useServerParseContent();
+  const parseContent = useDMParseContent();
+
+  const { data: dmChannels } = useDMContext();
+  const { conversations } = useConversations();
+  const dmChannel = useMemo(
+    () => dmChannels?.find((dmChannel) => dmChannel.user_id === props.user_id)!,
+    [dmChannels, props.user_id]
+  );
+  const conversation = useMemo(() => {
+    return conversations.find(
+      (conv) => conv.id === dmChannel?.conversation_id
+    )!;
+  }, [conversations, dmChannel?.conversation_id]);
 
   const getTimeDifference = (timestamp: string) => {
     if (!timestamp) return '';
@@ -35,38 +51,40 @@ const DMItem = (props: DMItemProps) => {
   return (
     <TouchableOpacity
       style={styles.container}
-      // onPress={() =>
-      //   router.navigate(`conversation/channel/${props.channel.id}`)
-      // }
+      onPress={() => router.navigate(`/conversation/dm/${props.user_id}`)}
     >
       <View style={styles.channelContainer}>
-        <Avatar id={props.user_id} showStatus avatarStyle={styles.avatarImg} />
+        <Avatar
+          id={props.user_id}
+          profilePic={dmChannel?.avatar_url}
+          showStatus
+          avatarStyle={styles.avatarImg}
+        />
         <View style={styles.channelMessageContainer}>
-          <MyText style={TextStyles.h4}>User 1</MyText>
+          <MyText style={TextStyles.h4}>{dmChannel?.name}</MyText>
           <MyText
             style={TextStyles.bodyM}
             numberOfLines={1}
             ellipsizeMode="tail"
           >
-            {/*{parseContent(conversation?.messages[0]?.content)}*/}
-            Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec
+            {parseContent(conversation?.messages[0]?.content)}
+            {/* Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec */}
           </MyText>
         </View>
       </View>
       <View style={styles.infoContainer}>
         <MyText style={TextStyles.bodyM}>
-          {/*{getTimeDifference(conversation?.messages[0]?.createdAt)}*/}
-          Now
+          {getTimeDifference(conversation?.messages[0]?.createdAt)}
         </MyText>
-        {/*{conversation.number_of_unread_mentions > 0 ? (*/}
-        <View style={styles.unreadContainer}>
-          <MyText style={{ color: colors.white }}>
-            2
-          </MyText>
-        </View>
-        {/*) : conversation.has_new_message ? (*/}
-        {/*  <View style={styles.newMessage} />*/}
-        {/*) : null}*/}
+        {conversation.number_of_unread_mentions > 0 ? (
+          <View style={styles.unreadContainer}>
+            <MyText style={{ color: colors.white }}>
+              {convertUnreadCount(conversation.number_of_unread_mentions)}
+            </MyText>
+          </View>
+        ) : conversation.has_new_message ? (
+          <View style={styles.newMessage} />
+        ) : null}
       </View>
     </TouchableOpacity>
   );

@@ -14,6 +14,7 @@ import StatusProvider from '@/context/StatusProvider';
 import { ServersProvider } from '@/context/ServersProvider';
 import { ConversationsProvider } from '@/context/ConversationsProvider';
 import { NotificationProvider } from '@/services/alert';
+import DMProvider from '@/context/DMProvider';
 
 export {
   // Catch any errors thrown by the Layout component.
@@ -66,26 +67,28 @@ function RootLayoutNav() {
                   <GlobalProvider>
                     <ConversationsProvider>
                       <ServersProvider>
-                        <SafeAreaView style={{ flex: 1 }}>
-                          <Stack>
-                            <Stack.Screen
-                              name="(auth)"
-                              options={{ headerShown: false }}
-                            />
-                            <Stack.Screen
-                              name="(tabs)"
-                              options={{ headerShown: false }}
-                            />
-                            <Stack.Screen
-                              name="modal"
-                              options={{ presentation: 'modal' }}
-                            />
-                            <Stack.Screen
-                              name="user/[userId]"
-                              options={{ headerShown: false }}
-                            />
-                          </Stack>
-                        </SafeAreaView>
+                        <DMProvider>
+                          <SafeAreaView style={{ flex: 1 }}>
+                            <Stack>
+                              <Stack.Screen
+                                name="(auth)"
+                                options={{ headerShown: false }}
+                              />
+                              <Stack.Screen
+                                name="(tabs)"
+                                options={{ headerShown: false }}
+                              />
+                              <Stack.Screen
+                                name="modal"
+                                options={{ presentation: 'modal' }}
+                              />
+                              <Stack.Screen
+                                name="user/[userId]"
+                                options={{ headerShown: false }}
+                              />
+                            </Stack>
+                          </SafeAreaView>
+                        </DMProvider>
                       </ServersProvider>
                     </ConversationsProvider>
                   </GlobalProvider>
