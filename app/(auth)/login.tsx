@@ -4,24 +4,14 @@ import GlobalStyles from '@/styles/GlobalStyles';
 import AuthStyles from '@/styles/AuthStyles';
 import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '@/context/AuthProvider';
-import { showAlert, useNotification } from '@/services/alert';
+import { useNotification } from '@/services/alert';
 
-import { Link, router, useNavigation } from 'expo-router';
-import { CommonActions } from '@react-navigation/native';
-import { useEffect, useState } from 'react';
-import {
-  GestureResponderEvent,
-  Keyboard,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  TouchableWithoutFeedback,
-  View
-} from 'react-native';
-import { Formik, FormikErrors } from 'formik';
+import { Link, useNavigation } from 'expo-router';
+import { GestureResponderEvent, Keyboard, StyleSheet, Text, TouchableWithoutFeedback, View } from 'react-native';
+import { Formik } from 'formik';
 import * as Yup from 'yup';
 import { MyButtonText } from '@/components/MyButton';
+import useDeviceToken from '@/hooks/useDeviceToken';
 
 const validationSchema = Yup.object().shape({
   email: Yup.string().email('Email is invalid').required('Email is required'),
@@ -32,14 +22,19 @@ export default function Login() {
   const { login } = useAuth();
   const navigation = useNavigation();
   const { showAlert } = useNotification();
+  const device_token = useDeviceToken();
 
   const handleLogin = async (
     email: string,
     password: string,
+    device_token: string | null,
     setErrors: (field: string, message: string | undefined) => void
   ) => {
     try {
-      await login(email, password);
+      if (!device_token) {
+        throw 'Must use on a device';
+      }
+      await login(email, password, device_token);
     } catch (e: any) {
       switch (e.message) {
         case 'Invalid email or password':
@@ -74,20 +69,20 @@ export default function Login() {
             validationSchema={validationSchema}
             onSubmit={(values, { setFieldError }) => {
               try {
-                handleLogin(values.email, values.password, setFieldError);
+                handleLogin(values.email, values.password, device_token, setFieldError);
               } catch (e: any) {
                 console.log(e);
               }
             }}
           >
             {({
-              handleChange,
-              handleSubmit,
-              handleBlur,
-              values,
-              errors,
-              touched
-            }) => (
+                handleChange,
+                handleSubmit,
+                handleBlur,
+                values,
+                errors,
+                touched
+              }) => (
               <View style={AuthStyles.contentContainer}>
                 <View style={AuthStyles.fieldContainer}>
                   <CustomTextInput
