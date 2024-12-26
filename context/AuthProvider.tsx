@@ -1,18 +1,7 @@
-import React, {
-  createContext,
-  useReducer,
-  useContext,
-  useEffect,
-  useState
-} from 'react';
-import { useSegments, useRouter, useRootNavigation } from 'expo-router';
+import React, { createContext, useContext, useEffect, useReducer, useState } from 'react';
+import { useRootNavigation, useRouter, useSegments } from 'expo-router';
 
-import {
-  getUser,
-  register as CreateUser,
-  login as GQLLogin,
-  logout as GQLLogout
-} from '@/services/auth';
+import { getUser, login as GQLLogin, logout as GQLLogout, register as CreateUser } from '@/services/auth';
 
 interface AuthState {
   isAuthenticated: boolean;
@@ -32,7 +21,7 @@ const initialState: AuthState = {
 };
 
 interface AuthContextProps extends AuthState {
-  login: (email: string, password: string) => Promise<void>;
+  login: (email: string, password: string, device_token: string) => Promise<void>;
   logout: () => Promise<void>;
   register: (
     username: string,
@@ -44,9 +33,12 @@ interface AuthContextProps extends AuthState {
 
 const AuthContext = createContext<AuthContextProps>({
   ...initialState,
-  login: async () => {},
-  logout: async () => {},
-  register: async () => {}
+  login: async () => {
+  },
+  logout: async () => {
+  },
+  register: async () => {
+  }
 });
 
 interface AuthProviderProps {
@@ -195,8 +187,8 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     initialize();
   }, []);
 
-  const login = async (email: string, password: string) => {
-    const user = await GQLLogin(email, password);
+  const login = async (email: string, password: string, device_token: string) => {
+    const user = await GQLLogin(email, password, device_token);
     dispatch({
       type: 'LOGIN',
       payload: {
