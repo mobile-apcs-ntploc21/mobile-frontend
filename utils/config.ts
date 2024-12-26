@@ -2,6 +2,7 @@ interface IConfig {
   API_URL: string;
   PLAYGROUND_MODE: boolean;
   SUBSCRIPTION_URL: string;
+  CDN_URL: string;
 }
 
 const config: IConfig = {
@@ -9,7 +10,8 @@ const config: IConfig = {
   PLAYGROUND_MODE: process.env.EXPO_PUBLIC_PLAYGROUND_MODE === 'true',
   SUBSCRIPTION_URL:
     process.env.EXPO_PUBLIC_SUBSCRIPTION_URL ||
-    'http://localhost:4000/subscriptions'
+    'http://localhost:4000/subscriptions',
+  CDN_URL: process.env.EXPO_PUBLIC_CDN_URL || 'https://cdn.ntploc21.xyz'
 };
 
 export default config;
