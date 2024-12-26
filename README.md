@@ -67,7 +67,40 @@ This project is licensed under the GNU General Public License v3.0 - see the [LI
 
 ## Installation (Frontend)
 
-To be updated
+<!-- Use npx expo run:android to run project -->
+
+### Android SDK
+
+Start by installing the necessary dependencies for Android development. You can follow the instructions on the [React Native documentation](https://reactnative.dev/docs/environment-setup).
+
+### Running the project
+
+1. Clone the repository
+
+```bash
+git clone https://github.com/mobile-apcs-ntploc21/mobile-frontend.git
+```
+
+2. Install the dependencies
+
+```bash
+cd mobile-frontend
+npm install
+```
+
+3. Set up the environment
+
+Copy the `.env.local.template` file to `.env.local` and fill in the necessary information.
+
+Also, you need to add the `google-services.json` and `fcm-key.json` files to the root of the project to enable Firebase services. For more information, please refer to the [Firebase documentation](https://firebase.google.com/docs/android/setup).
+
+4. Run the project
+
+Currently, the project is configured to run on Android devices. You can run the project using the following command:
+
+```bash
+npx expo run:android
+```
 
 ## Contributor
 
