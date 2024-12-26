@@ -154,11 +154,12 @@ export async function getUser(forceRefresh: boolean = false): Promise<any> {
  * @async
  * @param {string} email      - User's email
  * @param {string} password   - User's password
+ * @param device_token      - User's device token
  * @returns {Promise<any>}    - User information if success, else throw an error
  */
-export async function login(email: string, password: string): Promise<any> {
+export async function login(email: string, password: string, device_token: string): Promise<any> {
   try {
-    const response = await postData('/api/v1/users/login', { email, password });
+    const response = await postData('/api/v1/users/login', { email, password, device_token });
 
     if (!response) {
       throw new Error('Failed to login User.');
