@@ -34,7 +34,7 @@ export default function DMProvider({ children }: DMProviderProps) {
     data: directMessagesFetched,
     loading,
     error
-  } = useFetch<any[]>('/api/v1/direct-messages/me', user, {
+  } = useFetch<any[]>('/api/v1/direct-messages/me', [user], {
     method: 'GET'
   });
   const [directMessages, setDirectMessages] = useState<DMChannel[]>([]);
