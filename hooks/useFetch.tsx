@@ -10,6 +10,7 @@ interface FetchState<S> {
 
 const useFetch = function <S>(
   url: string,
+  dependencies: any[] = [],
   options?: RequestInit
 ): FetchState<S> {
   const [data, setData] = useState<S | null>(null);
@@ -57,7 +58,7 @@ const useFetch = function <S>(
       isMounted = false;
       controller.abort();
     };
-  }, []);
+  }, dependencies);
 
   return { data, loading, error };
 };

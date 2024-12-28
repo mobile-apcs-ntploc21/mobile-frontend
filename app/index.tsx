@@ -13,9 +13,9 @@ export default function Index() {
   }
 
   // if not initialized, show loading spinner
-  if (!isInitialized) {
-    return <ActivityIndicator />;
-  }
+  // if (!isInitialized) {
+  //   return <ActivityIndicator />;
+  // }
 
   console.log('isAuthenticated', isAuthenticated, 'user', user);
 
