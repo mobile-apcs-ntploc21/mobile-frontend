@@ -6,6 +6,7 @@ import { ConversationsTypes } from '@/types/chat';
 import { useSubscription } from '@apollo/client';
 import { DIRECT_MESSAGE_SUBSCRIPTION } from '@/services/graphql/subscriptions';
 import { ServerEvents } from '@/types';
+import { useAuth } from './AuthProvider';
 
 interface DMContextValue {
   data: DMChannel[];
@@ -28,11 +29,12 @@ interface DMProviderProps {
 }
 
 export default function DMProvider({ children }: DMProviderProps) {
+  const { user } = useAuth();
   const {
     data: directMessagesFetched,
     loading,
     error
-  } = useFetch<any[]>('/api/v1/direct-messages/me', {
+  } = useFetch<any[]>('/api/v1/direct-messages/me', user, {
     method: 'GET'
   });
   const [directMessages, setDirectMessages] = useState<DMChannel[]>([]);
@@ -43,7 +45,7 @@ export default function DMProvider({ children }: DMProviderProps) {
   } = useConversations();
 
   useEffect(() => {
-    if (directMessagesFetched) {
+    if (directMessagesFetched instanceof Array) {
       setDirectMessages(
         directMessagesFetched.map((dm) => {
           return {
